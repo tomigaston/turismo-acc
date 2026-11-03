@@ -14,10 +14,10 @@ const specs={viajeros:['Viajeros hospedados','viajeros',0],pernoctes:['Pernoctac
 const navs={demand:['Demanda hotelera','ACTIVIDAD Y POSICIONAMIENTO','Viajeros, pernoctaciones, ocupación y categorías de alojamiento.','M3 20V10h4v10M10 20V4h4v16M17 20V7h4v13'],air:['Conectividad aérea','CÓRDOBA COMO ORIGEN Y DESTINO','La posición del aeropuerto, sus conexiones y la evolución del cabotaje y el tráfico internacional.','M3 13l7 1 4 7 2-1-2-7 6-6c2-2 0-4-2-2l-6 6-7-2-1 2 7 4'],season:['Estacionalidad','EL RITMO DE LA ACTIVIDAD','Compará patrones mensuales y posiciones por temporada, con el mismo indicador y período.','M4 5h16v15H4zM4 9h16M8 3v4M16 3v4M8 13h2M14 13h2M8 17h2'],international:['Mercados internacionales','VIAJES A TRAVÉS DEL AEROPUERTO','Turismo receptivo y emisivo por el paso Córdoba, comparado con otros pasos aeroportuarios relevados.','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18'],internal:['Turismo interno','DEMANDA DENTRO DEL PAÍS','Córdoba como destino de viajes internos. Estadías, gasto y contexto nacional.','M3 11l9-8 9 8M6 10v11h12V10M10 21v-7h4v7'],quality:['Calidad turística','CAPACIDADES Y DISTINCIONES','Una referencia histórica de las distinciones registradas en Córdoba y el país.','M12 3l7 3v6c0 5-7 9-7 9s-7-4-7-9V6zM8 12l3 3 5-6'],sources:['Fuentes y metodología','DATOS CON TRAZABILIDAD','Cobertura, fechas, recursos oficiales y criterios para interpretar las comparaciones.','M5 4h14v17H5zM8 8h8M8 12h8M8 16h5']};
 const hotelLatest=D.eoh.scopes['Córdoba'].at(-1).period;
 const hotelFullYear=String(+hotelLatest.slice(0,4)-(hotelLatest.slice(5)<='11'?1:0));
-const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airCompare:'SAME',airPreset:'latest',airYear:D.air.periods.filter(p=>p.endsWith('-12')).at(-1)?.slice(0,4)||'',airFrom:'',airTo:'',routeSort:'metric',airCarrierView:'levels',airIntlMetric:'destinos',airSeasonView:'share',rankLimit:'10',minFlights:'30',routeSearch:'',seasonData:'hotel',seasonLevel:'localidad',seasonCity:'localidad:Córdoba',seasonCompare1:'localidad:Mendoza',seasonCompare2:'localidad:Bariloche',seasonYear:'2024',seasonMetric:'pernoctes',seasonView:'share',seasonPeriod:'invierno',flow:'emisivo',intlMetric:'turistas',intlCompare1:'Aep. Mendoza',intlCompare2:'Ezeiza y Aeroparque',internalMetric:'turistas',internalCompare1:'Argentina',internalCompare2:'Cuyo',qualityCompare:'Argentina'};
+const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airCompare:'SAME',airPreset:'latest',airYear:D.air.periods.filter(p=>p.endsWith('-12')).at(-1)?.slice(0,4)||'',airFrom:'',airTo:'',routeSort:'metric',airCarrierView:'levels',airIntlMetric:'destinos',airSeasonView:'share',rankLimit:'10',minFlights:'30',routeSearch:'',seasonTerritory:'Córdoba',seasonCompare:'Argentina,Cuyo',seasonYear:'',flow:'emisivo',intlMetric:'turistas',intlCompare1:'Aep. Mendoza',intlCompare2:'Ezeiza y Aeroparque',internalMetric:'turistas',internalCompare1:'Argentina',internalCompare2:'Cuyo',qualityCompare:'Argentina'};
 const unique=xs=>[...new Set(xs.filter(Boolean))];
 // Límite por clave en enlaces compartidos; la lista de comparadores admite más texto.
-const maxLength=k=>k==='compare'||k==='airCompare'?600:200;
+const maxLength=k=>k==='compare'||k==='airCompare'||k==='seasonCompare'?600:200;
 function readSaved(saved){
  const s={...defaults},str=k=>typeof saved[k]==='string'&&saved[k].length<200?saved[k]:null;
  for(const k of Object.keys(defaults))if(typeof saved[k]==='string'&&saved[k].length<maxLength(k))s[k]=saved[k];
@@ -26,6 +26,13 @@ function readSaved(saved){
   const city=str('city');
   s.territory=str('level')==='localidad'?(D.eoh.scope_meta[city]?.cordoba?city:'localidad:Córdoba'):'Córdoba';
   if(typeof saved.compare!=='string')s.compare=unique([str('compare1')??'Argentina',str('compare2')??'Cuyo']).join(',');
+ }
+ // Estacionalidad: escala + destino + dos comparadores pasan a territorio + lista; fuente, indicador, lectura y
+ // temporada del esquema anterior ya no existen y se ignoran.
+ if(typeof saved.seasonTerritory!=='string'&&['seasonLevel','seasonCity','seasonCompare1','seasonCompare2'].some(k=>k in saved)){
+  const region=str('seasonLevel')==='region',city=str('seasonCity');
+  s.seasonTerritory=region?'Córdoba':(D.eoh.scope_meta[city]?.cordoba?city:'localidad:Córdoba');
+  if(typeof saved.seasonCompare!=='string')s.seasonCompare=unique([str('seasonCompare1')??'localidad:Mendoza',str('seasonCompare2')??'localidad:Bariloche']).filter(k=>D.eoh.scope_meta[k]).join(',');
  }
  // Conectividad aérea: dos comparadores pasan a una lista (sin el total nacional, que no es un aeropuerto).
  if(typeof saved.airCompare!=='string'&&['airCompare1','airCompare2'].some(k=>k in saved))s.airCompare=unique([str('airCompare1')??'Argentina',str('airCompare2')??'SAME']).filter(k=>k==='Argentina'||(k!=='SACO'&&D.air.airports[k]?.domestic)).join(',');
@@ -82,6 +89,8 @@ function eohScopeCompare({territoryKey,compareKey,refsAt=()=>[],extraAt=()=>[],r
 // Demanda hotelera: en escala localidad, Argentina y Córdoba provincia son referencias (solo índice o variación).
 const hotelScope=eohScopeCompare({territoryKey:'territory',compareKey:'compare',refsAt:lv=>lv==='localidad'?['Argentina','Córdoba']:[],refLabel:k=>k==='Argentina'?'Argentina · total nacional (referencia)':'Córdoba · provincia (referencia)'});
 const hotelLevel=hotelScope.level,hotelCompare=hotelScope.compare,hotelName=hotelScope.name,compareKeys=hotelScope.keys;
+// Estacionalidad: todo se lee en porcentajes, así que Argentina se admite como ámbito también en escala localidad.
+const seasonScope=eohScopeCompare({territoryKey:'seasonTerritory',compareKey:'seasonCompare',extraAt:lv=>lv==='localidad'?['Argentina']:[]});
 // Conectividad aérea: Córdoba (SACO) y una lista de aeropuertos argentinos. Argentina no es un aeropuerto:
 // entra solo como referencia del gráfico de evolución, y únicamente en índice o variación.
 const AIR_REFERENCE='Argentina',AIR_REFERENCE_LABEL='Argentina · total nacional (referencia)';
@@ -318,37 +327,42 @@ function routeChanges(selected,filt){
  const rows=[...gained.map(r=>[placeName(r.code),'Nueva',r.pasajeros,r.vuelos,rangeCaption(selected)]),...lost.map(r=>[placeName(r.code),'Perdida',r.pasajeros,r.vuelos,rangeCaption(before)])];
  return card({id:'air-route-changes',title:'Rutas regulares ganadas y perdidas',subtitle:'Córdoba · SACO · '+rangeCaption(selected)+' frente a '+rangeCaption(before)+' · '+filt+' · '+gained.length+(gained.length===1?' nueva':' nuevas')+' · '+lost.length+(lost.length===1?' perdida':' perdidas')+' · '+cmp.kept.length+(cmp.kept.length===1?' se mantiene':' se mantienen'),option:shown.length?opt:null,unit:'pasajeros',metric:'pasajeros',className:shown.length>8?'tall':'',columns:['Ruta','Estado','Pasajeros','Vuelos','Período de los valores'],rows,periodText:rangeCaption(selected)+' y '+rangeCaption(before),emptyText:'Sin rutas regulares ganadas ni perdidas entre ambos períodos.',method:'Ruta regular: al menos 4 vuelos en al menos '+M.regularThreshold(selected.length)+' de los '+selected.length+' meses del período (6 de 12; en períodos más cortos, la mitad de los meses). Nueva: regular en el período y no en el mismo período del año anterior; perdida: al revés. Pasajeros y vuelos de las nuevas corresponden al período actual; los de las perdidas, al anterior. Los vuelos ocasionales no alcanzan el umbral. Mismo sentido, tráfico y aerolínea. El gráfico muestra hasta 10 de cada grupo; la tabla, todas.'});
 }
+// Estacionalidad: pernoctaciones EOH (todas las residencias) del territorio y sus comparadores.
+const seasonRows=k=>model.eoh(k,'pernoctes','total');
+// Años con 12 meses observados (más recientes primero) y el último año, si está incompleto.
+function seasonYears(k){
+ const rows=seasonRows(k),complete=M.seasonalitySeries(rows).map(r=>r.year).reverse(),last=rows.at(-1)?.period.slice(0,4);
+ return {complete,incomplete:last&&!complete.includes(last)?last:null};
+}
+const yearValues=(rows,year)=>months(year+'-01',year+'-12').map(p=>at(rows,p).value??null);
 function renderSeason(){
- const hotel=state.seasonData==='hotel';current={family:hotel?'eoh':'air',quarter:false};
- let controls=field('seasonData','Fuente del patrón',[['hotel','Demanda hotelera · EOH'],['air','Conectividad aérea · ANAC']]);
- let focus,scopes,universe,get,name;
- if(hotel){
-  controls+=field('seasonLevel','Escala territorial',[['localidad','Localidades relevadas'],['region','Regiones turísticas']]);
-  if(state.seasonLevel==='localidad')controls+=field('seasonCity','Destino de Córdoba',Object.entries(D.eoh.scope_meta).filter(([,m])=>m.cordoba).map(([k,m])=>[k,m.label]));
-  focus=state.seasonLevel==='region'?'Córdoba':state.seasonCity;controls+=compareFields('seasonCompare',scopeOptions(state.seasonLevel),focus);
-  scopes=unique([focus,state.seasonCompare1,state.seasonCompare2]);universe=Object.keys(D.eoh.scope_meta).filter(k=>D.eoh.scope_meta[k].level===state.seasonLevel);name=scopeLabel;
- }else{
-  controls+=field('direction','Sentido del trayecto',[['salidas','Salidas'],['llegadas','Llegadas'],['ambos','Llegadas + salidas']])+field('kind','Tráfico',[['all','Cabotaje + internacional'],['Cabotaje','Cabotaje'],['Internacional','Internacional']]);
-  controls+=chipCompare('airCompare',airportOptions().filter(([k])=>k!=='Argentina'&&k!=='SACO'),airCompareKeys(),airportLabel);focus='SACO';scopes=airScopes();name=airportShort;
- }
- const metricControl=field('seasonMetric','Indicador',metricOptions(hotel?['pernoctes','viajeros']:['pasajeros','asientos','vuelos']));
- if(hotel)get=k=>model.eoh(k,state.seasonMetric,'total');else{const a=model.air(state.direction,state.kind,'all');get=k=>(a[k]||[]).map(r=>({...r,value:r[state.seasonMetric]}));universe=Object.keys(a).filter(k=>k!=='Argentina');}
- current.latest=get(focus).map(r=>r.period).sort().at(-1);current.period=current.latest;
- const years=unique(get(focus).map(r=>r.period.slice(0,4))).sort().reverse();controls+=field('seasonYear','Año de análisis',years);$('filters').innerHTML=controls;
- const normalized=state.seasonView==='share',year=+state.seasonYear,ps=seasonMonths(year,state.seasonPeriod),profile=model.profile(get(focus),year,normalized),rawProfile=model.profile(get(focus),year,false),selectedValue=sum(ps.map(p=>at(get(focus),p).value));
- const rank=universe.map(k=>({code:k,value:sum(ps.map(p=>at(get(k),p).value))})).filter(r=>valid(r.value)).sort((a,b)=>b.value-a.value),pos=rankPosition(rank,focus),max=Math.max(...rawProfile.values.filter(valid)),peak=rawProfile.values.indexOf(max),seasonName={verano:'Verano '+(year-1)+'/'+year,otono:'Otoño '+year,invierno:'Invierno '+year,primavera:'Primavera '+year,year:'Año '+year}[state.seasonPeriod];
- let html='<div class="kpis">'+kpi(specs[state.seasonMetric][0]+' · '+name(focus),value(selectedValue,state.seasonMetric),seasonName,rangeCaption(ps),true)+kpi('Posición en la temporada',pos?pos+' de '+rank.length:'Sin dato',hotel?(state.seasonLevel==='region'?'Regiones turísticas':'Localidades relevadas'):'Aeropuertos argentinos','Solo ámbitos con todos los meses de la temporada')+kpi('Mes de mayor actividad',peak>=0?monthNames[peak]+' '+year:'Sin dato',peak>=0?value(max,state.seasonMetric):'Sin dato','Entre '+profile.complete+' meses con datos del año')+kpi('Concentración en el mes máximo',profile.complete===12?value(ratio(max,profile.total,100),'ocupacion'):'Año incompleto','Porcentaje del total anual de '+name(focus),'Requiere los 12 meses observados')+'</div>';
- html+='<div class="inline-controls">'+metricControl+field('seasonView','Lectura del patrón',[['share','Porcentaje del total anual'],['levels','Valores observados']])+field('seasonPeriod','Temporada del ranking',[['invierno','Invierno · junio a agosto'],['verano','Verano · diciembre a febrero'],['otono','Otoño · marzo a mayo'],['primavera','Primavera · septiembre a noviembre'],['year','Año completo']])+'</div>';
- if(normalized&&scopes.some(k=>model.profile(get(k),year,false).complete!==12))html+=notice('Año incompleto: porcentajes anuales no disponibles en las series con meses faltantes.','historical');
- const opt=commonOption(),unit=normalized?'%':specs[state.seasonMetric][1];opt.grid.bottom=35;opt.tooltip.formatter=p=>tooltipRows(p,unit);opt.xAxis={type:'category',data:monthNames,boundaryGap:false,axisLabel:{fontSize:10,color:'#758e9c'},axisTick:{show:false},axisLine:{lineStyle:{color:'#dfe8ee'}}};opt.yAxis={type:'value',name:normalized?'% del año':unit,nameTextStyle:{fontSize:9,color:'#78919f'},axisLabel:{formatter:axisLabel,fontSize:9},splitLine:{lineStyle:{color:'#edf2f5'}}};
- const profs=scopes.map(k=>model.profile(get(k),year,normalized));opt.series=scopes.map((k,i)=>({name:name(k),type:'line',data:profs[i].values,connectNulls:false,symbolSize:7,lineStyle:{width:i?2:3},emphasis:{focus:'series'}}));
- opt.series[0].markArea={silent:true,itemStyle:{opacity:.3},data:[[{xAxis:'Ene',itemStyle:{color:'#f4e8c8'}},{xAxis:'Feb'}],[{xAxis:'Jun',itemStyle:{color:'#e2ecf5'}},{xAxis:'Ago'}]]};
- html+='<div class="grid">'+card({id:'season-profile',title:'Patrón mensual de '+specs[state.seasonMetric][0].toLowerCase(),subtitle:scopes.map(name).join(' / ')+' · '+year,option:opt,metric:normalized?'ocupacion':state.seasonMetric,columns:['Mes',...scopes.map(name)],rows:monthNames.map((m,i)=>[m+' '+year,...profs.map(p=>p.values[i])]),periodText:'Enero a diciembre de '+year,method:normalized?'Cada mes se divide por el total anual de su propio destino. Permite comparar la concentración estacional entre ámbitos de distinto tamaño. Sin interpolaciones.':'Valores mensuales observados. Bandas: enero–febrero (verano) y junio–agosto (invierno). Los faltantes interrumpen la línea.'})+barCard({id:'season-ranking',title:'Ranking de '+specs[state.seasonMetric][0].toLowerCase()+' · '+seasonName,subtitle:'Suma de los meses de la temporada · '+(hotel?(state.seasonLevel==='region'?'regiones':'localidades'):'aeropuertos'),items:rank.map(r=>({code:r.code,name:(1+rank.filter(x=>x.value>r.value).length)+'. '+name(r.code),values:[r.value],highlight:r.code===focus})),seriesNames:[specs[state.seasonMetric][0]],metric:state.seasonMetric,limit:10,periodText:rangeCaption(ps),method:'Mismo indicador y mismos meses. Se excluyen ámbitos con datos incompletos. El verano cruza dos años: diciembre del anterior y enero–febrero del seleccionado. La tabla incluye todos los destinos con cobertura.'})+'</div>';
- const totalRank=universe.map(k=>({code:k,total:model.profile(get(k),year,false).total})).filter(r=>valid(r.total)).sort((a,b)=>b.total-a.total);
- const heatKeys=unique([focus,...scopes.filter(k=>k!=='Argentina'),...totalRank.slice(0,10).map(r=>r.code)]).slice(0,14),heatProfiles=heatKeys.map(k=>model.profile(get(k),year,normalized)),heatValues=heatProfiles.flatMap((r,y)=>r.values.flatMap((v,x)=>valid(v)?[[x,y,v]]:[]));
- const heat=commonOption();heat.legend.show=false;heat.grid={left:4,right:15,top:12,bottom:65,containLabel:true};heat.tooltip={position:'top',confine:true,formatter:p=>esc(name(heatKeys[p.value[1]]))+' · '+monthNames[p.value[0]]+' '+year+'<br><strong>'+fmt(p.value[2],normalized?1:0)+(normalized?' %':'')+'</strong>'};heat.xAxis={type:'category',data:monthNames,splitArea:{show:true},axisLabel:{fontSize:10},axisTick:{show:false}};heat.yAxis={type:'category',data:heatKeys.map(name),inverse:true,splitArea:{show:true},axisLabel:{fontSize:10,width:145,overflow:'truncate'},axisTick:{show:false}};heat.visualMap={min:0,max:Math.max(...heatValues.map(v=>v[2]),1),calculable:true,orient:'horizontal',left:'center',bottom:2,itemWidth:12,itemHeight:140,inRange:{color:['#eef5f2','#b8d9ce','#5aa78f','#126d58']},textStyle:{fontSize:9},formatter:v=>fmt(v,normalized?1:0)+(normalized?'%':'')};heat.series=[{type:'heatmap',data:heatValues,itemStyle:{borderColor:'#fff',borderWidth:2,borderRadius:2},label:{show:window.innerWidth>700,formatter:p=>fmt(p.value[2],normalized?1:0),fontSize:9,color:'#204e40'},emphasis:{itemStyle:{borderColor:'#163f49',borderWidth:2}}}];
- html+=card({id:'season-heat',title:'Calendario de intensidad turística',subtitle:(normalized?'Participación de cada mes en el total anual':'Valores observados por mes')+' · '+year,option:heat,metric:normalized?'ocupacion':state.seasonMetric,className:'heat',columns:['Destino',...monthNames],rows:heatKeys.map((k,i)=>[name(k),...heatProfiles[i].values]),periodText:'Enero a diciembre de '+year,method:'Córdoba, comparadores y principales destinos por volumen anual, hasta 14 filas. Celdas vacías: sin dato o año incompleto para calcular porcentajes. '+(hotel?'Las localidades no se suman para estimar provincias.':'Todas las aerolíneas; mismo sentido y tipo de tráfico.')});
+ const S=seasonScope;
+ if(!S.territories().some(([k])=>k===state.seasonTerritory))state.seasonTerritory='Córdoba';
+ const focus=state.seasonTerritory,level=S.level(),name=S.name,scopes=unique([focus,...S.compare()]),rows=seasonRows(focus);
+ const {complete,incomplete}=seasonYears(focus);
+ if(!complete.includes(state.seasonYear)&&state.seasonYear!==incomplete)state.seasonYear=complete[0]||incomplete||'';
+ const year=state.seasonYear,full=complete.includes(year),latest=rows.at(-1)?.period;
+ current={family:'eoh',quarter:false,period:full?year+'-12':latest,latest};
+ // 1. Franja: territorio, comparadores (misma regla de escalas que Demanda hotelera) y año de análisis.
+ $('filters').innerHTML=field('seasonTerritory','Territorio',S.territories(),{wide:true})+S.control()+field('seasonYear','Año de análisis',[...(incomplete?[[incomplete,incomplete+' (incompleto)']]:[]),...complete.map(y=>[y,y])]);
+ let html='';
+ html+=seasonHeat(focus,scopes,level,year,name);
  $('dashboard').innerHTML=html;
+}
+// Calendario de intensidad: % del año por mes; territorio, comparadores y principales ámbitos de la misma escala (hasta 14).
+function seasonHeat(focus,scopes,level,year,name){
+ const universe=Object.keys(D.eoh.scope_meta).filter(k=>D.eoh.scope_meta[k].level===level);
+ const totalRank=universe.map(k=>({code:k,total:model.profile(seasonRows(k),+year,false).total})).filter(r=>valid(r.total)).sort((a,b)=>b.total-a.total);
+ const keys=unique([focus,...scopes,...totalRank.slice(0,10).map(r=>r.code)]).slice(0,14),profiles=keys.map(k=>model.profile(seasonRows(k),+year,true));
+ const values=profiles.flatMap((r,y)=>r.values.flatMap((v,x)=>valid(v)?[[x,y,v]]:[]));
+ const width=Math.max(240,($('dashboard')?.clientWidth||700)-44),height=Math.max(310,keys.length*26+120);
+ const heat=commonOption();heat.legend.show=false;heat.grid={left:12,right:15,top:12,bottom:70,containLabel:true};
+ heat.tooltip={position:'top',confine:true,formatter:p=>esc(name(keys[p.value[1]]))+' · '+monthNames[p.value[0]]+' '+year+'<br><strong>'+fmt(p.value[2],1)+' %</strong>'};
+ heat.xAxis={type:'category',data:monthNames,splitArea:{show:true},axisLabel:{fontSize:10},axisTick:{show:false}};
+ heat.yAxis={type:'category',data:keys.map(name),inverse:true,splitArea:{show:true},axisLabel:{fontSize:10,width:200,overflow:'truncate'},axisTick:{show:false}};
+ heat.visualMap={min:0,max:Math.max(...values.map(v=>v[2]),1),calculable:true,orient:'horizontal',left:'center',bottom:8,itemWidth:10,itemHeight:Math.min(130,Math.floor(width*0.45)),textGap:6,inRange:{color:['#eef5f2','#b8d9ce','#5aa78f','#126d58']},textStyle:{fontSize:9},formatter:v=>fmt(v,1)+'%'};
+ heat.series=[{type:'heatmap',data:values,itemStyle:{borderColor:'#fff',borderWidth:2,borderRadius:2},label:{show:window.innerWidth>700,formatter:p=>fmt(p.value[2],1),fontSize:9,color:'#204e40'},emphasis:{itemStyle:{borderColor:'#163f49',borderWidth:2}}}];
+ return card({id:'season-heat',title:'Calendario de intensidad turística',subtitle:'Participación de cada mes en el total anual · '+year,option:heat,metric:'ocupacion',unit:'%',height,columns:['Destino',...monthNames],rows:keys.map((k,i)=>[name(k),...profiles[i].values]),digits:[null,...monthNames.map(()=>1)],periodText:'Enero a diciembre de '+year,method:'Córdoba, comparadores y principales destinos por volumen anual, hasta 14 filas. Celdas vacías: sin dato o año incompleto para calcular porcentajes. Las localidades no se suman para estimar provincias.'});
 }
 function renderInternational(){
  current={family:'eti',quarter:true};const gates=['Aep. Córdoba','Aep. Mendoza','Ezeiza y Aeroparque'];
@@ -406,7 +420,7 @@ function context(){
  if(state.tab==='demand'&&current.family==='municipal')return ['Córdoba capital · fuente municipal',label(current.period,true),state.hotelStar==='all'?'Todas las categorías':window.HOTEL_DATA.observatory.reports.flatMap(r=>r.categories).find(c=>c.id===state.hotelStar)?.label||state.hotelStar];
  if(state.tab==='demand')return [state.territory==='Córdoba'?'Córdoba · provincia (región EOH)':scopeLabel(state.territory),rangeCaption(months(state.hotelFrom,state.hotelTo)),state.residence==='total'?'Todas las residencias':state.residence==='residentes'?'Residentes en Argentina':'Residentes en el exterior',hotelCompare().length?'Comparadores: '+hotelCompare().map(hotelName).join(' / '):'Sin comparadores'];
  if(state.tab==='air')return ['Aeropuerto de Córdoba · SACO',{salidas:'Salidas',llegadas:'Llegadas',ambos:'Llegadas + salidas'}[state.direction],state.kind==='all'?'Cabotaje + internacional':state.kind,rangeCaption(airPeriod()),state.carrier==='all'?'Todas las aerolíneas':D.air.carriers[+state.carrier]];
- if(state.tab==='season')return [state.seasonYear,state.seasonData==='hotel'?'Demanda hotelera':'Conectividad aérea',state.seasonView==='share'?'Participación mensual en el año':'Valores mensuales',state.seasonData==='hotel'?(state.seasonLevel==='region'?'Regiones':'Localidades'):state.direction];
+ if(state.tab==='season')return [state.seasonTerritory==='Córdoba'?'Córdoba · provincia (región EOH)':scopeLabel(state.seasonTerritory),state.seasonYear,'Pernoctaciones EOH · todas las residencias',seasonScope.compare().length?'Comparadores: '+seasonScope.compare().map(seasonScope.name).join(' / '):'Sin comparadores'];
  if(state.tab==='international')return ['Paso Aeropuerto de Córdoba','Turismo '+state.flow,label(current.period,true)];
  if(state.tab==='internal')return ['Córdoba como destino','Universo EVyTH',label(current.period,true)];
  if(state.tab==='quality')return ['Registro histórico SACT','Última fecha: '+D.quality.latest_date];
@@ -435,9 +449,7 @@ function changeState(key,v){
  if(key==='airMetric'&&v==='ocupacion'&&state.minFlights==='30')state.minFlights='100';
  if(key==='airMetric'&&v!=='ocupacion'&&before==='ocupacion'&&state.minFlights==='100')state.minFlights='30';
  // Al cambiar de escala, los comparadores vuelven a la selección inicial de esa escala.
- if(key==='territory')state.compare=hotelLevel(v)!==hotelLevel(before)?(hotelLevel(v)==='region'?'Argentina,Cuyo':'localidad:Mendoza,localidad:Bariloche'):compareKeys().join(',');
- if(key==='seasonLevel'){state.seasonCompare1=v==='region'?'Argentina':'localidad:Mendoza';state.seasonCompare2=v==='region'?'Cuyo':'localidad:Bariloche';}
- if(key==='seasonData')state.seasonMetric=v==='hotel'?'pernoctes':'pasajeros';
+ for(const S of [hotelScope,seasonScope])if(key===S.territoryKey)state[S.compareKey]=S.level(v)!==S.level(before)?(S.level(v)==='region'?'Argentina,Cuyo':'localidad:Mendoza,localidad:Bariloche'):S.keys().join(',');
  render();
 }
 function toast(s){clearTimeout(toastTimer);$('toast').textContent=s;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,4500);}
@@ -462,7 +474,7 @@ async function share(){
  catch(_){const el=document.createElement('input');el.className='share-input';el.value=location.href;el.readOnly=true;el.setAttribute('aria-label','Enlace de la vista para copiar');$('filters').appendChild(el);el.select();toast('Seleccioná y copiá el enlace mostrado junto a los filtros.');}
 }
 // Comparadores con fichas, por clave de estado.
-const compareRegistry=()=>({compare:hotelScope,airCompare:{add:addAirCompare,set:setAirCompare,all:airAllKeys}});
+const compareRegistry=()=>({compare:hotelScope,seasonCompare:seasonScope,airCompare:{add:addAirCompare,set:setAirCompare,all:airAllKeys}});
 document.addEventListener('change',e=>{if('compareAdd' in e.target.dataset){compareRegistry()[e.target.dataset.compareAdd||'compare']?.add(e.target.value);return;}const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;

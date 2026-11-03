@@ -149,9 +149,9 @@ ok('9 · Conectividad aérea y demás secciones sin errores',()=>{
     p.click(p.$(`[data-tab="${tab}"]`));assert.equal(p.errorBox(),'',tab+': '+p.errorBox());
     console.log('     ',tab,'·',p.$$('.panel').length,'tarjetas');
   }
-  // Estacionalidad en modo aéreo usa la misma lista de comparadores.
-  p.click(p.$('[data-tab="season"]'));p.change(p.$('select[data-key="seasonData"]'),'air');
-  assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-compare-add="airCompare"]'),'comparador aéreo en Estacionalidad');
+  // Estacionalidad usa el comparador EOH por territorio (ya no tiene modo aéreo).
+  p.click(p.$('[data-tab="season"]'));
+  assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-compare-add="seasonCompare"]'),'comparador EOH en Estacionalidad');assert.ok(!p.$('select[data-key="seasonData"]'),'sin interruptor de fuente');
   p.click(p.$('[data-tab="air"]'));
   for(const k of ['airport-ranking','routes','air-route-changes','air-mix','carrier-share','carrier-trend'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
   assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);

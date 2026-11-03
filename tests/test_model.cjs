@@ -35,6 +35,11 @@ assert.equal(M.at(m.international('Aep. Córdoba','receptivo','turistas'),'2025-
  assert.deepEqual(t.series[0].values,[75,null,null]);assert.equal(t.base,null);
  assert.equal(M.transform([{name:'A',rows}],['2019-01'],'base2019').series[0].values[0],100);
 }
+// Conectividad internacional: la suma de pasajeros internacionales por destino coincide con el valor internacional mensual del aeropuerto.
+for(const ap of ['SACO','SAEZ','SAME'])for(const dir of ['salidas','llegadas'])for(const ps of [[D.air.periods.at(-1)],M.months('2025-01','2025-12')]){
+ const byRoute=m.routeRegularity(ap,ps,dir,'Internacional').reduce((s,r)=>s+r.pasajeros,0),monthly=M.aggregate(m.air(dir,'Internacional')[ap]||[],ps,'pasajeros');
+ near(byRoute,monthly);
+}
 // Rutas regulares: umbral (4 vuelos en la mitad de los meses) y clasificación nueva / perdida / se mantiene.
 assert.equal(M.regularThreshold(12),6);assert.equal(M.regularThreshold(1),1);assert.equal(M.regularThreshold(5),3);
 assert.equal(M.isRegular([4,4,4,4,4,4,0,0,0,0,0,0]),true);

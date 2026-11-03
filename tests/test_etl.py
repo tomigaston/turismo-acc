@@ -135,6 +135,42 @@ class IpcTests(unittest.TestCase):
             self.assertEqual(dl.download(bad,out,3,0),(False,'HTTP 403'));self.assertFalse((out/'eoh.csv').exists())
             self.assertEqual(calls.count('https://bad/eoh'),3,'3 intentos')
         finally:urllib.request.urlopen=original
+    def test_descargar_fuentes_desde_navegador(self):
+        """Carpeta Descargas simulada: 28 archivos con el nombre de la URL, una variante «(1)» más reciente,
+        IPC sin red (se toma ipc.csv) y un faltante que se informa con su nombre exacto y sale con código 1."""
+        import urllib.request,urllib.error,io,contextlib,sys,os,time
+        sys.path.insert(0,str(ROOT/'scripts'))
+        spec2=importlib.util.spec_from_file_location('descargar',ROOT/'scripts/descargar_fuentes.py');dl=importlib.util.module_from_spec(spec2);spec2.loader.exec_module(dl)
+        sources=json.loads((ROOT/'config/sources.json').read_text())
+        names=[dl.browser_name(s) for s in sources if s['family']!='ipc']
+        self.assertEqual(len(names),28);self.assertEqual(len(set(names)),28,'28 nombres únicos')
+        self.assertEqual(names[0],'viajeros-hospedados-residentes-y-no-residentes.csv')
+        d=tempfile.TemporaryDirectory();self.addCleanup(d.cleanup);down=Path(d.name)/'Descargas';out=Path(d.name)/'fuentes';down.mkdir()
+        lost=names[5]
+        for n in names:
+            if n!=lost:(down/n).write_text('indice_tiempo,x\n2025-01-01,1\n')
+        old=down/names[0];os.utime(old,(time.time()-100,time.time()-100))
+        (down/names[0].replace('.csv',' (1).csv')).write_text('indice_tiempo,x\n2025-01-01,2\n')
+        (down/'ipc.csv').write_text('indice_tiempo,148.3_INIVELNAL_DICI_M_26\n2016-12-01,100\n')
+        def offline(*a,**k):raise urllib.error.URLError('sin red')
+        original=urllib.request.urlopen;urllib.request.urlopen=offline;err=io.StringIO()
+        try:
+            with contextlib.redirect_stdout(err):code=dl.main(['--output',str(out),'--desde-navegador',str(down),'--intentos','1'])
+        finally:urllib.request.urlopen=original
+        text=err.getvalue()
+        self.assertEqual(code,1,'falta un archivo: código distinto de cero')
+        self.assertIn('Resumen: 28 copiadas, 1 faltantes',text);self.assertIn('falta '+lost,text)
+        first=sources[0]
+        self.assertIn(',2',(out/first['cache_name']).read_text(),'se toma la variante más reciente')
+        ipc=next(s for s in sources if s['family']=='ipc')
+        self.assertIn('148.3_INIVELNAL_DICI_M_26',(out/ipc['cache_name']).read_text());self.assertIn('copiado de ipc.csv',text)
+        # Con el faltante bajado, todo se copia, sale con 0 e indica el comando siguiente.
+        (down/lost).write_text('indice_tiempo,x\n2025-01-01,1\n');err=io.StringIO();urllib.request.urlopen=offline
+        try:
+            with contextlib.redirect_stdout(err):code=dl.main(['--output',str(out),'--desde-navegador',str(down),'--intentos','1'])
+        finally:urllib.request.urlopen=original
+        self.assertEqual(code,0);self.assertIn('Resumen: 29 copiadas, 0 faltantes',err.getvalue())
+        self.assertIn('python scripts/update_data.py --input-dir '+str(out),err.getvalue())
     def test_validate_warns_without_ipc(self):
         import io,contextlib
         data=json.loads((ROOT/'site/data/dashboard.json').read_text());data['ipc']=None;err=io.StringIO()

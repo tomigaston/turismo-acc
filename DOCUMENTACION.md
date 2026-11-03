@@ -122,25 +122,41 @@ Flujo de funcionamiento:
 
 Los enlaces directos que necesita Nahuel están en **`config/sources.json`**, campo `url` de cada recurso. Son fuentes públicas; no requieren una cadena de conexión ni credenciales de una base de datos. La sección Fuentes también enlaza cada archivo.
 
-## Actualizar los datos manualmente
+## Actualización de datos
 
-Requiere Python 3.10 o superior y Node.js 22.22.2 o superior para las comprobaciones de JavaScript (jsdom 30, usado por el smoke, lo exige). Python usa únicamente la biblioteca estándar.
+El portal datos.yvera.gob.ar ahora redirige a data-turismo.jefatura.gob.ar, protegido por Cloudflare con verificación humana: ningún script (ni GitHub Actions ni una PC) puede descargar esos archivos, solo un navegador; por eso la actualización ya no puede ser automática. El procedimiento es manual, desde una PC con Python 3.10 o superior (solo biblioteca estándar):
+
+1. **Verificar en el navegador.** Abrir en Chrome, Edge o Firefox cualquier enlace de `config/sources.json` (por ejemplo, el primero) y completar la verificación humana del portal.
+2. **Bajar los 28 enlaces.** Abrir, en ese mismo navegador, cada `url` de las 28 entradas de turismo de `config/sources.json`, dejando que se guarden en la carpeta Descargas con el nombre que trae cada URL (por ejemplo, `viajeros-hospedados-residentes-y-no-residentes.csv`). Si un archivo se baja dos veces, el navegador lo guarda como «nombre (1).csv» y se toma el más reciente. El IPC no hace falta: se baja directo de apis.datos.gob.ar; si eso falla, guardar su enlace como `ipc.csv` en Descargas.
+3. **Correr los dos comandos**, desde la raíz del proyecto:
 
 ```bash
-python scripts/update_data.py
+python3 scripts/descargar_fuentes.py --desde-navegador ~/Downloads --output fuentes
+```
+
+```bash
+python3 scripts/update_data.py --input-dir fuentes
+```
+
+El primero copia cada archivo a `fuentes/` con el nombre que espera el actualizador y termina con un resumen: copiadas, faltantes (con el nombre exacto que falta y su enlace) y el comando siguiente; si falta alguno, sale con error y no hay que seguir. El segundo valida, procesa y escribe `site/data/`.
+
+`scripts/descargar_fuentes.py` también conserva el modo de descarga directa (sin `--desde-navegador`, con 3 reintentos), útil si el portal vuelve a permitir clientes automáticos. Con `--input-dir`, si falta el CSV del IPC el actualizador sigue: el gasto a pesos constantes queda vacío y la fuente figura como «no descargada».
+
+Luego, comprobar con Node.js 22.22.2 o superior (jsdom 30, usado por el smoke, lo exige) y commitear `site/data/`:
+
+```bash
+python scripts/build_hotel_data.py
 python -m unittest discover -s tests -v
 node --check site/app.js
 node --check site/model.js
-node tests/test_model.cjs
 node --check site/hotel.js
 node --check site/hotel-model.js
-node tests/test_hotel.cjs
 npm ci && npm test
 ```
 
 `npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre las seis secciones: filtros y tarjetas de Demanda hotelera, Conectividad aérea, Estacionalidad, Mercados internacionales y Turismo interno (sin gasto nominal en la evolución, tarjeta del SACT, gasto a pesos constantes con un IPC sintético), la redirección de enlaces viejos y que Fuentes y metodología no muestre «SHA-256», «clúster» ni «pendientes de incorporación».
 
-El actualizador descarga 29 archivos (28 de turismo y el IPC), procesa la base aérea en streaming y conserva todas las rutas mensuales. Esa descarga ronda los 270 MB y se realiza en el servidor de actualización, no en el navegador. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
+El actualizador procesa los 29 archivos (28 de turismo y el IPC), recorre la base aérea en streaming y conserva todas las rutas mensuales. La base aérea ronda los 270 MB; se baja una vez con el navegador y se procesa en la PC, no en el navegador del visitante. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
 
 Para regenerar el HTML autocontenido después de una actualización:
 
@@ -159,17 +175,11 @@ node tests/test_hotel.cjs
 
 El actualizador general también valida y compila este suplemento. No lo sustituye por las series EOH. El compilador genera JSON/JS y dos CSV auditables de demanda municipal y categorías. Publicar `site/` completo, incluyendo `hotel.js`, `hotel-model.js` y `data/hotel.js`. El archivo `vercel.json` de esta entrega configura esa carpeta como salida estática.
 
-## Workflow de actualización
+## Verificación automática (GitHub Actions)
 
-El flujo `.github/workflows/actualizar-datos.yml` está incluido. **En esta copia de trabajo se ejecuta solo a pedido** (`workflow_dispatch`): los disparadores por cron (lunes 06:00 de Córdoba) y por push a `main` en scripts/configuración están comentados en el archivo, y se decidirá si se restituyen antes de pasar al repositorio institucional. El flujo descarga y procesa las fuentes, corre las pruebas de Python y JavaScript y `npm ci && npm test` (Node 22) antes de publicar los datos validados.
+El flujo `.github/workflows/actualizar-datos.yml` se llama **«Verificación del tablero»** y corre en cada push y pull request, en cualquier rama. Solo verifica los datos ya commiteados: pruebas de Python, `node --check` de los archivos JavaScript y `npm ci && npm test` (Node 22). No descarga fuentes ni publica cambios, y tiene permiso de solo lectura sobre el repositorio. La actualización de datos es manual (sección «Actualización de datos»).
 
-1. Subir el contenido del paquete a la rama `main` de un repositorio GitHub de la Agencia. Incluir `.github/workflows/actualizar-datos.yml`.
-2. Habilitar Actions y permisos de escritura del workflow.
-3. Ejecutar manualmente “Actualización datos turísticos” y comprobar que termine correctamente.
-4. Conectar el repositorio a Vercel y utilizar la configuración de `README.md`: raíz del repositorio, preset Other y salida `site`. `vercel.json` ya contiene esa configuración.
-5. Activar notificaciones de fallos. Si se restituye el disparador por cron, el flujo revisará las fuentes los lunes a las **06:00 de Córdoba** y guardará los datos validados. El alojamiento debe publicar esos cambios automáticamente.
-
-La versión privada publicada para esta entrega contiene la carga verificada. No tiene una actualización desatendida activa. No se aprovisionó una base Neon ni se generaron credenciales.
+Para publicar: conectar el repositorio a Vercel con la configuración de `README.md` (raíz del repositorio, preset Other y salida `site`; `vercel.json` ya la contiene). No se aprovisionó una base Neon ni se generaron credenciales.
 
 ## Gasto a precios constantes (IPC)
 
@@ -190,7 +200,7 @@ El gasto de la EVyTH se publica en pesos corrientes. Para graficar su evolución
 
 En pantalla, «Gasto total · pesos constantes» y «Gasto medio por turista · pesos constantes» son indicadores de la evolución de Turismo interno. El KPI y el ranking siguen en pesos corrientes. Si los datos publicados todavía no incluyen el IPC, la evolución queda vacía con un aviso.
 
-**Fallas y caché.** Si la API rechaza la serie (por ejemplo, porque el id dejó de existir), el ETL se detiene con un mensaje que nombra la serie: nunca continúa sin IPC ni usa otra serie. Con `--input-dir` (caché local) sin el CSV del IPC, el resto del proceso sigue: la fuente queda «no descargada», los campos constantes quedan nulos y `validate()` avisa. El dato real lo trae el workflow de GitHub Actions.
+**Fallas y caché.** Si la API rechaza la serie (por ejemplo, porque el id dejó de existir), el ETL se detiene con un mensaje que nombra la serie: nunca continúa sin IPC ni usa otra serie. Con `--input-dir` (caché local) sin el CSV del IPC, el resto del proceso sigue: la fuente queda «no descargada», los campos constantes quedan nulos y `validate()` avisa. El dato real se incorpora con la actualización manual (sección «Actualización de datos»).
 
 ## Si se decide utilizar una base de datos
 
@@ -222,6 +232,6 @@ PUNA y observatorios provincial/municipal quedan pendientes de validar recursos 
 
 ## Verificación de esta entrega
 
-Se comprobaron dieciséis pruebas Python (ocho de ellas sobre el IPC y dos sobre las descargas, con datos sintéticos: el IPC real lo trae el workflow), valores conocidos de EOH/ETI, faltantes, ponderaciones, índices comunes, temporadas y conciliación entre rutas, aeropuertos, sentidos y aerolíneas. Se revisó la interfaz en navegador de escritorio, el cambio de filtros, tablas y exportaciones. El diseño incluye reglas adaptables; no se realizó una prueba en un dispositivo móvil real. `tests/smoke.cjs` (jsdom, 38 casos) recorre las seis secciones; en Demanda hotelera verifica las cuatro solapas sin errores, comparadores y escalas, tope de 9 series, conversión de enlaces anteriores, etiquetas del calendario de intensidad y «Analizar este mes».
+Se comprobaron diecisiete pruebas Python (ocho de ellas sobre el IPC y tres sobre las descargas, con datos sintéticos: el IPC real se incorpora con la actualización manual), valores conocidos de EOH/ETI, faltantes, ponderaciones, índices comunes, temporadas y conciliación entre rutas, aeropuertos, sentidos y aerolíneas. Se revisó la interfaz en navegador de escritorio, el cambio de filtros, tablas y exportaciones. El diseño incluye reglas adaptables; no se realizó una prueba en un dispositivo móvil real. `tests/smoke.cjs` (jsdom, 38 casos) recorre las seis secciones; en Demanda hotelera verifica las cuatro solapas sin errores, comparadores y escalas, tope de 9 series, conversión de enlaces anteriores, etiquetas del calendario de intensidad y «Analizar este mes».
 
 Apache ECharts 6.0.0 se incluye bajo Apache License 2.0. Los archivos LICENSE y NOTICE se conservan en `site/vendor/`.

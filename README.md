@@ -53,9 +53,9 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 | `site/` | Sitio publicable: HTML, estilos, JavaScript, datos JSON/JS y CSV, ECharts y su licencia |
 | `config/` | Enlaces a las fuentes, transcripciones municipales verificadas y calendario de eventos |
 | `scripts/` | Actualización, compilación de datos hoteleros y creación del HTML autónomo |
-| `tests/` | Comprobaciones de integridad y cálculos, y smoke de la interfaz (Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales) con jsdom (`tests/smoke.cjs`) |
+| `tests/` | Comprobaciones de integridad y cálculos, y smoke de las seis secciones de la interfaz con jsdom (`tests/smoke.cjs`) |
 | `package.json`, `package-lock.json` | jsdom (versión exacta) como dependencia de desarrollo; `npm test` corre las tres pruebas de JavaScript |
-| `.github/workflows/actualizar-datos.yml` | Actualizador de datos para GitHub Actions; en esta copia se ejecuta solo a pedido |
+| `.github/workflows/actualizar-datos.yml` | «Verificación del tablero»: pruebas, `node --check` y smoke en cada push y pull request; no descarga ni publica datos |
 | `offline/Tablero_turismo_Cordoba_completo.html` | Copia autónoma para abrir sin conexión, regenerada con esta versión |
 | `DOCUMENTACION.md` | Cobertura, metodología, funcionamiento y actualización de fuentes |
 | `VERSION.json` | Identificación de esta entrega y del código de origen |
@@ -63,26 +63,37 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 
 ## 5. Actualización de datos
 
-El tablero contiene datos reales ya procesados. Publicarlo no lo conecta a una base en tiempo real. La actualización requiere ejecutar el proceso de descarga y validación y publicar sus resultados.
+El tablero contiene datos reales ya procesados. Publicarlo no lo conecta a una base en tiempo real. El portal datos.yvera.gob.ar ahora redirige a data-turismo.jefatura.gob.ar, protegido por Cloudflare con verificación humana: ningún script (ni GitHub Actions ni una PC) puede descargar esos archivos, solo un navegador; por eso la actualización ya no puede ser automática.
 
-En esta copia de trabajo, el workflow incluido se ejecuta **solo a pedido** (`workflow_dispatch`, desde la pestaña Actions de GitHub). Los disparadores por cron (lunes 06:00 de Córdoba) y por push a `main` en scripts/configuración están comentados en el archivo; antes de pasar al repositorio institucional se decidirá si se restituyen. El workflow descarga y procesa las fuentes, corre las pruebas de Python y de JavaScript, el smoke de la interfaz (`npm ci && npm test`, con Node 22) y recién entonces publica los datos. Necesita permiso de escritura sobre el repositorio; las reglas de protección de ramas pueden impedir el commit automático. Revisar primero el resultado de una ejecución manual y luego el despliegue correspondiente en Vercel. Descargar este ZIP no activa ni ejecuta ese proceso.
+La actualización se hace a mano desde una PC con Python 3.10 o superior, en tres pasos:
 
-Las series oficiales se descargan desde los enlaces de `config/sources.json`, incluido el IPC nacional con el que se expresa el gasto de la EVyTH a pesos constantes (ver «Gasto a precios constantes» en `DOCUMENTACION.md`). Los nuevos informes municipales y eventos requieren revisar la fuente y añadir sus registros a los archivos de configuración; el actualizador no transcribe nuevos PDF ni descubre eventos por sí solo. El detalle está en `DOCUMENTACION.md`.
-
-Para actualizar manualmente, desde la raíz del proyecto, con Python 3.10 o superior y Node.js 22.22.2 o superior (jsdom 30 lo requiere para el smoke):
+1. **Verificar en el navegador.** Abrir en Chrome, Edge o Firefox cualquier enlace de `config/sources.json` (por ejemplo, el primero) y completar la verificación humana del portal.
+2. **Bajar los 28 enlaces.** Abrir, en ese mismo navegador, cada `url` de las 28 entradas de turismo de `config/sources.json`, dejando que se guarden en la carpeta Descargas con el nombre que trae cada URL (por ejemplo, `viajeros-hospedados-residentes-y-no-residentes.csv`). Si un archivo se baja dos veces, el navegador lo guarda como «nombre (1).csv» y se toma el más reciente. El IPC no hace falta: se baja directo de apis.datos.gob.ar; si eso falla, guardar su enlace como `ipc.csv` en Descargas.
+3. **Correr los dos comandos**, desde la raíz del proyecto:
 
 ```bash
-python3 scripts/update_data.py
+python3 scripts/descargar_fuentes.py --desde-navegador ~/Downloads --output fuentes
+```
+
+```bash
+python3 scripts/update_data.py --input-dir fuentes
+```
+
+El primero copia cada archivo a `fuentes/` con el nombre que espera el actualizador y termina con un resumen: copiadas, faltantes (con el nombre exacto que falta y su enlace) y el comando siguiente; si falta alguno, sale con error y no hay que seguir. El segundo valida, procesa y escribe `site/data/`.
+
+Después, comprobar con Node.js 22.22.2 o superior (jsdom 30 lo requiere para el smoke) y commitear `site/data/`:
+
+```bash
 python3 -m unittest discover -s tests -v
-node tests/test_model.cjs
-node tests/test_hotel.cjs
+```
+
+```bash
 npm ci && npm test
 ```
 
-Plan B si el workflow no puede descargar (por ejemplo, un 403 del portal): desde una PC con acceso, `python3 scripts/descargar_fuentes.py --output fuentes` baja todas las fuentes de `config/sources.json`, incluido el IPC, con 3 reintentos y un resumen de descargadas/fallidas con su código HTTP.
-Luego `python3 scripts/update_data.py --input-dir fuentes` procesa esa carpeta y se siguen los mismos controles.
+El workflow de GitHub Actions («Verificación del tablero») ya no descarga ni publica datos: en cada push y pull request corre las pruebas de Python, `node --check` y el smoke sobre los datos commiteados. Los nuevos informes municipales y eventos requieren revisar la fuente y añadir sus registros a los archivos de configuración; el detalle está en `DOCUMENTACION.md`.
 
-Publicar los archivos de `site/data/` únicamente después de completar los controles. La descarga original de aviación puede rondar los 270 MB; esa tarea no se ejecuta en el navegador del visitante. La copia de `offline/` no se actualiza sola: para regenerarla, ejecutar:
+Publicar los archivos de `site/data/` únicamente después de completar los controles. La base de aviación ronda los 270 MB: conviene bajarla con una buena conexión. La copia de `offline/` no se actualiza sola: para regenerarla, ejecutar:
 
 ```bash
 python3 scripts/build_delivery.py --output offline/Tablero_turismo_Cordoba_completo.html

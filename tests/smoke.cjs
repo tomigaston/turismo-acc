@@ -244,7 +244,7 @@ ok('17 · conectividad internacional directa',()=>{
   assert.equal(p.options.get('chart-air-intl').yAxis.data.length,1);
   p=air({airCompare:'SAME,SAEZ',kind:'Cabotaje',airPreset:'year',airYear:'2025'});
   const o=p.options.get('chart-air-intl');assert.equal(o.yAxis.data.length,3);
-  assert.equal(p.$$('#panel-air-intl details').length,3);
+  assert.equal(p.$$('#panel-air-intl details:not(.method-note)').length,3);
   assert.match(subtitle(p,'air-intl'),/tráfico internacional/,'aun con Cabotaje en el selector');
   p.change(p.$('select[data-key="airIntlMetric"]'),'pasajeros');
   console.log('     ',Array.from(p.options.get('chart-air-intl').yAxis.data,String).join(' / '),'·',title(p,'air-intl'));

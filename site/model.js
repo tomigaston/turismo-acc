@@ -23,6 +23,9 @@
     if(field==='gasto_promedio_ars')return ratio(values('gasto_total_ars'),values('turistas'));
     return values(field);
   }
+  // Días calendario de un conjunto de meses (para promedios semanales).
+  const daysInPeriod=ps=>ps.reduce((n,p)=>n+new Date(Date.UTC(+p.slice(0,4),+p.slice(5,7),0)).getUTCDate(),0);
+  const weeklyFlights=(flights,ps)=>valid(flights)&&ps.length?Math.round(flights/(daysInPeriod(ps)/7)*10)/10:null;
   // Ruta regular: al menos 4 vuelos en al menos la mitad de los meses del período (6 de 12).
   const regularThreshold=n=>Math.max(1,Math.ceil(n/2));
   function isRegular(monthlyFlights,n=monthlyFlights.length,minFlights=4){return monthlyFlights.filter(v=>valid(v)&&v>=minFlights).length>=regularThreshold(n);}
@@ -99,6 +102,6 @@
     }
     return {eoh,air,routes,routeRegularity,international,profile};
   }
-  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,regularThreshold,isRegular,classifyRoutes,transform,create};
+  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -2,7 +2,7 @@
 'use strict';
 const D=window.DASHBOARD_DATA,M=window.TourismModel,$=id=>document.getElementById(id);
 const {valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,transform}=M;
-const model=M.create(D),colors=['#087f73','#477db1','#d49a3f','#9273ad','#729b99'];
+const model=M.create(D),colors=['#087f73','#477db1','#d49a3f','#9273ad','#729b99','#c0506a','#2e4f73','#6f8f2f','#8a5a44'];
 const fmt=(x,n=0)=>valid(x)?x.toLocaleString('es-AR',{minimumFractionDigits:n,maximumFractionDigits:n}):'Sin dato';
 const signed=(x,n=1)=>valid(x)?(x>0?'+':'')+fmt(x,n):'Sin dato';
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -14,18 +14,44 @@ const specs={viajeros:['Viajeros hospedados','viajeros',0],pernoctes:['Pernoctac
 const navs={demand:['Demanda hotelera','ACTIVIDAD Y POSICIONAMIENTO','Viajeros, pernoctaciones, ocupación y categorías de alojamiento.','M3 20V10h4v10M10 20V4h4v16M17 20V7h4v13'],air:['Conectividad aérea','CÓRDOBA COMO ORIGEN Y DESTINO','La posición del aeropuerto, sus conexiones y la evolución del cabotaje y el tráfico internacional.','M3 13l7 1 4 7 2-1-2-7 6-6c2-2 0-4-2-2l-6 6-7-2-1 2 7 4'],season:['Estacionalidad','EL RITMO DE LA ACTIVIDAD','Compará patrones mensuales y posiciones por temporada, con el mismo indicador y período.','M4 5h16v15H4zM4 9h16M8 3v4M16 3v4M8 13h2M14 13h2M8 17h2'],international:['Mercados internacionales','VIAJES A TRAVÉS DEL AEROPUERTO','Turismo receptivo y emisivo por el paso Córdoba, comparado con otros pasos aeroportuarios relevados.','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18'],internal:['Turismo interno','DEMANDA DENTRO DEL PAÍS','Córdoba como destino de viajes internos. Estadías, gasto y contexto nacional.','M3 11l9-8 9 8M6 10v11h12V10M10 21v-7h4v7'],quality:['Calidad turística','CAPACIDADES Y DISTINCIONES','Una referencia histórica de las distinciones registradas en Córdoba y el país.','M12 3l7 3v6c0 5-7 9-7 9s-7-4-7-9V6zM8 12l3 3 5-6'],sources:['Fuentes y metodología','DATOS CON TRAZABILIDAD','Cobertura, fechas, recursos oficiales y criterios para interpretar las comparaciones.','M5 4h14v17H5zM8 8h8M8 12h8M8 16h5']};
 const hotelLatest=D.eoh.scopes['Córdoba'].at(-1).period;
 const hotelFullYear=String(+hotelLatest.slice(0,4)-(hotelLatest.slice(5)<='11'?1:0));
-const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',level:'region',city:'localidad:Córdoba',compare1:'Argentina',compare2:'Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airWindow:'month',airCompare1:'Argentina',airCompare2:'SAME',rankLimit:'10',minFlights:'30',routeSearch:'',seasonData:'hotel',seasonLevel:'localidad',seasonCity:'localidad:Córdoba',seasonCompare1:'localidad:Mendoza',seasonCompare2:'localidad:Bariloche',seasonYear:'2024',seasonMetric:'pernoctes',seasonView:'share',seasonPeriod:'invierno',flow:'emisivo',intlMetric:'turistas',intlCompare1:'Aep. Mendoza',intlCompare2:'Ezeiza y Aeroparque',internalMetric:'turistas',internalCompare1:'Argentina',internalCompare2:'Cuyo',qualityCompare:'Argentina'};
+const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airWindow:'month',airCompare1:'Argentina',airCompare2:'SAME',rankLimit:'10',minFlights:'30',routeSearch:'',seasonData:'hotel',seasonLevel:'localidad',seasonCity:'localidad:Córdoba',seasonCompare1:'localidad:Mendoza',seasonCompare2:'localidad:Bariloche',seasonYear:'2024',seasonMetric:'pernoctes',seasonView:'share',seasonPeriod:'invierno',flow:'emisivo',intlMetric:'turistas',intlCompare1:'Aep. Mendoza',intlCompare2:'Ezeiza y Aeroparque',internalMetric:'turistas',internalCompare1:'Argentina',internalCompare2:'Cuyo',qualityCompare:'Argentina'};
+const unique=xs=>[...new Set(xs.filter(Boolean))];
+// Límite por clave en enlaces compartidos; la lista de comparadores admite más texto.
+const maxLength=k=>k==='compare'?600:200;
+function readSaved(saved){
+ const s={...defaults},str=k=>typeof saved[k]==='string'&&saved[k].length<200?saved[k]:null;
+ for(const k of Object.keys(defaults))if(typeof saved[k]==='string'&&saved[k].length<maxLength(k))s[k]=saved[k];
+ // Enlaces anteriores: escala + destino + dos comparadores pasan a territorio + lista de comparadores.
+ if(typeof saved.territory!=='string'&&['level','city','compare1','compare2'].some(k=>k in saved)){
+  const city=str('city');
+  s.territory=str('level')==='localidad'?(D.eoh.scope_meta[city]?.cordoba?city:'localidad:Córdoba'):'Córdoba';
+  if(typeof saved.compare!=='string')s.compare=unique([str('compare1')??'Argentina',str('compare2')??'Cuyo']).join(',');
+ }
+ return s;
+}
 let state={...defaults};
-try{const hash=new URLSearchParams(location.hash.slice(1)),saved=JSON.parse(hash.get('vista')||'{}');for(const k of Object.keys(defaults))if(typeof saved[k]==='string'&&saved[k].length<200)state[k]=saved[k];}catch(_){}
+try{state=readSaved(JSON.parse(new URLSearchParams(location.hash.slice(1)).get('vista')||'{}'));}catch(_){}
 if(!navs[state.tab])state.tab='demand';if(!/^20\d\d-(0[1-9]|1[0-2])$/.test(state.cutoff))state.cutoff=defaults.cutoff;
 let charts=new Map(),cards=new Map(),current={period:null,latest:null,family:'eoh',quarter:false},toastTimer;
-const unique=xs=>[...new Set(xs.filter(Boolean))];
 const scopeLabel=k=>D.eoh.scope_meta[k]?.label||k;
 const airportLabel=k=>k==='Argentina'?'Argentina · total aeroportuario':D.air.airports[k]?D.air.airports[k].city+' · '+k:k;
 const airportShort=k=>k==='Argentina'?'Argentina':D.air.airports[k]?.city||k;
 const gateLabel=k=>k==='Aep. Córdoba'?'Aeropuerto de Córdoba':k==='Aep. Mendoza'?'Aeropuerto de Mendoza':k;
-const eohFocus=()=>state.level==='region'?'Córdoba':state.city;
-const eohScopes=()=>unique([eohFocus(),state.compare1,state.compare2]);
+// Demanda hotelera: un territorio de Córdoba y una lista de comparadores de la misma escala EOH.
+const MAX_SERIES=9;
+const hotelTerritories=()=>[['Córdoba','Córdoba · provincia (región EOH)'],...Object.entries(D.eoh.scope_meta).filter(([,m])=>m.cordoba).map(([k,m])=>[k,m.label]).sort((a,b)=>a[1].localeCompare(b[1],'es'))];
+const hotelLevel=(k=state.territory)=>D.eoh.scope_meta[k]?.level==='localidad'?'localidad':'region';
+const compareKeys=()=>unique(String(state.compare||'').split(',').map(k=>k.trim())).filter(k=>D.eoh.scope_meta[k]&&k!==state.territory);
+const isHotelReference=k=>hotelLevel()==='localidad'&&(k==='Argentina'||k==='Córdoba');
+const hotelComparable=k=>{const m=D.eoh.scope_meta[k];return !!m&&k!==state.territory&&(hotelLevel()==='region'?m.level==='region'||m.level==='pais':m.level==='localidad'||isHotelReference(k));};
+const hotelCompare=()=>compareKeys().filter(hotelComparable);
+const hotelName=k=>isHotelReference(k)?(k==='Argentina'?'Argentina · total nacional (referencia)':'Córdoba · provincia (referencia)'):D.eoh.scope_meta[k]?.label||k;
+function setCompare(keys){
+ const list=unique(keys).filter(k=>k!==state.territory);
+ if(list.filter(hotelComparable).length+1>MAX_SERIES){toast('Hasta '+MAX_SERIES+' series por gráfico, incluido el territorio. Quitá un comparador para agregar otro.');return;}
+ state.compare=list.join(',');render();
+}
+function addCompare(k){if(k&&!compareKeys().includes(k))setCompare([...compareKeys(),k]);}
 const airScopes=()=>unique(['SACO',state.airCompare1,state.airCompare2]);
 const intlScopes=()=>unique(['Aep. Córdoba',state.intlCompare1,state.intlCompare2]);
 const internalScopes=()=>unique(['Córdoba',state.internalCompare1,state.internalCompare2]);
@@ -55,7 +81,7 @@ function dataNote(family,periodText,latest,method='',config={}){
 }
 function card(config){
  const c={family:current.family,periodText:label(current.period,current.quarter),latest:label(current.latest,current.quarter),method:'',rows:[],columns:[],...config};cards.set(c.id,c);
- return `<article class="panel" id="panel-${c.id}"><div class="panel-header"><div class="panel-heading">${c.kicker?'<p class="panel-kicker">'+esc(c.kicker)+'</p>':''}<h2>${esc(c.title)}</h2><p class="panel-subtitle">${esc(c.subtitle||'')}</p></div><div class="panel-actions"><button data-table="${c.id}" aria-expanded="false" title="Ver la tabla de datos">Tabla</button><button data-csv="${c.id}" title="Descargar datos con fuente y filtros">CSV</button><button data-png="${c.id}" title="Descargar gráfico con fuente y período">PNG</button></div></div><div id="chart-${c.id}" class="chart ${c.className||''}" aria-label="${esc(c.title)}"></div><div id="table-${c.id}" class="table-wrap" hidden></div>${dataNote(c.family,c.periodText,c.latest,c.method,c)}</article>`;
+ return `<article class="panel" id="panel-${c.id}"><div class="panel-header"><div class="panel-heading">${c.kicker?'<p class="panel-kicker">'+esc(c.kicker)+'</p>':''}<h2>${esc(c.title)}</h2><p class="panel-subtitle">${esc(c.subtitle||'')}</p></div><div class="panel-actions"><button data-table="${c.id}" aria-expanded="false" title="Ver la tabla de datos">Tabla</button><button data-csv="${c.id}" title="Descargar datos con fuente y filtros">CSV</button><button data-png="${c.id}" title="Descargar gráfico con fuente y período">PNG</button></div></div><div id="chart-${c.id}" class="chart ${c.className||''}"${c.height?` style="height:${+c.height}px"`:''} aria-label="${esc(c.title)}"></div><div id="table-${c.id}" class="table-wrap" hidden></div>${dataNote(c.family,c.periodText,c.latest,c.method,c)}</article>`;
 }
 function tableHTML(c){
  return `<table><thead><tr>${c.columns.map((h,i)=>`<th scope="col"><button data-sort="${c.id}" data-column="${i}" title="Ordenar por ${esc(h)}">${esc(h)} ↕</button></th>`).join('')}</tr></thead><tbody>${c.rows.map(r=>'<tr>'+r.map((v,i)=>`<${i?'td':'th scope="row"'}>${esc(typeof v==='number'?fmt(v,Number.isInteger(v)?0:2):v??'Sin dato')}</${i?'td':'th'}>`).join('')+'</tr>').join('')}</tbody></table>`;
@@ -108,7 +134,7 @@ function rankPosition(items,key){const item=items.find(r=>r.code===key);return i
 function rangeCaption(ps){return ps.length>1?label(ps[0])+' – '+label(ps.at(-1)):label(ps[0]);}
 function warnHistorical(family){const last=latestSeries(family);return last&&ordinal(new Date().toISOString().slice(0,7))-ordinal(last)>12?notice('Serie histórica · Disponible hasta: '+label(last,['eti','evyth'].includes(family)),'historical'):'';}
 function renderDemand(){
- window.HotelDashboard.render({D,M,model,state,$,esc,fmt,signed,label,value,specs,field,compareFields,scopeOptions,scopeLabel,unique,section,notice,kpi,card,barCard,commonOption,axisLabel,tooltipRows,rangeCaption,render,setCurrent:c=>{current=c;}});
+ window.HotelDashboard.render({D,M,model,state,$,esc,fmt,signed,label,value,specs,field,compareFields,scopeOptions,scopeLabel,unique,section,notice,kpi,card,barCard,commonOption,axisLabel,tooltipRows,rangeCaption,render,setCurrent:c=>{current=c;},hotel:{MAX_SERIES,territories:hotelTerritories,level:hotelLevel,compare:hotelCompare,isReference:isHotelReference,name:hotelName,add:addCompare}});
 }
 
 function renderAir(){
@@ -214,11 +240,11 @@ function renderSources(){
 }
 function hotelSources(){
  const o=window.HOTEL_DATA.observatory,e=window.HOTEL_DATA.calendar;
- return '<article class="panel"><h2>Alojamiento por estrellas · Córdoba capital</h2><p class="panel-subtitle">'+o.reports.length+' informes · '+label(o.reports.map(r=>r.period).sort()[0],true)+' a '+label(o.reports.map(r=>r.period).sort().at(-1),true)+'</p>'+o.reports.map(r=>`<div class="resource"><a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)} ↗</a><small>Período: ${label(r.period,true)} · Ocupación y categorías: p. ${r.pages.categories} · Demanda: p. ${r.pages.demand} · Incorporación: ${esc(r.checked_at)} · ${r.data_as_of?'Datos al '+r.data_as_of:'Sin fecha de corte consistente declarada'}</small><details><summary>Trazabilidad y observaciones</summary><small>SHA-256: ${r.sha256}<br>${esc((r.notes||[]).join(' '))}</small></details></div>`).join('')+'</article><article class="panel"><h2>Calendario de eventos incorporado</h2><p class="panel-subtitle">'+e.events.length+' eventos registrados'+'</p>'+e.events.map(x=>`<div class="resource"><a href="${esc(x.source_url)}" target="_blank" rel="noopener noreferrer">${esc(x.name)} ↗</a><small>${esc(x.start_date)} al ${esc(x.end_date)} · ${esc(x.locality)} · ${esc(x.category)} · Fuente: Agencia Córdoba Turismo · Publicación: ${esc(x.published_at)} · Verificación: ${esc(e.checked_at)}</small></div>`).join('')+'</article>';
+ return '<article class="panel"><h2>Alojamiento por estrellas · Córdoba capital</h2><p class="panel-subtitle">'+o.reports.length+' informes · '+label(o.reports.map(r=>r.period).sort()[0],true)+' a '+label(o.reports.map(r=>r.period).sort().at(-1),true)+'</p>'+o.reports.map(r=>`<div class="resource"><a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)} ↗</a><small>Período: ${label(r.period,true)} · Ocupación y categorías: p. ${r.pages.categories} · Demanda: p. ${r.pages.demand} · Incorporación: ${esc(r.checked_at)} · ${r.data_as_of?'Datos al '+r.data_as_of:'Sin fecha de corte consistente declarada'}</small><details><summary>Trazabilidad y observaciones</summary><small>SHA-256: ${r.sha256}<br>${esc((r.notes||[]).join(' '))}</small></details></div>`).join('')+'</article><article class="panel"><h2>Calendario de eventos incorporado</h2><p class="panel-subtitle">'+e.events.length+' eventos registrados · '+e.events.filter(x=>x.source_url).length+' verificados con fuente oficial · '+e.events.filter(x=>!x.source_url).length+' pendientes de verificación</p>'+e.events.map(x=>x.source_url?`<div class="resource"><a href="${esc(x.source_url)}" target="_blank" rel="noopener noreferrer">${esc(x.name)} ↗</a><small>${esc(x.start_date)} al ${esc(x.end_date)} · ${esc(x.locality)} · ${esc(x.category)} · Fuente: ${esc(x.source_title)} · Publicación: ${esc(x.published_at)} · Verificación: ${esc(e.checked_at)}</small></div>`:`<div class="resource"><span>${esc(x.name)}</span><small>${esc(x.start_date)} al ${esc(x.end_date)} · ${esc(x.locality)} · ${esc(x.category)} · Pendiente de verificación: sin fuente oficial confirmada · ${esc(x.source_title)}</small></div>`).join('')+'</article>';
 }
 function context(){
  if(state.tab==='demand'&&current.family==='municipal')return ['Córdoba capital · fuente municipal',label(current.period,true),state.hotelStar==='all'?'Todas las categorías':window.HOTEL_DATA.observatory.reports.flatMap(r=>r.categories).find(c=>c.id===state.hotelStar)?.label||state.hotelStar];
- if(state.tab==='demand')return [state.level==='region'?'Región Córdoba':scopeLabel(state.city),rangeCaption(months(state.hotelFrom,state.hotelTo)),state.residence==='total'?'Todas las residencias':state.residence==='residentes'?'Residentes en Argentina':'Residentes en el exterior','Comparadores: '+eohScopes().slice(1).map(scopeLabel).join(' / ')];
+ if(state.tab==='demand')return [state.territory==='Córdoba'?'Córdoba · provincia (región EOH)':scopeLabel(state.territory),rangeCaption(months(state.hotelFrom,state.hotelTo)),state.residence==='total'?'Todas las residencias':state.residence==='residentes'?'Residentes en Argentina':'Residentes en el exterior',hotelCompare().length?'Comparadores: '+hotelCompare().map(hotelName).join(' / '):'Sin comparadores'];
  if(state.tab==='air')return ['Aeropuerto de Córdoba · SACO',{salidas:'Salidas',llegadas:'Llegadas',ambos:'Llegadas + salidas'}[state.direction],state.kind==='all'?'Cabotaje + internacional':state.kind,rangeCaption(windowMonths(current.period,state.airWindow)),state.carrier==='all'?'Todas las aerolíneas':D.air.carriers[+state.carrier]];
  if(state.tab==='season')return [state.seasonYear,state.seasonData==='hotel'?'Demanda hotelera':'Conectividad aérea',state.seasonView==='share'?'Participación mensual en el año':'Valores mensuales',state.seasonData==='hotel'?(state.seasonLevel==='region'?'Regiones':'Localidades'):state.direction];
  if(state.tab==='international')return ['Paso Aeropuerto de Córdoba','Turismo '+state.flow,label(current.period,true)];
@@ -226,7 +252,7 @@ function context(){
  if(state.tab==='quality')return ['Registro histórico SACT','Última fecha: '+D.quality.latest_date];
  return [D.sources.length+' recursos','Incorporación: '+loaded+' (Córdoba)'];
 }
-function syncURL(){try{const saved={};for(const k of Object.keys(defaults))if(state[k]!==defaults[k])saved[k]=state[k];const hash=Object.keys(saved).length?'#'+new URLSearchParams({vista:JSON.stringify(saved)}):'';history.replaceState(null,'',location.pathname+location.search+hash);}catch(_){} }
+function syncURL(){try{const saved={};for(const k of Object.keys(defaults))if(state[k]!==defaults[k]&&String(state[k]).length<maxLength(k))saved[k]=state[k];const hash=Object.keys(saved).length?'#'+new URLSearchParams({vista:JSON.stringify(saved)}):'';history.replaceState(null,'',location.pathname+location.search+hash);}catch(_){} }
 function render(){
  try{
   for(const c of charts.values())c.dispose();charts.clear();cards.clear();$('error').hidden=true;
@@ -242,9 +268,10 @@ function render(){
 }
 function changeState(key,v){
  if(!(key in defaults))return;
- state[key]=v;
+ const before=state[key];state[key]=v;
  if(key==='hotelFrom'||key==='hotelTo')state.hotelPreset='custom';
- if(key==='level'){state.compare1=v==='region'?'Argentina':'localidad:Mendoza';state.compare2=v==='region'?'Cuyo':'localidad:Bariloche';}
+ // Al cambiar de escala, los comparadores vuelven a la selección inicial de esa escala.
+ if(key==='territory')state.compare=hotelLevel(v)!==hotelLevel(before)?(hotelLevel(v)==='region'?'Argentina,Cuyo':'localidad:Mendoza,localidad:Bariloche'):compareKeys().join(',');
  if(key==='seasonLevel'){state.seasonCompare1=v==='region'?'Argentina':'localidad:Mendoza';state.seasonCompare2=v==='region'?'Cuyo':'localidad:Bariloche';}
  if(key==='seasonData')state.seasonMetric=v==='hotel'?'pernoctes':'pasajeros';
  render();
@@ -270,12 +297,19 @@ async function share(){
  syncURL();try{await navigator.clipboard.writeText(location.href);toast(location.protocol==='file:'?'Vista copiada. Para compartirla, enviá también el archivo HTML.':'Enlace de esta vista copiado. Conserva filtros y comparadores.');}
  catch(_){const el=document.createElement('input');el.className='share-input';el.value=location.href;el.readOnly=true;el.setAttribute('aria-label','Enlace de la vista para copiar');$('filters').appendChild(el);el.select();toast('Seleccioná y copiá el enlace mostrado junto a los filtros.');}
 }
-document.addEventListener('change',e=>{const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
+document.addEventListener('change',e=>{if('compareAdd' in e.target.dataset){addCompare(e.target.value);return;}const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
- if(b.dataset.hotelEventYear){state.hotelPreset='year';state.hotelYear=b.dataset.hotelEventYear;state.hotelEventType='all';state.level='region';state.compare1='Argentina';state.compare2='Cuyo';render();return;}
+ if(b.dataset.hotelEventYear){state.hotelPreset='year';state.hotelYear=b.dataset.hotelEventYear;state.hotelEventType='all';state.territory='Córdoba';state.compare='Argentina,Cuyo';render();return;}
+ if('chipRemove' in b.dataset){setCompare(compareKeys().filter(k=>k!==b.dataset.chipRemove));return;}
+ if('compareSet' in b.dataset){setCompare(b.dataset.compareSet.split(',').filter(Boolean));return;}
  if(b.dataset.tab){state.tab=b.dataset.tab;render();return;}
- if(b.dataset.set){changeState(b.dataset.set,b.dataset.value);return;}
+ if(b.dataset.set){
+  changeState(b.dataset.set,b.dataset.value);
+  // "Analizar este mes": llevar la vista a la sección del mes del evento.
+  if(b.dataset.set==='hotelEvent')$('hotel-event-month')?.scrollIntoView?.({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  return;
+ }
  if(b.dataset.table){const id=b.dataset.table,c=cards.get(id),t=$('table-'+id),show=t.hidden;t.hidden=!show;$('chart-'+id).hidden=show;b.setAttribute('aria-expanded',String(show));b.classList.toggle('active',show);b.textContent=show?'Gráfico':'Tabla';if(show)t.innerHTML=tableHTML(c);else charts.get(id)?.resize();return;}
  if(b.dataset.sort){const c=cards.get(b.dataset.sort),i=+b.dataset.column;c.sortDir=c.sortColumn===i?-c.sortDir:1;c.sortColumn=i;c.rows.sort((a,b)=>{if(a[i]==null)return 1;if(b[i]==null)return -1;return c.sortDir*(typeof a[i]==='number'&&typeof b[i]==='number'?a[i]-b[i]:String(a[i]).localeCompare(String(b[i]),'es',{numeric:true}));});$('table-'+c.id).innerHTML=tableHTML(c);return;}
  if(b.dataset.csv){exportCSV(b.dataset.csv);return;}if(b.dataset.png){exportPNG(b.dataset.png);return;}
@@ -285,6 +319,6 @@ document.addEventListener('click',e=>{
 });
 window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>charts.forEach(c=>c.resize())).observe($('dashboard'));
-window.addEventListener('hashchange',()=>{try{const saved=JSON.parse(new URLSearchParams(location.hash.slice(1)).get('vista')||'{}');state={...defaults};for(const k of Object.keys(defaults))if(typeof saved[k]==='string'&&saved[k].length<200)state[k]=saved[k];if(!navs[state.tab])state.tab='demand';render();}catch(_){toast('El enlace de vista no es válido.');}});
+window.addEventListener('hashchange',()=>{try{state=readSaved(JSON.parse(new URLSearchParams(location.hash.slice(1)).get('vista')||'{}'));if(!navs[state.tab])state.tab='demand';render();}catch(_){toast('El enlace de vista no es válido.');}});
 if(!D||D.schema_version!==3||!window.echarts||!window.HOTEL_DATA||!window.HotelDashboard){$('error').hidden=false;$('error').textContent='Falta un archivo del tablero. Abrí el paquete completo o la vista HTML autocontenida.';}else render();
 })();

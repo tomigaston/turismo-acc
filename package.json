@@ -1,0 +1,11 @@
+{
+  "name": "turismo-acc",
+  "private": true,
+  "description": "Pruebas de JavaScript del tablero de inteligencia turística de Córdoba.",
+  "scripts": {
+    "test": "node tests/test_model.cjs && node tests/test_hotel.cjs && node tests/smoke.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.3"
+  }
+}

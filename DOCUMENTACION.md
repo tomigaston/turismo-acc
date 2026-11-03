@@ -1,6 +1,6 @@
 # Inteligencia turística · Córdoba y Argentina
 
-Tablero de la Agencia Competitividad Córdoba con **28 archivos estadísticos oficiales, seis informes municipales y cuatro eventos documentados**, gráficos Apache ECharts 6.0.0 y comparaciones integradas en cada sección. La información propia del clúster queda pendiente.
+Tablero de la Agencia Competitividad Córdoba con **28 archivos estadísticos oficiales, seis informes municipales y un calendario de 70 eventos (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada)**, gráficos Apache ECharts 6.0.0 y comparaciones integradas en cada sección. La información propia del clúster queda pendiente.
 
 ## Cómo utilizarlo
 
@@ -10,14 +10,24 @@ Tablero de la Agencia Competitividad Córdoba con **28 archivos estadísticos of
 4. Usar la leyenda para ocultar series y el control inferior para ampliar un período. En demanda hotelera, el selector inferior del gráfico cambia el intervalo y recalcula indicadores, rankings, tablas y CSV. En otras secciones, el zoom sigue siendo visual.
 5. Abrir **Tabla**, ordenar columnas o descargar **CSV / PNG** con fuente, período y criterios. **Copiar vista** conserva la selección en el enlace. **Restablecer** vuelve a los valores iniciales.
 
+### Filtros de Demanda hotelera
+
+La franja de la sección tiene tres controles:
+
+- **Territorio:** Córdoba · provincia (región EOH) o uno de los siete destinos de Córdoba relevados por la EOH (Córdoba capital, Villa Carlos Paz, La Falda, Mar Chiquita, Mina Clavero, Río Cuarto y Villa General Belgrano). La escala (región o localidad) se deriva del territorio.
+- **Comparar con:** el selector «Agregar comparador…» suma ámbitos, que se muestran como fichas con × para quitarlos. Hay atajos «Todas las regiones» (en escala región: las otras seis regiones y Argentina) o «Todos los destinos de Córdoba» (en escala localidad), y «Quitar todos». **Escalas comparables:** una región se compara solo con regiones y Argentina; una localidad, solo con localidades. En escala localidad, Argentina y Córdoba provincia pueden agregarse como referencias, pero solo se grafican en «Índice base 100» o «Variación interanual»; en «Valores observados» quedan excluidas de las series y se muestra un aviso. **Tope:** 9 series por gráfico, incluido el territorio.
+- **Período:** año completo, últimos 12 meses, temporadas o intervalo personalizado (Desde/Hasta aparecen solo en ese caso).
+
+Indicador, lectura y residencia de los viajeros se eligen en los controles de cada gráfico. La solapa **Ocupación por categoría** fija el territorio en Córdoba, porque las categorías EOH se publican por región, no por localidad. Los enlaces de **Copiar vista** guardados con el esquema anterior (escala, destino y dos comparadores) se convierten al esquema nuevo al abrirse.
+
 Las vistas analíticas muestran datos, comparaciones, unidades, fuentes y fechas. Las definiciones de cálculo están en Fuentes y metodología; no se publican comentarios interpretativos junto a los gráficos. Los períodos y conteos de informes/eventos se derivan de los datos incorporados.
 
 ## Qué cambió
 
 - **Demanda y posición:** intervalos personalizados, años completos y temporadas; viajeros, noches, estadía ponderada, participación nacional mensual y del intervalo, variaciones interanuales y rankings con cobertura completa. Cada destino se compara con Argentina u otros destinos dentro del mismo gráfico.
 - **Estacionalidad dentro de demanda:** distribución mensual del intervalo, calendario de intensidad con clic para analizar un mes, rankings del período y temporadas completas. El verano cruza el año (diciembre–febrero).
-- **Tipologías y estrellas:** EOH permite comparar categorías agrupadas de regiones y Argentina. El Observatorio municipal aporta, por separado, hoteles de 1 a 5 estrellas, apart hoteles y hostels de Córdoba capital; seis trimestres (2025 y primer semestre de 2026), tasas trimestrales, demanda mensual, oferta anual de plazas y comparación interanual. Los totales de viajeros/noches no están desagregados por estrellas. Las diferencias entre tasas municipales redondeadas son aproximadas.
-- **Eventos:** cuatro eventos de 2024 documentados por la Agencia Córdoba Turismo, marcas sobre las series, filtros por tipo y territorio y lectura del mes frente al mismo mes del año anterior. Cosquín Rock se ubica en Santa María de Punilla, sin asignarlo a capital. El calendario es inicial y no exhaustivo; ninguna variación se presenta como efecto causal de un evento.
+- **Ocupación por categoría:** EOH permite comparar categorías agrupadas de regiones y Argentina; el territorio queda fijo en Córdoba. El Observatorio municipal aporta, por separado, hoteles de 1 a 5 estrellas, apart hoteles y hostels de Córdoba capital; seis trimestres (2025 y primer semestre de 2026), tasas trimestrales, demanda mensual, oferta anual de plazas y comparación interanual. Los totales de viajeros/noches no están desagregados por estrellas. Las diferencias entre tasas municipales redondeadas son aproximadas.
+- **Eventos:** calendario de 70 eventos de 2024 y 2025: 4 con fuente oficial (Agencia Córdoba Turismo) y 66 tomados del calendario de trabajo, sin fuente confirmada. Categorías: Música y festivales (26), Feriados y fines de semana largos (16), Deportes (12), Congresos (9) y Ferias y exposiciones (7). Solo los eventos con fuente oficial muestran el enlace «Fuente oficial ↗»; en Fuentes y metodología, los demás figuran como pendientes de verificación. Las marcas ◆ sobre las series indican los meses con eventos (◆N cuando hay más de uno) y su tooltip detalla nombre, fechas, categoría y localidad. «Analizar este mes» lleva a los datos del mes frente al mismo mes del año anterior. Los eventos fuera de Córdoba capital, y los cinco sin localidad precisada, se asignan solo al ámbito provincial; los fines de semana largos, a provincia y capital. El calendario no es exhaustivo; ninguna variación se presenta como efecto causal de un evento.
 - **Conectividad aérea:** salidas desde Córdoba, llegadas y ambas direcciones, sin filtrar residencia. Comparación con otros aeropuertos y el total argentino, cabotaje/internacional, aerolínea, período mensual/acumulado/12 meses, destinos y orígenes, ranking y mínimo de vuelos. Un clic en una barra permite elegir comparador o aerolínea.
 - **Estacionalidad:** curvas mensuales, porcentaje del total anual, calendario de intensidad y rankings de verano/invierno/otras temporadas. Córdoba capital puede compararse con Ciudad de Mendoza; región Córdoba, con Cuyo. No se presenta Cuyo como si fuera Mendoza provincia.
 - **Mercados internacionales:** ETI emisiva y receptiva por Córdoba, Mendoza y Ezeiza/Aeroparque; turistas, noches, estadía, mercados, motivos y gasto. Los pasos relevados no equivalen al total nacional.
@@ -36,6 +46,7 @@ Las vistas analíticas muestran datos, comparaciones, unidades, fuentes y fechas
 | SACT | 1 | Diciembre de 2023 | Registro histórico de distinciones |
 | Observatorio municipal | 6 informes PDF | Segundo trimestre de 2026 | Córdoba capital; estrellas individuales y demanda |
 | Agencia Córdoba Turismo | 2 artículos / 4 eventos | Eventos de 2024 | Fechas y localidades, sin impactos imputados |
+| Calendario de trabajo ACC | 66 eventos | Eventos de 2024 y 2025 | Fechas tomadas de una lista de trabajo, sin fuente oficial confirmada |
 
 La incorporación de estos archivos se realizó el 21 de octubre de 2026. La fecha de descarga **no** equivale al período de los datos. Los informes municipales se incorporaron el 30 de octubre de 2026 en un conjunto separado; no se empalman con EOH ni se usan para calcular participación nacional. Las transcripciones conservan URL, páginas, fecha de corte cuando es consistente, huella SHA-256 y observaciones sobre erratas de origen. Los últimos tres meses de la base aérea son provisorios.
 
@@ -53,7 +64,7 @@ Los enlaces directos que necesita Nahuel están en **`config/sources.json`**, ca
 
 ## Actualizar los datos manualmente
 
-Requiere Python 3.10 o superior y Node.js 20 o superior para las comprobaciones de JavaScript. Python usa únicamente la biblioteca estándar.
+Requiere Python 3.10 o superior y Node.js 22.22.2 o superior para las comprobaciones de JavaScript (jsdom 30, usado por el smoke, lo exige). Python usa únicamente la biblioteca estándar.
 
 ```bash
 python scripts/update_data.py
@@ -64,7 +75,10 @@ node tests/test_model.cjs
 node --check site/hotel.js
 node --check site/hotel-model.js
 node tests/test_hotel.cjs
+npm ci && npm test
 ```
+
+`npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz de Demanda hotelera en jsdom y recorre sus filtros y solapas.
 
 El actualizador descarga 28 archivos, procesa la base aérea en streaming y conserva todas las rutas mensuales. Esa descarga ronda los 270 MB y se realiza en el servidor de actualización, no en el navegador. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
 
@@ -85,15 +99,15 @@ node tests/test_hotel.cjs
 
 El actualizador general también valida y compila este suplemento. No lo sustituye por las series EOH. El compilador genera JSON/JS y dos CSV auditables de demanda municipal y categorías. Publicar `site/` completo, incluyendo `hotel.js`, `hotel-model.js` y `data/hotel.js`. El archivo `vercel.json` de esta entrega configura esa carpeta como salida estática.
 
-## Activar la actualización semanal
+## Workflow de actualización
 
-El flujo `.github/workflows/actualizar-datos.yml` está incluido. Descargar el ZIP no lo ejecuta. Al incorporarlo a `main`, con GitHub Actions habilitado y permisos de escritura, puede ejecutarse por cambios de configuración/scripts, manualmente o los lunes a las 06:00 de Córdoba. El primer ingreso de esos archivos puede disparar una actualización.
+El flujo `.github/workflows/actualizar-datos.yml` está incluido. **En esta copia de trabajo se ejecuta solo a pedido** (`workflow_dispatch`): los disparadores por cron (lunes 06:00 de Córdoba) y por push a `main` en scripts/configuración están comentados en el archivo, y se decidirá si se restituyen antes de pasar al repositorio institucional. El flujo descarga y procesa las fuentes, corre las pruebas de Python y JavaScript y `npm ci && npm test` (Node 22) antes de publicar los datos validados.
 
 1. Subir el contenido del paquete a la rama `main` de un repositorio GitHub de la Agencia. Incluir `.github/workflows/actualizar-datos.yml`.
 2. Habilitar Actions y permisos de escritura del workflow.
 3. Ejecutar manualmente “Actualización datos turísticos” y comprobar que termine correctamente.
 4. Conectar el repositorio a Vercel y utilizar la configuración de `README.md`: raíz del repositorio, preset Other y salida `site`. `vercel.json` ya contiene esa configuración.
-5. Activar notificaciones de fallos. El flujo revisa las fuentes los lunes a las **06:00 de Córdoba** y guarda los datos validados. El alojamiento debe publicar esos cambios automáticamente.
+5. Activar notificaciones de fallos. Si se restituye el disparador por cron, el flujo revisará las fuentes los lunes a las **06:00 de Córdoba** y guardará los datos validados. El alojamiento debe publicar esos cambios automáticamente.
 
 La versión privada publicada para esta entrega contiene la carga verificada. No tiene una actualización desatendida activa. No se aprovisionó una base Neon ni se generaron credenciales.
 
@@ -108,7 +122,7 @@ La implementación actual puede alojarse como sitio estático. Para integrarla c
 - **Faltantes** no se completan con cero. Los rankings estacionales exigen todos los meses de la temporada y los porcentajes mensuales exigen doce meses completos. Verano = diciembre del año anterior + enero y febrero del año elegido.
 - **Promedios:** ocupación aérea = pasajeros/asientos; estadía = noches/viajeros o turistas; promedios nacionales EVyTH ponderados por turistas. Las tasas hoteleras son las oficiales para cada categoría.
 - **ETI emisiva:** residentes en Argentina que viajan al exterior por el paso Córdoba; no solo cordobeses. ETI receptiva mide su viaje por Argentina, sin atribuir todas las noches o gastos a Córdoba. Mercados geográficos no idénticos entre pasos se conservan separados.
-- **Territorio:** EOH región Córdoba corresponde a la provincia. Cuyo comprende Mendoza, San Juan, San Luis y La Rioja. Las localidades no se suman para reconstruir provincias.
+- **Territorio:** EOH región Córdoba corresponde a la provincia. Cuyo comprende Mendoza, San Juan, San Luis y La Rioja. Las localidades no se suman para reconstruir provincias. En Demanda hotelera se comparan solo ámbitos de la misma escala; las referencias nacional y provincial frente a una localidad se grafican únicamente en índice o variación.
 
 ## Fuentes oficiales y pendientes
 
@@ -124,6 +138,6 @@ PUNA y observatorios provincial/municipal quedan pendientes de validar recursos 
 
 ## Verificación de esta entrega
 
-Se comprobaron seis pruebas de integridad Python, valores conocidos de EOH/ETI, faltantes, ponderaciones, índices comunes, temporadas y conciliación entre rutas, aeropuertos, sentidos y aerolíneas. Se revisó la interfaz en navegador de escritorio, el cambio de filtros, tablas y exportaciones. El diseño incluye reglas adaptables; no se realizó una prueba en un dispositivo móvil real.
+Se comprobaron seis pruebas de integridad Python, valores conocidos de EOH/ETI, faltantes, ponderaciones, índices comunes, temporadas y conciliación entre rutas, aeropuertos, sentidos y aerolíneas. Se revisó la interfaz en navegador de escritorio, el cambio de filtros, tablas y exportaciones. El diseño incluye reglas adaptables; no se realizó una prueba en un dispositivo móvil real. `tests/smoke.cjs` (jsdom) verifica la interfaz de Demanda hotelera: las cuatro solapas sin errores, comparadores y escalas, tope de 9 series, conversión de enlaces anteriores, etiquetas del calendario de intensidad y «Analizar este mes».
 
 Apache ECharts 6.0.0 se incluye bajo Apache License 2.0. Los archivos LICENSE y NOTICE se conservan en `site/vendor/`.

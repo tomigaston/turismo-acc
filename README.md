@@ -1,6 +1,6 @@
 # Turismo Córdoba · Paquete para GitHub y Vercel
 
-Entrega del 2 de noviembre de 2026. Contiene la misma versión y los mismos datos del HTML completo entregado: 28 recursos estadísticos oficiales, seis informes municipales y cuatro eventos documentados. Incluye Apache ECharts 6.0.0 y los filtros, tablas y exportaciones del tablero. Los bloques de notas interpretativas ya están retirados.
+Versión del 3 de noviembre de 2026: 28 recursos estadísticos oficiales, seis informes municipales y 70 eventos en el calendario (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada). Incluye Apache ECharts 6.0.0 y los filtros, tablas y exportaciones del tablero. Los bloques de notas interpretativas y el espacio reservado para información del clúster ya están retirados. La copia autónoma de `offline/` está regenerada con esta versión.
 
 ## 1. Subir al GitHub existente
 
@@ -28,12 +28,13 @@ Si el repositorio ya alimenta un proyecto de Vercel, usar ese mismo proyecto y c
 
 En Settings → Git, comprobar que el proyecto esté conectado al repositorio correcto y cuál es su rama de producción. Si todavía no existe proyecto, importar el repositorio desde Vercel con los valores anteriores. La integración de Git puede generar un despliegue con cada push; la rama configurada como producción actualiza el sitio principal. Después de cambiar opciones del proyecto, generar un nuevo despliegue del commit que contiene esta entrega.
 
-Para publicar esta carga no hacen falta una base de datos, variables de entorno ni instalar dependencias. Vercel sirve los archivos estáticos incluidos. Los scripts Python se ejecutan al actualizar datos, fuera del proceso de publicación del sitio.
+Para publicar esta carga no hacen falta una base de datos, variables de entorno ni instalar dependencias. Vercel sirve los archivos estáticos incluidos. `package.json` solo declara jsdom para las pruebas; `vercel.json` deja vacío el comando de instalación. Los scripts Python se ejecutan al actualizar datos, fuera del proceso de publicación del sitio.
 
 ## 3. Comprobar la versión publicada
 
-- Entrar en Demanda hotelera y recorrer Demanda y posición, Estacionalidad, Tipologías y estrellas y Eventos.
-- Cambiar territorio, período y comparadores; comprobar que se actualicen los indicadores y gráficos.
+- Entrar en Demanda hotelera y recorrer Demanda y posición, Estacionalidad, Ocupación por categoría y Eventos.
+- Cambiar Territorio, agregar y quitar comparadores en Comparar con y cambiar el Período; comprobar que se actualicen los indicadores y gráficos.
+- En Eventos, pulsar «Analizar este mes» en una tarjeta: la página baja a «Datos del mes» de ese evento.
 - En tipologías municipales, comprobar que esté disponible el segundo trimestre de 2026 y las categorías de una a cinco estrellas, apart hoteles y hostels.
 - Abrir una tabla y descargar un CSV con la selección actual.
 - Verificar fuentes y fechas en el pie de los gráficos. La fecha del paquete no modifica la fecha de los datos.
@@ -47,9 +48,10 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 | `site/` | Sitio publicable: HTML, estilos, JavaScript, datos JSON/JS y CSV, ECharts y su licencia |
 | `config/` | Enlaces a las fuentes, transcripciones municipales verificadas y calendario de eventos |
 | `scripts/` | Actualización, compilación de datos hoteleros y creación del HTML autónomo |
-| `tests/` | Comprobaciones de integridad y cálculos |
-| `.github/workflows/actualizar-datos.yml` | Actualizador de datos para GitHub Actions |
-| `offline/Tablero_turismo_Cordoba_completo.html` | Copia autónoma para abrir sin conexión, idéntica a la entrega anterior |
+| `tests/` | Comprobaciones de integridad y cálculos, y smoke de la interfaz de Demanda hotelera con jsdom (`tests/smoke.cjs`) |
+| `package.json`, `package-lock.json` | jsdom (versión exacta) como dependencia de desarrollo; `npm test` corre las tres pruebas de JavaScript |
+| `.github/workflows/actualizar-datos.yml` | Actualizador de datos para GitHub Actions; en esta copia se ejecuta solo a pedido |
+| `offline/Tablero_turismo_Cordoba_completo.html` | Copia autónoma para abrir sin conexión, regenerada con esta versión |
 | `DOCUMENTACION.md` | Cobertura, metodología, funcionamiento y actualización de fuentes |
 | `VERSION.json` | Identificación de esta entrega y del código de origen |
 | `SHA256SUMS.txt` | Huellas de integridad de los archivos del paquete |
@@ -58,17 +60,18 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 
 El tablero contiene datos reales ya procesados. Publicarlo no lo conecta a una base en tiempo real. La actualización requiere ejecutar el proceso de descarga y validación y publicar sus resultados.
 
-El workflow incluido puede ejecutarse manualmente en GitHub Actions, por cambios de scripts/configuración en `main` y los lunes a las 06:00 de Córdoba. **La primera incorporación del workflow y la configuración a `main` puede iniciar una actualización**, si Actions está habilitado. Necesita permiso de escritura sobre el repositorio; las reglas de protección de ramas pueden impedir el commit automático. Revisar primero el resultado de una ejecución manual y luego el despliegue correspondiente en Vercel. Descargar este ZIP no activa ni ejecuta ese proceso.
+En esta copia de trabajo, el workflow incluido se ejecuta **solo a pedido** (`workflow_dispatch`, desde la pestaña Actions de GitHub). Los disparadores por cron (lunes 06:00 de Córdoba) y por push a `main` en scripts/configuración están comentados en el archivo; antes de pasar al repositorio institucional se decidirá si se restituyen. El workflow descarga y procesa las fuentes, corre las pruebas de Python y de JavaScript, el smoke de la interfaz (`npm ci && npm test`, con Node 22) y recién entonces publica los datos. Necesita permiso de escritura sobre el repositorio; las reglas de protección de ramas pueden impedir el commit automático. Revisar primero el resultado de una ejecución manual y luego el despliegue correspondiente en Vercel. Descargar este ZIP no activa ni ejecuta ese proceso.
 
 Las series oficiales se descargan desde los enlaces de `config/sources.json`. Los nuevos informes municipales y eventos requieren revisar la fuente y añadir sus registros a los archivos de configuración; el actualizador no transcribe nuevos PDF ni descubre eventos por sí solo. El detalle está en `DOCUMENTACION.md`.
 
-Para actualizar manualmente, desde la raíz del proyecto, con Python 3.10 o superior y Node.js 20 o superior:
+Para actualizar manualmente, desde la raíz del proyecto, con Python 3.10 o superior y Node.js 22.22.2 o superior (jsdom 30 lo requiere para el smoke):
 
 ```bash
 python3 scripts/update_data.py
 python3 -m unittest discover -s tests -v
 node tests/test_model.cjs
 node tests/test_hotel.cjs
+npm ci && npm test
 ```
 
 Publicar los archivos de `site/data/` únicamente después de completar los controles. La descarga original de aviación puede rondar los 270 MB; esa tarea no se ejecuta en el navegador del visitante. La copia de `offline/` no se actualiza sola: para regenerarla, ejecutar:

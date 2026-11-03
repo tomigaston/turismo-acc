@@ -8,7 +8,8 @@ const scripts=['data/dashboard.js','model.js','data/hotel.js','hotel-model.js','
 let failures=0;
 const ok=(name,fn)=>{try{fn();console.log('PASS',name);}catch(e){failures++;console.log('FAIL',name,'\n  ',e.message);}};
 
-function open(hash=''){
+// prepare(data): permite modificar DASHBOARD_DATA antes de cargar el tablero (p. ej., un IPC sintético).
+function open(hash='',prepare){
   const errors=[],scrolled=[],vc=new VirtualConsole();
   vc.on('error',(...a)=>errors.push(a.map(String).join(' ')));
   vc.on('jsdomError',e=>errors.push('jsdomError: '+e.message));
@@ -20,7 +21,7 @@ function open(hash=''){
   w.matchMedia=q=>({matches:false,media:q,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){}});
   w.ResizeObserver=class{observe(){}unobserve(){}disconnect(){}};
   w.Element.prototype.scrollIntoView=function(opts){scrolled.push({id:this.id,opts});};
-  for(const code of scripts)w.eval(code);
+  scripts.forEach((code,i)=>{w.eval(code);if(i===0&&prepare)prepare(w.DASHBOARD_DATA);});
   const $=s=>w.document.querySelector(s),$$=s=>[...w.document.querySelectorAll(s)];
   const click=el=>el.dispatchEvent(new w.MouseEvent('click',{bubbles:true}));
   const change=(el,v)=>{el.value=v;el.dispatchEvent(new w.Event('change',{bubbles:true}));};
@@ -415,7 +416,7 @@ ok('31 · hash viejo de Mercados internacionales → esquema nuevo',()=>{
 });
 
 // ---- Navegación, Turismo interno y Fuentes y metodología ----
-const view=v=>open('#vista='+encodeURIComponent(JSON.stringify(v)));
+const view=(v,prepare)=>open('#vista='+encodeURIComponent(JSON.stringify(v)),prepare);
 
 // 32 · La navegación tiene 6 secciones.
 ok('32 · navegación con 6 secciones',()=>{
@@ -457,6 +458,34 @@ ok('36 · Fuentes y metodología sin trazabilidad técnica en pantalla',()=>{
   for(const w of ['SHA-256','clúster','pendientes de incorporación'])assert.ok(!text.includes(w),'contiene '+w);
   assert.equal(p.$$('.reading-guide li').length,5);assert.equal(p.$('#footer-version').textContent,'Fuentes oficiales · Apache ECharts');
   console.log('     ',p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]).join(' / '));
+  assert.deepEqual(p.errors,[]);
+});
+
+// IPC sintético: índice trimestral que se duplica cada 4 trimestres desde 1T-2017; base = último trimestre.
+function syntheticIpc(D){
+  const qs=[...new Set(Object.values(D.internal.scopes).flatMap(rs=>rs.map(r=>r.period)))].filter(p=>p>='2017-01').sort();
+  const quarterly=qs.map((period,i)=>({period,index:100*2**(i/4)})),base=quarterly.at(-1);
+  D.ipc={base_period:base.period,base_label:'pesos de junio 2024',monthly:[{period:base.period,index:base.index}],quarterly};
+  const by=Object.fromEntries(quarterly.map(r=>[r.period,r.index]));
+  for(const rs of Object.values(D.internal.scopes))for(const r of rs)for(const k of ['gasto_total_ars','gasto_promedio_ars'])r[k+'_const']=by[r.period]&&r[k]!=null?r[k]*base.index/by[r.period]:null;
+}
+
+// 37 · Gasto a pesos constantes: dos indicadores en la evolución; KPI y ranking siguen en pesos corrientes.
+ok('37 · evolución del gasto a pesos constantes (IPC sintético)',()=>{
+  const p=view({tab:'internal',internalMetric:'gasto_promedio_ars_const',internalPreset:'4q'},syntheticIpc),opts=p.$$('select[data-key="internalMetric"] option').map(o=>o.textContent);
+  assert.ok(opts.includes('Gasto total · pesos constantes')&&opts.includes('Gasto medio por turista · pesos constantes'),opts.join(' / '));
+  assert.match(subtitle(p,'internal-trend'),/a pesos de junio 2024$/);
+  assert.match(p.$('#panel-internal-trend').textContent,/Deflactado con el IPC nacional nivel general \(INDEC\) promedio del trimestre; antes de 2017 no hay IPC nacional y la serie queda vacía/);
+  const data=Array.from(p.options.get('chart-internal-trend').series[0].data,d=>d&&typeof d==='object'?d.value:d);console.log('     ',title(p,'internal-trend'),'·',data.filter(v=>typeof v==='number').length,'valores');
+  assert.ok(data.some(v=>typeof v==='number'),'la serie tiene valores');
+  assert.match(p.$$('.kpi')[3].textContent,/Pesos corrientes del período/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 38 · Sin IPC en los datos publicados: aviso y evolución vacía, sin errores.
+ok('38 · gasto a pesos constantes sin IPC → aviso',()=>{
+  const p=view({tab:'internal',internalMetric:'gasto_total_ars_const'},D=>{delete D.ipc;});
+  assert.equal(p.errorBox(),'');assert.match(p.$('#dashboard').textContent,/El IPC todavía no se incorporó/);
   assert.deepEqual(p.errors,[]);
 });
 

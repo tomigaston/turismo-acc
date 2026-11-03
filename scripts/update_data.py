@@ -14,6 +14,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'site/data/dashboard.json'
 CONFIG=ROOT/'config/sources.json'
+# User-Agent de un navegador común (Chrome en Windows): algunos portales rechazan con 403 a clientes no identificados como navegador.
+BROWSER_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 COUNTRY_REGIONS={'CABA','Cuyo','Córdoba','Litoral','Norte','PBA - Partidos del GBA','PBA - Resto','Patagonia'}
 CITIES={'cordoba':'Córdoba capital','carlos paz':'Villa Carlos Paz','villa carlos paz':'Villa Carlos Paz','villa general belgrano':'Villa General Belgrano','rio cuarto':'Río Cuarto','la falda':'La Falda','mina clavero':'Mina Clavero','mar chiquita':'Mar Chiquita'}
 
@@ -36,17 +38,22 @@ def complete_sum(values):
 
 def ratio(a,b,scale=1):return a/b*scale if a is not None and b is not None and b>0 else None
 
+def download_error(source,detail):
+    return f"Descarga fallida: {source.get('name',source['id'])} ({source['family']}, {source['id']}) · {detail} · {source['url']}"
+
 def fetch(source,directory):
     path=directory/source['cache_name']
-    req=urllib.request.Request(source['url'],headers={'User-Agent':'ACC-Turismo/2.0'})
+    req=urllib.request.Request(source['url'],headers={'User-Agent':BROWSER_USER_AGENT})
     try:
         with urllib.request.urlopen(req,timeout=90) as res, path.open('wb') as out:
             shutil.copyfileobj(res,out,1024*1024)
     except urllib.error.HTTPError as exc:
         # El IPC es obligatorio: si la serie no existe, se detiene todo; nunca se sigue sin IPC ni con otra serie.
-        if source['family']=='ipc':raise ValueError(f"IPC: la API de series de tiempo rechazó la serie {source['id']} (HTTP {exc.code}). Revisar el id en config/sources.json; no se usa otra serie ni se continúa sin IPC.") from exc
-        raise
-    if path.stat().st_size<20:raise ValueError('Archivo vacío: '+source['id'])
+        if source['family']=='ipc':raise ValueError(f"IPC: la API de series de tiempo rechazó la serie {source['id']} (HTTP {exc.code}) en {source['url']}. Revisar el id en config/sources.json; no se usa otra serie ni se continúa sin IPC.") from exc
+        raise ValueError(download_error(source,f'HTTP {exc.code}')) from exc
+    except urllib.error.URLError as exc:
+        raise ValueError(download_error(source,f'sin respuesta HTTP ({exc.reason})')) from exc
+    if path.stat().st_size<20:raise ValueError(download_error(source,'archivo vacío'))
     return path
 
 def rows(path):

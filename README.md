@@ -79,6 +79,9 @@ node tests/test_hotel.cjs
 npm ci && npm test
 ```
 
+Plan B si el workflow no puede descargar (por ejemplo, un 403 del portal): desde una PC con acceso, `python3 scripts/descargar_fuentes.py --output fuentes` baja todas las fuentes de `config/sources.json`, incluido el IPC, con 3 reintentos y un resumen de descargadas/fallidas con su código HTTP.
+Luego `python3 scripts/update_data.py --input-dir fuentes` procesa esa carpeta y se siguen los mismos controles.
+
 Publicar los archivos de `site/data/` únicamente después de completar los controles. La descarga original de aviación puede rondar los 270 MB; esa tarea no se ejecuta en el navegador del visitante. La copia de `offline/` no se actualiza sola: para regenerarla, ejecutar:
 
 ```bash

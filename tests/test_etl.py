@@ -102,6 +102,39 @@ class IpcTests(unittest.TestCase):
             d=tempfile.TemporaryDirectory();self.addCleanup(d.cleanup)
             with self.assertRaisesRegex(ValueError,'rechazó la serie 148.3_INIVELNAL_DICI_M_26'):etl.fetch(source,Path(d.name))
         finally:urllib.request.urlopen=original
+    def test_download_error_names_source_and_url(self):
+        import urllib.request,urllib.error
+        source={'id':'d1624c27','family':'eoh','name':'Viajeros hospedados','url':'https://datos.yvera.gob.ar/x.csv','cache_name':'eoh.csv'}
+        seen=[]
+        def refuse(req,*a,**k):seen.append(req.get_header('User-agent'));raise urllib.error.HTTPError(source['url'],403,'Forbidden',None,None)
+        original=urllib.request.urlopen;urllib.request.urlopen=refuse
+        try:
+            d=tempfile.TemporaryDirectory();self.addCleanup(d.cleanup)
+            with self.assertRaises(ValueError) as ctx:etl.fetch(source,Path(d.name))
+        finally:urllib.request.urlopen=original
+        self.assertEqual(str(ctx.exception),'Descarga fallida: Viajeros hospedados (eoh, d1624c27) · HTTP 403 · https://datos.yvera.gob.ar/x.csv')
+        self.assertEqual(seen,[etl.BROWSER_USER_AGENT]);self.assertIn('Chrome/',seen[0]);self.assertIn('Windows NT',seen[0])
+    def test_descargar_fuentes_retries_and_reports_http_code(self):
+        import urllib.request,urllib.error,io,contextlib,sys
+        sys.path.insert(0,str(ROOT/'scripts'))
+        spec2=importlib.util.spec_from_file_location('descargar',ROOT/'scripts/descargar_fuentes.py');dl=importlib.util.module_from_spec(spec2);spec2.loader.exec_module(dl)
+        calls=[]
+        class Ok(io.BytesIO):
+            def __enter__(self):return self
+            def __exit__(self,*a):return False
+        def fake(req,*a,**k):
+            calls.append(req.full_url)
+            if 'bad' in req.full_url:raise urllib.error.HTTPError(req.full_url,403,'Forbidden',None,None)
+            return Ok(b'indice_tiempo,valor\n2016-12-01,100\n')
+        original=urllib.request.urlopen;urllib.request.urlopen=fake
+        try:
+            d=tempfile.TemporaryDirectory();self.addCleanup(d.cleanup);out=Path(d.name)
+            good={'id':'g','family':'ipc','name':'IPC','url':'https://ok/ipc','cache_name':'ipc.csv'}
+            bad={'id':'b','family':'eoh','name':'EOH','url':'https://bad/eoh','cache_name':'eoh.csv'}
+            self.assertEqual(dl.download(good,out,3,0),(True,'35 bytes'));self.assertTrue((out/'ipc.csv').exists())
+            self.assertEqual(dl.download(bad,out,3,0),(False,'HTTP 403'));self.assertFalse((out/'eoh.csv').exists())
+            self.assertEqual(calls.count('https://bad/eoh'),3,'3 intentos')
+        finally:urllib.request.urlopen=original
     def test_validate_warns_without_ipc(self):
         import io,contextlib
         data=json.loads((ROOT/'site/data/dashboard.json').read_text());data['ipc']=None;err=io.StringIO()

@@ -40,6 +40,24 @@ for(const ap of ['SACO','SAEZ','SAME'])for(const dir of ['salidas','llegadas'])f
  const byRoute=m.routeRegularity(ap,ps,dir,'Internacional').reduce((s,r)=>s+r.pasajeros,0),monthly=M.aggregate(m.air(dir,'Internacional')[ap]||[],ps,'pasajeros');
  near(byRoute,monthly);
 }
+// Estacionalidad: índice (3 meses más fuertes / año), serie anual, meses valle y perfil cruzado.
+{
+ near(M.seasonalityIndex(Array(12).fill(10)),25);
+ near(M.seasonalityIndex([0,0,0,0,50,30,20,0,0,0,0,0]),100);
+ assert.equal(M.seasonalityIndex([10,10,10,10,10,null,10,10,10,10,10,10]),null);
+ assert.equal(M.seasonalityIndex(Array(11).fill(10)),null);
+ near(M.seasonalityIndex([30,10,10,10,10,10,20,20,10,10,10,10]),(30+20+20)/160*100);
+ assert.deepEqual(M.topMonths([30,10,10,10,10,10,20,20,10,10,10,10]),[0,6,7]);
+ const rows=[...M.months('2023-01','2023-12').map((p,i)=>({period:p,value:i<3?100:0})),...M.months('2024-01','2024-11').map(p=>({period:p,value:10}))];
+ const series=M.seasonalitySeries(rows);
+ assert.deepEqual(series.map(r=>r.year),['2023'],'el año incompleto se omite');near(series[0].value,100);assert.deepEqual(series[0].top,[0,1,2]);
+ const flat=M.valleyMonths(Array(12).fill(7));
+ assert.ok(flat.every(r=>r.diff===0&&r.below===false));
+ assert.equal(M.valleyMonths([1,2,3]),null);assert.equal(M.valleyMonths([...Array(11).fill(5),null]),null);
+ const v=M.valleyMonths([20,10,10,10,10,10,10,10,10,10,10,10]);near(v[0].diff,(20/(130/12)-1)*100);assert.equal(v.filter(r=>r.below).length,11);
+ const cp=M.create({}).crossProfile(M.months('2024-01','2024-12').map(p=>({period:p,value:2})),M.months('2024-01','2024-12').map((p,i)=>({period:p,value:i+1})),2024);
+ near(M.sum(cp.a.values),100);near(M.sum(cp.b.values),100);near(cp.a.values[0],100/12);near(cp.b.values[11],12/78*100);
+}
 // Rutas regulares: umbral (4 vuelos en la mitad de los meses) y clasificación nueva / perdida / se mantiene.
 assert.equal(M.regularThreshold(12),6);assert.equal(M.regularThreshold(1),1);assert.equal(M.regularThreshold(5),3);
 assert.equal(M.isRegular([4,4,4,4,4,4,0,0,0,0,0,0]),true);

@@ -34,6 +34,26 @@
     const a=new Map(now.map(r=>[r.code,r])),b=new Map(before.map(r=>[r.code,r]));
     return {gained:now.filter(r=>r.regular&&!b.get(r.code)?.regular),lost:before.filter(r=>r.regular&&!a.get(r.code)?.regular),kept:now.filter(r=>r.regular&&b.get(r.code)?.regular)};
   }
+  // Estacionalidad: participación de los 3 meses de mayor valor en la suma anual (%).
+  // 25 = sin estacionalidad; 100 = toda la actividad en 3 meses. Requiere 12 valores válidos.
+  const complete12=v=>Array.isArray(v)&&v.length===12&&v.every(valid);
+  const topMonths=(values12,n=3)=>complete12(values12)?values12.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]||a[1]-b[1]).slice(0,n).map(([,i])=>i):null;
+  function seasonalityIndex(values12){
+    if(!complete12(values12))return null;
+    const total=values12.reduce((a,b)=>a+b,0);if(!(total>0))return null;
+    return topMonths(values12).reduce((s,i)=>s+values12[i],0)/total*100;
+  }
+  // Índice por año, solo para los años con 12 meses observados (los incompletos se omiten).
+  function seasonalitySeries(rows){
+    const years=[...new Set(rows.map(r=>r.period.slice(0,4)))].sort();
+    return years.flatMap(y=>{const v=months(y+'-01',y+'-12').map(p=>at(rows,p).value??null),value=seasonalityIndex(v);return value===null?[]:[{year:y,value,top:topMonths(v)}];});
+  }
+  // Meses valle: diferencia porcentual de cada mes respecto del promedio mensual del año.
+  function valleyMonths(values12){
+    if(!complete12(values12))return null;
+    const mean=values12.reduce((a,b)=>a+b,0)/12;if(!(mean>0))return null;
+    return values12.map((v,i)=>({month:i+1,value:v,diff:(v/mean-1)*100,below:v<mean}));
+  }
   // Perfil mensual: suma de los meses homónimos del período; normalizado, cada mes como % del total del período.
   // amountOf(periodos) devuelve el agregado del ámbito (null si falta algún mes).
   function monthlyProfile(periods,amountOf,normalized=true){
@@ -114,6 +134,8 @@
       });
       return [...out.values()];
     }
+    // Dos series cualesquiera en % de su propio total del mismo año: no se suman ni se dividen entre sí.
+    function crossProfile(rowsA,rowsB,year){return {a:profile(rowsA,year,true),b:profile(rowsB,year,true)};}
     function international(gateway,flow,metric){
       const fields=['gasto_total_usd','gasto_diario_usd','gasto_por_turista_usd'];
       return (fields.includes(metric)?D.international.spending:D.international.series).filter(r=>r.gateway===gateway&&r.flow===flow).map(r=>({...r,value:r[metric]}));
@@ -122,8 +144,8 @@
       const ps=months(year+'-01',year+'-12'),values=ps.map(p=>at(rows,p).value??null),total=sum(values);
       return {values:normalized?values.map(v=>ratio(v,total,100)):values,total,complete:values.filter(valid).length};
     }
-    return {eoh,air,routes,routeRegularity,carrierMonthly,international,profile};
+    return {eoh,air,routes,routeRegularity,carrierMonthly,international,profile,crossProfile};
   }
-  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,monthlyProfile,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
+  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

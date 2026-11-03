@@ -16,7 +16,7 @@ function render(ctx){
   opt.grid.bottom=zoom?65:35;
   const eventRows=H.eventMonths(events,tr.periods);
   opt.tooltip.formatter=p=>{
-   if(!Array.isArray(p))return esc(p.name||'');
+   if(!Array.isArray(p))return p.componentType==='markLine'&&opt.series[0]?.markLine?.tooltip?opt.series[0].markLine.tooltip.formatter(p):esc(p.name||'');
    const es=eventRows.find(r=>r.period===p[0]?.axisValue)?.events||[];
    return tooltipRows(p,u)+(es.length?'<div style="border-top:1px solid #ddd;margin-top:8px;padding-top:6px;color:#8c641c">'+es.map(e=>esc(e.name)+' · '+esc(eventDate(e))).join('<br>')+'</div>':'');
   };
@@ -29,7 +29,10 @@ function render(ctx){
     const ps=M.seasonMonths(y,season).filter(p=>tr.periods.includes(p));if(ps.length>1)bands.push([{xAxis:ps[0],itemStyle:{color,opacity:.5}},{xAxis:ps.at(-1)}]);
    }
    opt.series[0].markArea={silent:true,label:{show:false},data:bands};
-   if(eventRows.length)opt.series[0].markLine={symbol:'none',lineStyle:{color:'#b58431',type:'dashed',width:1.5},label:{show:true,formatter:'◆',position:'insideEndTop',color:'#9d7022',fontSize:12},data:eventRows.map(r=>({xAxis:r.period,name:r.events.map(e=>e.name).join(' / ')}))};
+   // Una marca por mes: el tooltip detalla cada evento y la etiqueta indica cuántos hay (◆N).
+   const shortDate=e=>{const d=x=>x.slice(8,10)+'/'+x.slice(5,7);return e.start_date===e.end_date?d(e.start_date):d(e.start_date)+'–'+d(e.end_date);};
+   const eventTip=p=>{const r=eventRows.find(x=>x.period===p.data?.period);return r?'<strong>'+esc(label(r.period))+' · '+r.events.length+(r.events.length>1?' eventos':' evento')+'</strong>'+r.events.map(e=>'<div style="margin-top:6px"><strong>'+esc(e.name)+'</strong><br>'+esc(shortDate(e))+' · '+esc(e.category)+' · '+esc(e.locality)+'</div>').join(''):'';};
+   if(eventRows.length)opt.series[0].markLine={symbol:'none',lineStyle:{color:'#b58431',type:'dashed',width:1.5},label:{show:true,formatter:p=>p.data?.count>1?'◆'+p.data.count:'◆',position:'insideEndTop',color:'#9d7022',fontSize:12},tooltip:{show:true,trigger:'item',formatter:eventTip},data:eventRows.map(r=>({xAxis:r.period,period:r.period,count:r.events.length,name:r.events.map(e=>e.name).join(' / ')}))};
   }
   if(zoom&&tr.periods.length>1)opt.dataZoom=[{type:'slider',start:0,end:100,bottom:6,height:20,realtime:false,filterMode:'none',textStyle:{fontSize:9},borderColor:'#d9e4e7',fillerColor:'#d4eae3',handleStyle:{color:'#378d7d'}}];
   const note=(view==='index'?'Base 100 común: '+(tr.base?label(tr.base):'sin base positiva común')+'. ':view==='yoy'?'Variación frente al mismo mes del año anterior. ':'')+(quarter?'':'Bandas: verano (dic.–feb.) e invierno (jun.–ago.). ')+(zoom?'El selector inferior recalcula el período de todo este análisis. ':'')+'Faltantes sin interpolar. '+method;

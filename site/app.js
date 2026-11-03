@@ -14,10 +14,10 @@ const specs={viajeros:['Viajeros hospedados','viajeros',0],pernoctes:['Pernoctac
 const navs={demand:['Demanda hotelera','ACTIVIDAD Y POSICIONAMIENTO','Viajeros, pernoctaciones, ocupación y categorías de alojamiento.','M3 20V10h4v10M10 20V4h4v16M17 20V7h4v13'],air:['Conectividad aérea','CÓRDOBA COMO ORIGEN Y DESTINO','La posición del aeropuerto, sus conexiones y la evolución del cabotaje y el tráfico internacional.','M3 13l7 1 4 7 2-1-2-7 6-6c2-2 0-4-2-2l-6 6-7-2-1 2 7 4'],season:['Estacionalidad','EL RITMO DE LA ACTIVIDAD','Compará patrones mensuales y posiciones por temporada, con el mismo indicador y período.','M4 5h16v15H4zM4 9h16M8 3v4M16 3v4M8 13h2M14 13h2M8 17h2'],international:['Mercados internacionales','VIAJES A TRAVÉS DEL AEROPUERTO','Turismo receptivo y emisivo por el paso Córdoba, comparado con otros pasos aeroportuarios relevados.','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18'],internal:['Turismo interno','DEMANDA DENTRO DEL PAÍS','Córdoba como destino de viajes internos. Estadías, gasto y contexto nacional.','M3 11l9-8 9 8M6 10v11h12V10M10 21v-7h4v7'],quality:['Calidad turística','CAPACIDADES Y DISTINCIONES','Una referencia histórica de las distinciones registradas en Córdoba y el país.','M12 3l7 3v6c0 5-7 9-7 9s-7-4-7-9V6zM8 12l3 3 5-6'],sources:['Fuentes y metodología','DATOS CON TRAZABILIDAD','Cobertura, fechas, recursos oficiales y criterios para interpretar las comparaciones.','M5 4h14v17H5zM8 8h8M8 12h8M8 16h5']};
 const hotelLatest=D.eoh.scopes['Córdoba'].at(-1).period;
 const hotelFullYear=String(+hotelLatest.slice(0,4)-(hotelLatest.slice(5)<='11'?1:0));
-const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airWindow:'month',airCompare1:'Argentina',airCompare2:'SAME',rankLimit:'10',minFlights:'30',routeSearch:'',seasonData:'hotel',seasonLevel:'localidad',seasonCity:'localidad:Córdoba',seasonCompare1:'localidad:Mendoza',seasonCompare2:'localidad:Bariloche',seasonYear:'2024',seasonMetric:'pernoctes',seasonView:'share',seasonPeriod:'invierno',flow:'emisivo',intlMetric:'turistas',intlCompare1:'Aep. Mendoza',intlCompare2:'Ezeiza y Aeroparque',internalMetric:'turistas',internalCompare1:'Argentina',internalCompare2:'Cuyo',qualityCompare:'Argentina'};
+const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airCompare:'SAME',airPreset:'latest',airYear:D.air.periods.filter(p=>p.endsWith('-12')).at(-1)?.slice(0,4)||'',airFrom:'',airTo:'',rankLimit:'10',minFlights:'30',routeSearch:'',seasonData:'hotel',seasonLevel:'localidad',seasonCity:'localidad:Córdoba',seasonCompare1:'localidad:Mendoza',seasonCompare2:'localidad:Bariloche',seasonYear:'2024',seasonMetric:'pernoctes',seasonView:'share',seasonPeriod:'invierno',flow:'emisivo',intlMetric:'turistas',intlCompare1:'Aep. Mendoza',intlCompare2:'Ezeiza y Aeroparque',internalMetric:'turistas',internalCompare1:'Argentina',internalCompare2:'Cuyo',qualityCompare:'Argentina'};
 const unique=xs=>[...new Set(xs.filter(Boolean))];
 // Límite por clave en enlaces compartidos; la lista de comparadores admite más texto.
-const maxLength=k=>k==='compare'?600:200;
+const maxLength=k=>k==='compare'||k==='airCompare'?600:200;
 function readSaved(saved){
  const s={...defaults},str=k=>typeof saved[k]==='string'&&saved[k].length<200?saved[k]:null;
  for(const k of Object.keys(defaults))if(typeof saved[k]==='string'&&saved[k].length<maxLength(k))s[k]=saved[k];
@@ -26,6 +26,14 @@ function readSaved(saved){
   const city=str('city');
   s.territory=str('level')==='localidad'?(D.eoh.scope_meta[city]?.cordoba?city:'localidad:Córdoba'):'Córdoba';
   if(typeof saved.compare!=='string')s.compare=unique([str('compare1')??'Argentina',str('compare2')??'Cuyo']).join(',');
+ }
+ // Conectividad aérea: dos comparadores pasan a una lista (sin el total nacional, que no es un aeropuerto).
+ if(typeof saved.airCompare!=='string'&&['airCompare1','airCompare2'].some(k=>k in saved))s.airCompare=unique([str('airCompare1')??'Argentina',str('airCompare2')??'SAME']).filter(k=>k!=='SACO'&&D.air.airports[k]?.domestic).join(',');
+ // Ventana anterior (mes / acumulado / 12 meses sobre un mes de referencia) pasa a un período del análisis.
+ if(typeof saved.airPreset!=='string'&&'airWindow' in saved){
+  const w=str('airWindow'),last=D.air.periods.at(-1),c=D.air.periods.includes(str('cutoff'))?str('cutoff'):last;
+  if(c===last)s.airPreset=w==='year'?'ytd':w==='12'?'12':'latest';
+  else{s.airPreset='custom';s.airTo=c;s.airFrom=w==='year'?c.slice(0,4)+'-01':w==='12'?month(ordinal(c)-11):c;}
  }
  return s;
 }
@@ -52,7 +60,34 @@ function setCompare(keys){
  state.compare=list.join(',');render();
 }
 function addCompare(k){if(k&&!compareKeys().includes(k))setCompare([...compareKeys(),k]);}
-const airScopes=()=>unique(['SACO',state.airCompare1,state.airCompare2]);
+// Conectividad aérea: Córdoba (SACO) y una lista de aeropuertos argentinos; Argentina no es un aeropuerto.
+const airCompareKeys=()=>unique(String(state.airCompare||'').split(',').map(k=>k.trim())).filter(k=>k!=='SACO'&&D.air.airports[k]?.domestic);
+const airScopes=()=>['SACO',...airCompareKeys()];
+function setAirCompare(keys){
+ const list=unique(keys).filter(k=>k!=='SACO'&&D.air.airports[k]?.domestic);
+ if(list.length+1>MAX_SERIES){toast('Hasta '+MAX_SERIES+' series por gráfico, incluido Córdoba. Quitá un comparador para agregar otro.');return;}
+ state.airCompare=list.join(',');render();
+}
+function addAirCompare(k){if(k&&!airCompareKeys().includes(k))setAirCompare([...airCompareKeys(),k]);}
+const airYears=()=>D.air.periods.filter(p=>p.endsWith('-12')&&D.air.periods.includes(p.slice(0,4)+'-01')).map(p=>p.slice(0,4)).reverse();
+// Período del análisis aéreo: gobierna indicadores, ranking, rutas, mezcla y aerolíneas.
+function airPeriod(){
+ const all=D.air.periods,latest=all.at(-1),first=all[0],ok=p=>/^20\d\d-(0[1-9]|1[0-2])$/.test(p||'');
+ if(state.airPreset==='ytd')return months(latest.slice(0,4)+'-01',latest);
+ if(state.airPreset==='12')return months(month(ordinal(latest)-11),latest);
+ if(state.airPreset==='year'){const ys=airYears(),y=ys.includes(state.airYear)?state.airYear:ys[0];return months(y+'-01',y+'-12');}
+ if(state.airPreset==='custom'){
+  let a=ok(state.airFrom)?state.airFrom:latest,b=ok(state.airTo)?state.airTo:latest;
+  a=a<first?first:a>latest?latest:a;b=b<first?first:b>latest?latest:b;if(a>b)[a,b]=[b,a];return months(a,b);
+ }
+ return [latest];
+}
+// Selector + fichas + atajos, con las mismas clases que el comparador de Demanda hotelera.
+function chipCompare(key,options,selected,nameOf,shortcuts=[]){
+ const free=options.filter(([k])=>!selected.includes(k));
+ const chips=selected.map(k=>`<button class="chip" data-chip-remove="${esc(k)}" data-compare-key="${key}" aria-pressed="true" aria-label="Quitar ${esc(nameOf(k))}" title="Quitar comparador">${esc(nameOf(k))} <span aria-hidden="true">×</span></button>`).join('');
+ return `<div class="compare-group"><label class="field"><span>Comparar con</span><select data-compare-add="${key}" aria-label="Agregar comparador"><option value="">Agregar comparador…</option>${free.map(([k,l])=>`<option value="${esc(k)}">${esc(l)}</option>`).join('')}</select></label><div class="compare-extras"><div class="chips" role="group" aria-label="Comparadores seleccionados: ${selected.length+1} de ${MAX_SERIES} series">${chips||'<span class="chips-empty">Sin comparadores</span>'}</div><div class="compare-shortcuts">${shortcuts.map(([l,keys])=>`<button class="button small" data-compare-set="${esc(keys.join(','))}" data-compare-key="${key}">${esc(l)}</button>`).join('')}<button class="button small subtle" data-compare-set="" data-compare-key="${key}"${selected.length?'':' disabled'}>Quitar todos</button></div></div></div>`;
+}
 const intlScopes=()=>unique(['Aep. Córdoba',state.intlCompare1,state.intlCompare2]);
 const internalScopes=()=>unique(['Córdoba',state.internalCompare1,state.internalCompare2]);
 const scopeOptions=level=>Object.entries(D.eoh.scope_meta).filter(([,m])=>m.level===level||m.level==='pais').map(([k,m])=>[k,m.label+(m.level==='pais'?' · total nacional':'')]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
@@ -81,7 +116,7 @@ function dataNote(family,periodText,latest,method='',config={}){
 }
 function card(config){
  const c={family:current.family,periodText:label(current.period,current.quarter),latest:label(current.latest,current.quarter),method:'',rows:[],columns:[],...config};cards.set(c.id,c);
- return `<article class="panel" id="panel-${c.id}"><div class="panel-header"><div class="panel-heading">${c.kicker?'<p class="panel-kicker">'+esc(c.kicker)+'</p>':''}<h2>${esc(c.title)}</h2><p class="panel-subtitle">${esc(c.subtitle||'')}</p></div><div class="panel-actions"><button data-table="${c.id}" aria-expanded="false" title="Ver la tabla de datos">Tabla</button><button data-csv="${c.id}" title="Descargar datos con fuente y filtros">CSV</button><button data-png="${c.id}" title="Descargar gráfico con fuente y período">PNG</button></div></div><div id="chart-${c.id}" class="chart ${c.className||''}"${c.height?` style="height:${+c.height}px"`:''} aria-label="${esc(c.title)}"></div><div id="table-${c.id}" class="table-wrap" hidden></div>${dataNote(c.family,c.periodText,c.latest,c.method,c)}</article>`;
+ return `<article class="panel" id="panel-${c.id}"><div class="panel-header"><div class="panel-heading">${c.kicker?'<p class="panel-kicker">'+esc(c.kicker)+'</p>':''}<h2>${esc(c.title)}</h2><p class="panel-subtitle">${esc(c.subtitle||'')}</p>${c.controls?'<div class="card-controls">'+c.controls+'</div>':''}</div><div class="panel-actions"><button data-table="${c.id}" aria-expanded="false" title="Ver la tabla de datos">Tabla</button><button data-csv="${c.id}" title="Descargar datos con fuente y filtros">CSV</button><button data-png="${c.id}" title="Descargar gráfico con fuente y período">PNG</button></div></div><div id="chart-${c.id}" class="chart ${c.className||''}"${c.height?` style="height:${+c.height}px"`:''} aria-label="${esc(c.title)}"></div><div id="table-${c.id}" class="table-wrap" hidden></div>${dataNote(c.family,c.periodText,c.latest,c.method,c)}</article>`;
 }
 function tableHTML(c){
  return `<table><thead><tr>${c.columns.map((h,i)=>`<th scope="col"><button data-sort="${c.id}" data-column="${i}" title="Ordenar por ${esc(h)}">${esc(h)} ↕</button></th>`).join('')}</tr></thead><tbody>${c.rows.map(r=>'<tr>'+r.map((v,i)=>`<${i?'td':'th scope="row"'}>${esc(typeof v==='number'?fmt(v,Number.isInteger(v)?0:2):v??'Sin dato')}</${i?'td':'th'}>`).join('')+'</tr>').join('')}</tbody></table>`;
@@ -91,12 +126,13 @@ function axisLabel(x){return Math.abs(x)>=1e6?fmt(x/1e6,1)+' M':Math.abs(x)>=1e4
 function tooltipRows(params,unit=''){
  const ps=Array.isArray(params)?params:[params];return '<strong>'+esc(ps[0]?.axisValueLabel||ps[0]?.name||'')+'</strong>'+ps.map(p=>'<div style="margin-top:5px">'+p.marker+' '+esc(p.seriesName)+': <strong>'+esc(valid(p.value)?fmt(p.value,unit==='%'||unit==='índice'||unit==='noches'?1:0)+(unit?' '+unit:''):'Sin dato')+'</strong></div>').join('');
 }
-function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,quarter=current.quarter,seasonBands=true,...rest}){
+function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,quarter=current.quarter,seasonBands=true,periods:fixed,...rest}){
  const all=unique(series.flatMap(s=>s.rows.map(r=>r.period))).sort();
  const start=state.range==='all'?all[0]:month(ordinal(current.period)-(+state.range)+1);
- let ps=start&&current.period?months(start,current.period,quarter?3:1):[];
+ // Con períodos fijos (Conectividad aérea) no se usa la ventana de evolución.
+ let ps=fixed||(start&&current.period?months(start,current.period,quarter?3:1):[]);
  // Trimestres expresados por el primer mes del trimestre.
- if(quarter)ps=all.filter(p=>p<=current.period&&(state.range==='all'||ordinal(p)>ordinal(current.period)-(+state.range)));
+ if(quarter&&!fixed)ps=all.filter(p=>p<=current.period&&(state.range==='all'||ordinal(p)>ordinal(current.period)-(+state.range)));
  const tr=transform(series,ps,view),unit=view==='index'?'índice':view==='yoy'?'%':specs[metric]?.[1]||'';
  const opt=commonOption();
  opt.tooltip.formatter=params=>tooltipRows(params,unit);
@@ -138,21 +174,32 @@ function renderDemand(){
 }
 
 function renderAir(){
- current={family:'air',quarter:false};
- let controls=field('direction','Sentido del trayecto',[['salidas','Desde Córdoba · salidas'],['llegadas','Hacia Córdoba · llegadas'],['ambos','Llegadas + salidas']])+field('kind','Tipo de tráfico',[['all','Cabotaje + internacional'],['Cabotaje','Cabotaje'],['Internacional','Internacional']]);
- controls+=compareFields('airCompare',airportOptions(),'SACO');
- let local=field('airMetric','Indicador',metricOptions(['pasajeros','asientos','vuelos','ocupacion']))+field('view','Lectura de la evolución',[['index','Índice base 100'],['levels','Valores observados'],['yoy','Variación interanual (%)']])+field('airWindow','Período de indicadores y rankings',[['month','Mes seleccionado'],['year','Acumulado del año'],['12','Últimos 12 meses']])+field('carrier','Aerolínea',[['all','Todas las aerolíneas'],...D.air.carriers.map((n,i)=>[String(i),n])]);
- const data=model.air(state.direction,state.kind,state.carrier),ps=selectPeriod((data.SACO||[]).map(r=>({...r,value:r[state.airMetric]}))),selected=windowMonths(current.period,state.airWindow),scopes=airScopes(),caption=rangeCaption(selected),get=k=>data[k]||[],val=k=>aggregate(get(k),selected,state.airMetric);
- $('filters').innerHTML=controls+dateFields(ps);
- const eligible=Object.keys(data).filter(k=>k!=='Argentina'&&aggregate(get(k),selected,'vuelos')>=+state.minFlights),ranking=rankItems(eligible,get,selected,state.airMetric),rank=rankPosition(ranking,'SACO'),c=val('SACO'),a=val('Argentina'),old=aggregate(get('SACO'),selected.map(previous),state.airMetric),share=state.airMetric!=='ocupacion';
+ const selected=airPeriod(),latest=D.air.periods.at(-1);
+ current={family:'air',quarter:false,period:selected.at(-1),latest};
+ const data=model.air(state.direction,state.kind,state.carrier),get=k=>data[k]||[],val=k=>aggregate(get(k),selected,state.airMetric),scopes=airScopes(),caption=rangeCaption(selected);
+ // Atajo: los 6 aeropuertos argentinos con más pasajeros en el período (sin Córdoba ni el total nacional).
+ const top=rankItems(Object.keys(data).filter(k=>k!=='Argentina'&&k!=='SACO'&&D.air.airports[k]?.domestic),get,selected,'pasajeros').slice(0,6).map(r=>r.code);
+ // 1. Franja: sentido, tráfico, aerolínea, comparadores y período.
+ let controls=field('direction','Sentido del trayecto',[['salidas','Desde Córdoba · salidas'],['llegadas','Hacia Córdoba · llegadas'],['ambos','Llegadas + salidas']])+field('kind','Tipo de tráfico',[['all','Cabotaje + internacional'],['Cabotaje','Cabotaje'],['Internacional','Internacional']])+field('carrier','Aerolínea',[['all','Todas las aerolíneas'],...D.air.carriers.map((n,i)=>[String(i),n])]);
+ controls+=chipCompare('airCompare',airportOptions().filter(([k])=>k!=='Argentina'&&k!=='SACO'),airCompareKeys(),airportLabel,[['Principales aeropuertos del país',top]]);
+ controls+=field('airPreset','Período del análisis',[['latest','Último mes disponible'],['ytd','Acumulado del año'],['12','Últimos 12 meses'],['year','Año completo'],['custom','Personalizado']]);
+ if(state.airPreset==='year')controls+=field('airYear','Año',airYears());
+ if(state.airPreset==='custom')controls+=`<label class="field"><span>Desde</span><input type="month" data-key="airFrom" aria-label="Desde" min="${D.air.periods[0]}" max="${latest}" value="${selected[0]}"></label><label class="field"><span>Hasta</span><input type="month" data-key="airTo" aria-label="Hasta" min="${D.air.periods[0]}" max="${latest}" value="${selected.at(-1)}"></label>`;
+ $('filters').innerHTML=controls;
+ const local=field('airMetric','Indicador',metricOptions(['pasajeros','asientos','vuelos','ocupacion']))+field('view','Lectura de la evolución',[['index','Índice base 100'],['levels','Valores observados'],['yoy','Variación interanual (%)']]);
+ const eligible=Object.keys(data).filter(k=>k!=='Argentina'&&aggregate(get(k),selected,'vuelos')>=+state.minFlights),ranking=rankItems(eligible,get,selected,state.airMetric),rank=rankPosition(ranking,'SACO'),c=val('SACO'),a=val('Argentina'),old=aggregate(get('SACO'),selected.map(previous),state.airMetric),share=state.airMetric!=='ocupacion',peer=airCompareKeys()[0];
  const coverageNote=selected.some(p=>!valid(at(get('SACO'),p).pasajeros))?' Cobertura parcial en Córdoba: el detalle suma solo los registros disponibles; los indicadores que requieren todos los meses quedan sin dato.':'';
  const denom=state.direction==='ambos'?'Llegadas + salidas en aeropuertos argentinos':state.direction==='salidas'?'Salidas desde aeropuertos argentinos':'Llegadas a aeropuertos argentinos';
- const kpis=kpi(specs[state.airMetric][0]+' · aeropuerto de Córdoba',value(c,state.airMetric),state.airCompare1?airportShort(state.airCompare1)+': '+value(val(state.airCompare1),state.airMetric):'Sin comparador',caption,true)+kpi('Variación interanual',valid(change(c,old))?signed(change(c,old))+' %':'Sin dato','Mismo período del año anterior',rangeCaption(selected.map(previous)))+kpi(share?'Participación nacional':'Brecha de ocupación nacional',share?value(ratio(c,a,100),'ocupacion'):valid(c)&&valid(a)?signed(c-a)+' pp':'Sin dato',denom,state.kind==='all'?'Cabotaje + internacional':state.kind)+kpi('Posición del aeropuerto',rank?rank+' de '+ranking.length:'Sin dato',specs[state.airMetric][0]+' · '+(state.direction==='salidas'?'salidas':state.direction==='llegadas'?'llegadas':'ambas direcciones'),'Aeropuertos con al menos '+state.minFlights+' vuelos');
+ const kpis=kpi(specs[state.airMetric][0]+' · aeropuerto de Córdoba',value(c,state.airMetric),peer?airportShort(peer)+': '+value(val(peer),state.airMetric):'Sin comparador',caption,true)+kpi('Variación interanual',valid(change(c,old))?signed(change(c,old))+' %':'Sin dato','Mismo período del año anterior',rangeCaption(selected.map(previous)))+kpi(share?'Participación nacional':'Brecha de ocupación nacional',share?value(ratio(c,a,100),'ocupacion'):valid(c)&&valid(a)?signed(c-a)+' pp':'Sin dato',denom,state.kind==='all'?'Cabotaje + internacional':state.kind)+kpi('Posición del aeropuerto',rank?rank+' de '+ranking.length:'Sin dato',specs[state.airMetric][0]+' · '+(state.direction==='salidas'?'salidas':state.direction==='llegadas'?'llegadas':'ambas direcciones'),'Aeropuertos con al menos '+state.minFlights+' vuelos');
  let html='<div class="kpis">'+kpis+'</div><div class="inline-controls">'+local+'</div>';
- html+=lineCard({id:'air-trend',title:specs[state.airMetric][0]+' por aeropuerto · '+(state.direction==='salidas'?'salidas':state.direction==='llegadas'?'llegadas':'llegadas y salidas'),subtitle:scopes.map(airportLabel).join(' / '),series:scopes.map(k=>({name:airportShort(k),rows:get(k).map(r=>({...r,value:r[state.airMetric]}))})),metric:state.airMetric,method:'Mismos sentido, tráfico y aerolínea. Últimos tres meses de la base provisorios. Los pasajeros no representan personas únicas.'});
- html+=section('Posicionamiento y red de conexiones',caption+' · '+(state.carrier==='all'?'Todas las aerolíneas':D.air.carriers[+state.carrier]))+'<div class="inline-controls">'+field('rankLimit','Cantidad visible en rankings',[['10','Primeros 10'],['20','Primeros 20'],['30','Primeros 30']])+field('minFlights','Mínimo de vuelos · ranking aeroportuario',[['0','Sin mínimo'],['30','30 vuelos'],['100','100 vuelos'],['500','500 vuelos']])+`<label class="field wide"><span>Buscar conexión de Córdoba</span><input data-key="routeSearch" value="${esc(state.routeSearch)}" placeholder="Destino, país o código de aeropuerto" aria-label="Buscar conexión de Córdoba"></label></div>`;
+ // Evolución: el período elegido; si es un solo mes, los 24 meses que terminan en él.
+ const trendPs=selected.length===1?months(month(ordinal(selected[0])-23),selected[0]):selected;
+ html+=lineCard({id:'air-trend',title:specs[state.airMetric][0]+' por aeropuerto · '+(state.direction==='salidas'?'salidas':state.direction==='llegadas'?'llegadas':'llegadas y salidas'),subtitle:scopes.map(airportLabel).join(' / ')+(selected.length===1?' · 24 meses hasta '+label(selected[0]):''),series:scopes.map(k=>({name:airportShort(k),rows:get(k).map(r=>({...r,value:r[state.airMetric]}))})),periods:trendPs,metric:state.airMetric,method:'Mismos sentido, tráfico y aerolínea. Últimos tres meses de la base provisorios. Los pasajeros no representan personas únicas.'});
+ html+=section('Posicionamiento y red de conexiones',caption+' · '+(state.carrier==='all'?'Todas las aerolíneas':D.air.carriers[+state.carrier]));
  const routes=model.routes('SACO',selected,state.direction,state.kind,state.carrier).filter(r=>{const a=D.air.airports[r.code];return (a.city+' '+a.name+' '+a.country+' '+r.code).toLowerCase().includes(state.routeSearch.toLowerCase());}).sort((a,b)=>(b[state.airMetric]??-1)-(a[state.airMetric]??-1));
- html+='<div class="grid equal">'+barCard({id:'airport-ranking',title:'Ranking de aeropuertos argentinos',subtitle:specs[state.airMetric][0]+' · '+caption+' · Córdoba destacada',items:ranking.map(r=>({code:r.code,name:(1+ranking.filter(x=>x.value>r.value).length)+'. '+airportLabel(r.code),values:[r.value],highlight:r.code==='SACO'})),seriesNames:[specs[state.airMetric][0]],metric:state.airMetric,unit:specs[state.airMetric][1],limit:+state.rankLimit,periodText:caption,method:'Universo: '+ranking.length+' aeropuertos con dato y al menos '+state.minFlights+' vuelos en el período. '+denom+'. Clic agrega un comparador.',onClick:r=>{if(r.code!=='SACO'){state.airCompare1=r.code;if(state.airCompare2===r.code)state.airCompare2='';render();}}})+barCard({id:'routes',title:state.direction==='salidas'?'Destinos de los vuelos desde Córdoba':state.direction==='llegadas'?'Orígenes de los vuelos hacia Córdoba':'Conexiones del aeropuerto de Córdoba',subtitle:specs[state.airMetric][0]+' · '+caption+(state.routeSearch?' · búsqueda: '+state.routeSearch:''),items:routes.map(r=>({name:D.air.airports[r.code].city+' · '+r.code,values:[r[state.airMetric]]})),seriesNames:[specs[state.airMetric][0]],metric:state.airMetric,unit:specs[state.airMetric][1],limit:+state.rankLimit,periodText:caption,method:'Tramos inmediatos, que pueden ser escalas. Rutas del aeropuerto de Córdoba; los comparadores aeroportuarios no se aplican a este detalle. Tabla y CSV incluyen todas las conexiones de la selección.'+coverageNote})+'</div>';
+ const rankControls=field('minFlights','Mínimo de vuelos',[['0','Sin mínimo'],['30','30 vuelos'],['100','100 vuelos'],['500','500 vuelos']])+field('rankLimit','Cantidad visible',[['10','Primeros 10'],['20','Primeros 20'],['30','Primeros 30']]);
+ const routeControls=`<label class="field wide"><span>Buscar conexión</span><input data-key="routeSearch" value="${esc(state.routeSearch)}" placeholder="Destino, país o código" aria-label="Buscar conexión de Córdoba"></label>`;
+ html+='<div class="grid equal">'+barCard({id:'airport-ranking',title:'Ranking de aeropuertos argentinos',subtitle:specs[state.airMetric][0]+' · '+caption+' · Córdoba destacada',controls:rankControls,items:ranking.map(r=>({code:r.code,name:(1+ranking.filter(x=>x.value>r.value).length)+'. '+airportLabel(r.code),values:[r.value],highlight:r.code==='SACO'})),seriesNames:[specs[state.airMetric][0]],metric:state.airMetric,unit:specs[state.airMetric][1],limit:+state.rankLimit,periodText:caption,method:'Universo: '+ranking.length+' aeropuertos con dato y al menos '+state.minFlights+' vuelos en el período. '+denom+'. Clic agrega un comparador.',onClick:r=>{if(r.code!=='SACO')addAirCompare(r.code);}})+barCard({id:'routes',title:state.direction==='salidas'?'Destinos de los vuelos desde Córdoba':state.direction==='llegadas'?'Orígenes de los vuelos hacia Córdoba':'Conexiones del aeropuerto de Córdoba',subtitle:specs[state.airMetric][0]+' · '+caption+(state.routeSearch?' · búsqueda: '+state.routeSearch:''),controls:routeControls,items:routes.map(r=>({name:D.air.airports[r.code].city+' · '+r.code,values:[r[state.airMetric]]})),seriesNames:[specs[state.airMetric][0]],metric:state.airMetric,unit:specs[state.airMetric][1],limit:+state.rankLimit,periodText:caption,method:'Tramos inmediatos, que pueden ser escalas. Rutas del aeropuerto de Córdoba; los comparadores aeroportuarios no se aplican a este detalle. Tabla y CSV incluyen todas las conexiones de la selección.'+coverageNote})+'</div>';
  const mix=scopes.map(k=>({name:airportShort(k),values:['Cabotaje','Internacional'].map(kind=>aggregate(model.air(state.direction,kind,state.carrier)[k]||[],selected,state.airMetric))}));
  const airlines=model.routes('SACO',selected,state.direction,state.kind,state.carrier,'carrier').sort((a,b)=>(b[state.airMetric]??-1)-(a[state.airMetric]??-1));
  html+='<div class="grid equal">'+barCard({id:'air-mix',title:'Cabotaje e internacional por aeropuerto',subtitle:specs[state.airMetric][0]+' · '+caption,items:mix,seriesNames:['Cabotaje','Internacional'],metric:state.airMetric,unit:specs[state.airMetric][1],periodText:caption,method:'Los dos segmentos se muestran juntos para comparar su escala, con el mismo sentido y aerolínea. Este gráfico desagrega ambos segmentos independientemente del selector de tráfico.'})+barCard({id:'carriers',title:'Aerolíneas que operan en Córdoba',subtitle:specs[state.airMetric][0]+' · '+caption,items:airlines.map(r=>({code:r.code,name:D.air.carriers[+r.code],values:[r[state.airMetric]]})),seriesNames:[specs[state.airMetric][0]],metric:state.airMetric,unit:specs[state.airMetric][1],periodText:caption,limit:10,method:'Clic en una aerolínea para aplicar el filtro al análisis aéreo. La tabla incluye todas las aerolíneas de la selección.'+coverageNote,onClick:r=>{state.carrier=r.code;render();}})+'</div>';
@@ -169,7 +216,7 @@ function renderSeason(){
   scopes=unique([focus,state.seasonCompare1,state.seasonCompare2]);universe=Object.keys(D.eoh.scope_meta).filter(k=>D.eoh.scope_meta[k].level===state.seasonLevel);name=scopeLabel;
  }else{
   controls+=field('direction','Sentido del trayecto',[['salidas','Salidas'],['llegadas','Llegadas'],['ambos','Llegadas + salidas']])+field('kind','Tráfico',[['all','Cabotaje + internacional'],['Cabotaje','Cabotaje'],['Internacional','Internacional']]);
-  controls+=compareFields('airCompare',airportOptions(),'SACO');focus='SACO';scopes=airScopes();name=airportShort;
+  controls+=chipCompare('airCompare',airportOptions().filter(([k])=>k!=='Argentina'&&k!=='SACO'),airCompareKeys(),airportLabel);focus='SACO';scopes=airScopes();name=airportShort;
  }
  const metricControl=field('seasonMetric','Indicador',metricOptions(hotel?['pernoctes','viajeros']:['pasajeros','asientos','vuelos']));
  if(hotel)get=k=>model.eoh(k,state.seasonMetric,'total');else{const a=model.air(state.direction,state.kind,'all');get=k=>(a[k]||[]).map(r=>({...r,value:r[state.seasonMetric]}));universe=Object.keys(a).filter(k=>k!=='Argentina');}
@@ -245,7 +292,7 @@ function hotelSources(){
 function context(){
  if(state.tab==='demand'&&current.family==='municipal')return ['Córdoba capital · fuente municipal',label(current.period,true),state.hotelStar==='all'?'Todas las categorías':window.HOTEL_DATA.observatory.reports.flatMap(r=>r.categories).find(c=>c.id===state.hotelStar)?.label||state.hotelStar];
  if(state.tab==='demand')return [state.territory==='Córdoba'?'Córdoba · provincia (región EOH)':scopeLabel(state.territory),rangeCaption(months(state.hotelFrom,state.hotelTo)),state.residence==='total'?'Todas las residencias':state.residence==='residentes'?'Residentes en Argentina':'Residentes en el exterior',hotelCompare().length?'Comparadores: '+hotelCompare().map(hotelName).join(' / '):'Sin comparadores'];
- if(state.tab==='air')return ['Aeropuerto de Córdoba · SACO',{salidas:'Salidas',llegadas:'Llegadas',ambos:'Llegadas + salidas'}[state.direction],state.kind==='all'?'Cabotaje + internacional':state.kind,rangeCaption(windowMonths(current.period,state.airWindow)),state.carrier==='all'?'Todas las aerolíneas':D.air.carriers[+state.carrier]];
+ if(state.tab==='air')return ['Aeropuerto de Córdoba · SACO',{salidas:'Salidas',llegadas:'Llegadas',ambos:'Llegadas + salidas'}[state.direction],state.kind==='all'?'Cabotaje + internacional':state.kind,rangeCaption(airPeriod()),state.carrier==='all'?'Todas las aerolíneas':D.air.carriers[+state.carrier]];
  if(state.tab==='season')return [state.seasonYear,state.seasonData==='hotel'?'Demanda hotelera':'Conectividad aérea',state.seasonView==='share'?'Participación mensual en el año':'Valores mensuales',state.seasonData==='hotel'?(state.seasonLevel==='region'?'Regiones':'Localidades'):state.direction];
  if(state.tab==='international')return ['Paso Aeropuerto de Córdoba','Turismo '+state.flow,label(current.period,true)];
  if(state.tab==='internal')return ['Córdoba como destino','Universo EVyTH',label(current.period,true)];
@@ -270,6 +317,7 @@ function changeState(key,v){
  if(!(key in defaults))return;
  const before=state[key];state[key]=v;
  if(key==='hotelFrom'||key==='hotelTo')state.hotelPreset='custom';
+ if(key==='airFrom'||key==='airTo')state.airPreset='custom';
  // Al cambiar de escala, los comparadores vuelven a la selección inicial de esa escala.
  if(key==='territory')state.compare=hotelLevel(v)!==hotelLevel(before)?(hotelLevel(v)==='region'?'Argentina,Cuyo':'localidad:Mendoza,localidad:Bariloche'):compareKeys().join(',');
  if(key==='seasonLevel'){state.seasonCompare1=v==='region'?'Argentina':'localidad:Mendoza';state.seasonCompare2=v==='region'?'Cuyo':'localidad:Bariloche';}
@@ -297,12 +345,12 @@ async function share(){
  syncURL();try{await navigator.clipboard.writeText(location.href);toast(location.protocol==='file:'?'Vista copiada. Para compartirla, enviá también el archivo HTML.':'Enlace de esta vista copiado. Conserva filtros y comparadores.');}
  catch(_){const el=document.createElement('input');el.className='share-input';el.value=location.href;el.readOnly=true;el.setAttribute('aria-label','Enlace de la vista para copiar');$('filters').appendChild(el);el.select();toast('Seleccioná y copiá el enlace mostrado junto a los filtros.');}
 }
-document.addEventListener('change',e=>{if('compareAdd' in e.target.dataset){addCompare(e.target.value);return;}const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
+document.addEventListener('change',e=>{if('compareAdd' in e.target.dataset){if(e.target.dataset.compareAdd==='airCompare')addAirCompare(e.target.value);else addCompare(e.target.value);return;}const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.hotelEventYear){state.hotelPreset='year';state.hotelYear=b.dataset.hotelEventYear;state.hotelEventType='all';state.territory='Córdoba';state.compare='Argentina,Cuyo';render();return;}
- if('chipRemove' in b.dataset){setCompare(compareKeys().filter(k=>k!==b.dataset.chipRemove));return;}
- if('compareSet' in b.dataset){setCompare(b.dataset.compareSet.split(',').filter(Boolean));return;}
+ if('chipRemove' in b.dataset){if(b.dataset.compareKey==='airCompare')setAirCompare(airCompareKeys().filter(k=>k!==b.dataset.chipRemove));else setCompare(compareKeys().filter(k=>k!==b.dataset.chipRemove));return;}
+ if('compareSet' in b.dataset){const keys=b.dataset.compareSet.split(',').filter(Boolean);if(b.dataset.compareKey==='airCompare')setAirCompare(keys);else setCompare(keys);return;}
  if(b.dataset.tab){state.tab=b.dataset.tab;render();return;}
  if(b.dataset.set){
   changeState(b.dataset.set,b.dataset.value);

@@ -345,9 +345,63 @@ function renderSeason(){
  current={family:'eoh',quarter:false,period:full?year+'-12':latest,latest};
  // 1. Franja: territorio, comparadores (misma regla de escalas que Demanda hotelera) y año de análisis.
  $('filters').innerHTML=field('seasonTerritory','Territorio',S.territories(),{wide:true})+S.control()+field('seasonYear','Año de análisis',[...(incomplete?[[incomplete,incomplete+' (incompleto)']]:[]),...complete.map(y=>[y,y])]);
- let html='';
+ const values=yearValues(rows,year),scale=level==='region'?'regiones EOH':'localidades relevadas',measure='pernoctaciones · todas las residencias';
+ let html=seasonKpis(focus,year,values,name);
+ html+='<div class="grid equal">'+seasonIndexByScope(focus,scopes,level,year,name,scale,measure)+seasonIndexTrend(scopes,name,measure)+'</div>';
+ html+='<div class="grid equal">'+seasonHotelAir(focus,year,name)+seasonValleys(focus,year,values,name,measure)+'</div>';
  html+=seasonHeat(focus,scopes,level,year,name);
  $('dashboard').innerHTML=html;
+}
+// a) Indicadores del territorio en el año: índice, mes pico, mes valle y meses debajo del promedio.
+function seasonKpis(focus,year,values,name){
+ const idx=M.seasonalityIndex(values),valley=M.valleyMonths(values);
+ if(idx===null||!valley){const k=t=>kpi(t,'Año incompleto','Requiere los 12 meses observados',year);return '<div class="kpis">'+kpi('Índice de estacionalidad · '+name(focus),'Año incompleto','Requiere los 12 meses observados',year,true)+k('Mes pico')+k('Mes valle')+k('Temporada baja')+'</div>';}
+ const top=M.topMonths(values),peak=top[0],low=values.indexOf(Math.min(...values)),below=valley.filter(r=>r.below);
+ return '<div class="kpis">'+kpi('Índice de estacionalidad · '+name(focus),fmt(idx,1)+' %','peso de los 3 meses más fuertes',top.map(i=>monthNames[i]).join(', ')+' · '+year,true)+kpi('Mes pico',monthNames[peak]+' '+year,fmt(values[peak])+' pernoctaciones',signed(valley[peak].diff)+' % frente al promedio mensual')+kpi('Mes valle',monthNames[low]+' '+year,fmt(values[low])+' pernoctaciones',signed(valley[low].diff)+' % frente al promedio mensual')+kpi('Temporada baja',below.length+(below.length===1?' mes':' meses'),'por debajo del promedio mensual del año',below.map(r=>monthNames[r.month-1]).join(', '))+'</div>';
+}
+// b) Índice por ámbito: territorio, comparadores y los 10 de mayor volumen de la misma escala (hasta 14).
+function seasonIndexByScope(focus,scopes,level,year,name,scale,measure){
+ const universe=Object.keys(D.eoh.scope_meta).filter(k=>D.eoh.scope_meta[k].level===level);
+ const totalRank=universe.map(k=>({code:k,total:model.profile(seasonRows(k),+year,false).total})).filter(r=>valid(r.total)).sort((a,b)=>b.total-a.total);
+ const keys=unique([focus,...scopes,...totalRank.slice(0,10).map(r=>r.code)]).slice(0,14);
+ const items=keys.map(k=>({code:k,name:name(k),values:[M.seasonalityIndex(yearValues(seasonRows(k),year))],highlight:k===focus})).filter(r=>valid(r.values[0])).sort((a,b)=>b.values[0]-a.values[0]);
+ return barCard({id:'season-index',title:'Índice de estacionalidad por ámbito',subtitle:scale+' · '+year+' · '+measure+' · '+name(focus)+' destacado',items,seriesNames:['Índice de estacionalidad'],metric:'ocupacion',unit:'%',limit:14,periodText:'Enero a diciembre de '+year,digits:[null,1],emptyText:'Año incompleto: el índice requiere los 12 meses observados.',method:'Participación de los 3 meses más fuertes en el total anual. 25 % = sin estacionalidad; 100 % = toda la actividad en 3 meses. Solo años con 12 meses observados. Universo: territorio, comparadores y los 10 ámbitos de mayor volumen anual de la misma escala, hasta 14.'});
+}
+// c) Evolución del índice: un punto por año completo y ámbito (territorio + comparadores).
+function seasonIndexTrend(scopes,name,measure){
+ const series=scopes.map(k=>({k,rows:M.seasonalitySeries(seasonRows(k))})),years=unique(series.flatMap(s=>s.rows.map(r=>r.year))).filter(y=>y>='2007').sort();
+ const opt=commonOption();opt.grid.bottom=35;
+ opt.tooltip.formatter=params=>'<strong>'+esc(params[0]?.axisValue||'')+'</strong>'+params.map(p=>{const r=series[p.seriesIndex].rows.find(x=>x.year===p.axisValue);return '<div style="margin-top:5px">'+p.marker+' '+esc(p.seriesName)+': <strong>'+(r?fmt(r.value,1)+' %':'Sin año completo')+'</strong>'+(r?' · '+r.top.map(i=>monthNames[i]).join(', '):'')+'</div>';}).join('');
+ opt.xAxis={type:'category',data:years,boundaryGap:false,axisLabel:{fontSize:9,color:'#7a8d98'},axisTick:{show:false},axisLine:{lineStyle:{color:'#dfe7eb'}}};
+ opt.yAxis={type:'value',name:'%',scale:true,nameTextStyle:{fontSize:9,color:'#82949d'},axisLabel:{fontSize:9,color:'#7a8d98',formatter:x=>fmt(x,0)+' %'},splitLine:{lineStyle:{color:'#edf1f4'}}};
+ opt.series=series.map((s,i)=>({name:name(s.k),type:'line',data:years.map(y=>s.rows.find(r=>r.year===y)?.value??null),connectNulls:false,symbolSize:6,lineStyle:{width:i?2:3},itemStyle:{color:colors[i]},emphasis:{focus:'series'}}));
+ return card({id:'season-index-trend',title:'Evolución del índice de estacionalidad',subtitle:scopes.map(name).join(' / ')+' · años completos '+(years[0]||'')+'–'+(years.at(-1)||'')+' · '+measure,option:opt,metric:'ocupacion',unit:'%',columns:['Año',...scopes.map(name)],rows:years.map(y=>[y,...series.map(s=>s.rows.find(r=>r.year===y)?.value??null)]),digits:[null,...scopes.map(()=>1)],periodText:(years[0]||'')+' – '+(years.at(-1)||''),method:'Cada punto es el índice del año; los años incompletos no se muestran. Índice: participación de los 3 meses más fuertes en el total anual (25 % = sin estacionalidad; 100 % = toda la actividad en 3 meses).'});
+}
+// d) Hotelería y llegadas aéreas: dos fuentes en % de su propio año, solo para el territorio.
+function seasonHotelAir(focus,year,name){
+ const air=(model.air('llegadas','all','all').SACO||[]).map(r=>({period:r.period,value:r.pasajeros})),cp=model.crossProfile(seasonRows(focus),air,+year);
+ const airOk=cp.b.complete===12,provincial=focus!=='Córdoba'&&focus!=='localidad:Córdoba',airName='Llegadas aéreas · SACO';
+ const series=[{name:'Pernoctaciones · '+name(focus),values:cp.a.values},...(airOk?[{name:airName,values:cp.b.values}]:[])];
+ const opt=commonOption();opt.grid.bottom=35;opt.tooltip.formatter=p=>tooltipRows(p,'%');
+ opt.xAxis={type:'category',data:monthNames,boundaryGap:false,axisLabel:{fontSize:10,color:'#758e9c'},axisTick:{show:false},axisLine:{lineStyle:{color:'#dfe8ee'}}};
+ opt.yAxis={type:'value',name:'% del año',nameTextStyle:{fontSize:9,color:'#78919f'},axisLabel:{formatter:x=>fmt(x,0),fontSize:9},splitLine:{lineStyle:{color:'#edf2f5'}}};
+ opt.series=series.map((s,i)=>({name:s.name,type:'line',data:s.values,connectNulls:false,symbolSize:6,lineStyle:{width:i?2:3,type:i?'dashed':'solid'},itemStyle:{color:colors[i]},emphasis:{focus:'series'}}));
+ const extra=(airOk?'':notice(+year<2017?'Los datos aéreos están disponibles desde 2017: para '+year+' se muestra solo la hotelería.':'Sin los 12 meses de llegadas aéreas en '+year+': se muestra solo la hotelería.','historical'))+(cp.a.complete===12?'':notice('Año incompleto en la hotelería: '+year+' no tiene los 12 meses observados, así que su porcentaje del año no se calcula.','historical'));
+ return card({id:'season-hotel-air',title:'Hotelería y llegadas aéreas · patrón mensual de Córdoba',subtitle:name(focus)+' · pernoctaciones EOH (todas las residencias) y pasajeros llegados al aeropuerto de Córdoba (SACO'+(provincial?', aeropuerto de Córdoba, referencia provincial':'')+'; cabotaje + internacional, todas las aerolíneas) · % del año · '+year,option:opt,metric:'ocupacion',unit:'%',columns:['Mes',...series.map(s=>s.name)],rows:monthNames.map((m,i)=>[m+' '+year,...series.map(s=>s.values[i])]),digits:[null,...series.map(()=>1)],periodText:'Enero a diciembre de '+year,extra,emptyText:'Año incompleto: los porcentajes del año requieren los 12 meses.',sourceReferences:'ANAC / SIAC · Procesamiento Yvera: '+sources.air[1],method:'Dos fuentes distintas superpuestas en porcentaje del año; no se suman ni se comparan en niveles. Pasajeros no equivale a turistas.'});
+}
+// e) Meses valle y calendario: diferencia de cada mes con el promedio y conteo de feriados y eventos.
+function seasonValleys(focus,year,values,name,measure){
+ const valley=M.valleyMonths(values),H=window.HotelModel,events=window.HOTEL_DATA.calendar.events,FL='Feriados y fines de semana largos';
+ // Misma lógica que Demanda hotelera: provincia o capital; para otros destinos, solo feriados (nacionales).
+ const scope=focus==='Córdoba'||focus==='localidad:Córdoba'?focus:null;
+ const perMonth=months(year+'-01',year+'-12').map(p=>({holidays:H.eventsFor(events,scope||'Córdoba',[p],FL),events:scope?H.eventsFor(events,scope,[p]).filter(e=>e.category!==FL):[]}));
+ const opt=commonOption();opt.legend.show=false;opt.grid={left:5,right:15,top:34,bottom:20,containLabel:true};
+ opt.tooltip={trigger:'item',confine:true,formatter:p=>{const i=p.dataIndex,c=perMonth[i],list=xs=>xs.length?xs.map(e=>esc(e.name)).join('<br>'):'Ninguno';return '<strong>'+monthNames[i]+' '+year+'</strong><br>'+signed(valley[i].diff)+' % frente al promedio mensual<div style="margin-top:6px"><strong>Feriados y fines de semana largos ('+c.holidays.length+')</strong><br>'+list(c.holidays)+'</div>'+(scope?'<div style="margin-top:6px"><strong>Eventos ('+c.events.length+')</strong><br>'+list(c.events)+'</div>':'');}};
+ opt.xAxis={type:'category',data:monthNames,axisLabel:{interval:0,fontSize:9,color:'#5b7586',lineHeight:13,formatter:(m,i)=>m+'\nFL '+perMonth[i].holidays.length+(scope?'\nEv '+perMonth[i].events.length:'')},axisTick:{show:false},axisLine:{lineStyle:{color:'#c9d5db'}}};
+ opt.yAxis={type:'value',name:'% frente al promedio',nameTextStyle:{fontSize:9,color:'#82949d',align:'left'},axisLabel:{fontSize:9,color:'#7a8d98',formatter:x=>fmt(x,0)},splitLine:{lineStyle:{color:'#edf1f4'}}};
+ opt.series=valley?[{type:'bar',barMaxWidth:22,data:valley.map(r=>({value:r.diff,itemStyle:{color:r.below?'#c9d5db':colors[0],borderRadius:r.below?[0,0,3,3]:[3,3,0,0]}})),label:{show:true,position:'top',fontSize:9,color:'#597787',formatter:p=>fmt(p.value,0)}}]:[];
+ const years=unique(events.map(e=>e.start_date.slice(0,4))).sort();
+ return card({id:'season-valleys',title:'Meses valle y calendario',subtitle:name(focus)+' · '+year+' · '+measure+' · diferencia con el promedio mensual · debajo de cada mes: FL = feriados y fines de semana largos'+(scope?', Ev = eventos del calendario':' (para este destino solo se cuentan feriados)'),option:valley?opt:null,metric:'ocupacion',unit:'%',columns:['Mes','Diferencia con el promedio (%)','Feriados y fines de semana largos','Eventos'],rows:valley?valley.map((r,i)=>[monthNames[i]+' '+year,r.diff,perMonth[i].holidays.length,perMonth[i].events.length]):[],digits:[null,1,0,0],periodText:'Enero a diciembre de '+year,emptyText:'Año incompleto: los meses valle requieren los 12 meses observados.',method:'El conteo es descriptivo: no atribuye la actividad a los eventos. Calendario no exhaustivo; cargado para '+years.join(' y ')+'. Barras: (mes ÷ promedio mensual del año − 1) × 100; en gris, los meses por debajo del promedio.'});
 }
 // Calendario de intensidad: % del año por mes; territorio, comparadores y principales ámbitos de la misma escala (hasta 14).
 function seasonHeat(focus,scopes,level,year,name){
@@ -362,7 +416,7 @@ function seasonHeat(focus,scopes,level,year,name){
  heat.yAxis={type:'category',data:keys.map(name),inverse:true,splitArea:{show:true},axisLabel:{fontSize:10,width:200,overflow:'truncate'},axisTick:{show:false}};
  heat.visualMap={min:0,max:Math.max(...values.map(v=>v[2]),1),calculable:true,orient:'horizontal',left:'center',bottom:8,itemWidth:10,itemHeight:Math.min(130,Math.floor(width*0.45)),textGap:6,inRange:{color:['#eef5f2','#b8d9ce','#5aa78f','#126d58']},textStyle:{fontSize:9},formatter:v=>fmt(v,1)+'%'};
  heat.series=[{type:'heatmap',data:values,itemStyle:{borderColor:'#fff',borderWidth:2,borderRadius:2},label:{show:window.innerWidth>700,formatter:p=>fmt(p.value[2],1),fontSize:9,color:'#204e40'},emphasis:{itemStyle:{borderColor:'#163f49',borderWidth:2}}}];
- return card({id:'season-heat',title:'Calendario de intensidad turística',subtitle:'Participación de cada mes en el total anual · '+year,option:heat,metric:'ocupacion',unit:'%',height,columns:['Destino',...monthNames],rows:keys.map((k,i)=>[name(k),...profiles[i].values]),digits:[null,...monthNames.map(()=>1)],periodText:'Enero a diciembre de '+year,method:'Córdoba, comparadores y principales destinos por volumen anual, hasta 14 filas. Celdas vacías: sin dato o año incompleto para calcular porcentajes. Las localidades no se suman para estimar provincias.'});
+ return card({id:'season-heat',title:'Calendario de intensidad por destino',subtitle:name(focus)+', comparadores y principales destinos de la escala · % de las pernoctaciones del año · '+year+' · todas las residencias',option:heat,metric:'ocupacion',unit:'%',height,columns:['Destino',...monthNames],rows:keys.map((k,i)=>[name(k),...profiles[i].values]),digits:[null,...monthNames.map(()=>1)],periodText:'Enero a diciembre de '+year,emptyText:'Año incompleto: los porcentajes del año requieren los 12 meses observados.',method:'Córdoba, comparadores y principales destinos por volumen anual, hasta 14 filas. Celdas vacías: sin dato o año incompleto para calcular porcentajes. Las localidades no se suman para estimar provincias.'});
 }
 function renderInternational(){
  current={family:'eti',quarter:true};const gates=['Aep. Córdoba','Aep. Mendoza','Ezeiza y Aeroparque'];

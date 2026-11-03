@@ -47,21 +47,41 @@ const scopeLabel=k=>D.eoh.scope_meta[k]?.label||k;
 const airportLabel=k=>k==='Argentina'?'Argentina · total aeroportuario':D.air.airports[k]?D.air.airports[k].city+' · '+k:k;
 const airportShort=k=>k==='Argentina'?'Argentina':D.air.airports[k]?.city||k;
 const gateLabel=k=>k==='Aep. Córdoba'?'Aeropuerto de Córdoba':k==='Aep. Mendoza'?'Aeropuerto de Mendoza':k;
-// Demanda hotelera: un territorio de Córdoba y una lista de comparadores de la misma escala EOH.
+// Comparador EOH por territorio (Demanda hotelera y Estacionalidad): un territorio de Córdoba, una lista de
+// comparadores de la misma escala (región con regiones y Argentina; localidad con localidades), fichas y atajos.
+// refsAt(escala): ámbitos de otra escala que solo se grafican como referencia en índice o variación.
+// extraAt(escala): ámbitos de otra escala admitidos como comparadores comunes.
 const MAX_SERIES=9;
-const hotelTerritories=()=>[['Córdoba','Córdoba · provincia (región EOH)'],...Object.entries(D.eoh.scope_meta).filter(([,m])=>m.cordoba).map(([k,m])=>[k,m.label]).sort((a,b)=>a[1].localeCompare(b[1],'es'))];
-const hotelLevel=(k=state.territory)=>D.eoh.scope_meta[k]?.level==='localidad'?'localidad':'region';
-const compareKeys=()=>unique(String(state.compare||'').split(',').map(k=>k.trim())).filter(k=>D.eoh.scope_meta[k]&&k!==state.territory);
-const isHotelReference=k=>hotelLevel()==='localidad'&&(k==='Argentina'||k==='Córdoba');
-const hotelComparable=k=>{const m=D.eoh.scope_meta[k];return !!m&&k!==state.territory&&(hotelLevel()==='region'?m.level==='region'||m.level==='pais':m.level==='localidad'||isHotelReference(k));};
-const hotelCompare=()=>compareKeys().filter(hotelComparable);
-const hotelName=k=>isHotelReference(k)?(k==='Argentina'?'Argentina · total nacional (referencia)':'Córdoba · provincia (referencia)'):D.eoh.scope_meta[k]?.label||k;
-function setCompare(keys){
- const list=unique(keys).filter(k=>k!==state.territory);
- if(list.filter(hotelComparable).length+1>MAX_SERIES){toast('Hasta '+MAX_SERIES+' series por gráfico, incluido el territorio. Quitá un comparador para agregar otro.');return;}
- state.compare=list.join(',');render();
+const eohTerritories=()=>[['Córdoba','Córdoba · provincia (región EOH)'],...Object.entries(D.eoh.scope_meta).filter(([,m])=>m.cordoba).map(([k,m])=>[k,m.label]).sort((a,b)=>a[1].localeCompare(b[1],'es'))];
+function eohScopeCompare({territoryKey,compareKey,refsAt=()=>[],extraAt=()=>[],refLabel=k=>k}){
+ const meta=D.eoh.scope_meta,territory=()=>state[territoryKey];
+ const level=(k=territory())=>meta[k]?.level==='localidad'?'localidad':'region';
+ const keys=()=>unique(String(state[compareKey]||'').split(',').map(k=>k.trim())).filter(k=>meta[k]&&k!==territory());
+ const isReference=k=>refsAt(level()).includes(k),isExtra=k=>extraAt(level()).includes(k);
+ const comparable=k=>{const m=meta[k];return !!m&&k!==territory()&&(level()==='region'?m.level==='region'||m.level==='pais':m.level==='localidad'||isReference(k)||isExtra(k));};
+ const compare=()=>keys().filter(comparable);
+ const name=k=>isReference(k)?refLabel(k):meta[k]?.label||k;
+ function set(list){
+  list=unique(list).filter(k=>k!==territory());
+  if(list.filter(comparable).length+1>MAX_SERIES){toast('Hasta '+MAX_SERIES+' series por gráfico, incluido el territorio. Quitá un comparador para agregar otro.');return;}
+  state[compareKey]=list.join(',');render();
+ }
+ const add=k=>{if(k&&!keys().includes(k))set([...keys(),k]);};
+ // relative: si la lectura del gráfico admite las referencias (índice o variación).
+ function control({relative=false}={}){
+  const chosen=compare(),focus=territory(),lv=level(),opt=([k,l])=>`<option value="${esc(k)}">${esc(l)}</option>`,free=([k])=>!chosen.includes(k);
+  const pool=Object.entries(meta).filter(([k,m])=>k!==focus&&(lv==='region'?m.level==='region'||m.level==='pais':m.level==='localidad')).map(([k,m])=>[k,m.level==='pais'?m.label+' · total nacional':m.label]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
+  const references=refsAt(lv).map(k=>[k,name(k)]),extras=extraAt(lv).map(k=>[k,meta[k].label+(meta[k].level==='pais'?' · total nacional':'')]);
+  const menu=lv==='localidad'?`<optgroup label="Localidades relevadas">${pool.filter(free).map(opt).join('')}</optgroup>${extras.some(free)?`<optgroup label="Total nacional">${extras.filter(free).map(opt).join('')}</optgroup>`:''}${references.some(free)?`<optgroup label="Referencias · solo índice o variación">${references.filter(free).map(opt).join('')}</optgroup>`:''}`:pool.filter(free).map(opt).join('');
+  const chips=chosen.map(k=>{const off=isReference(k)&&!relative;return `<button class="chip${off?' off':''}" data-chip-remove="${esc(k)}" data-compare-key="${compareKey}" aria-pressed="true" aria-label="Quitar ${esc(name(k))}${off?' (no se grafica en valores observados)':''}" title="Quitar comparador">${esc(name(k))}${off?' · solo en índice o variación':''} <span aria-hidden="true">×</span></button>`;}).join('');
+  const others=lv==='region'?Object.keys(meta).filter(k=>meta[k].level==='region'&&k!==focus).concat('Argentina'):Object.keys(meta).filter(k=>meta[k].cordoba&&k!==focus);
+  return `<div class="compare-group"><label class="field"><span>Comparar con</span><select data-compare-add="${compareKey}" aria-label="Agregar comparador"><option value="">Agregar comparador…</option>${menu}</select></label><div class="compare-extras"><div class="chips" role="group" aria-label="Comparadores seleccionados: ${chosen.length+1} de ${MAX_SERIES} series">${chips||'<span class="chips-empty">Sin comparadores</span>'}</div><div class="compare-shortcuts"><button class="button small" data-compare-set="${esc(others.join(','))}" data-compare-key="${compareKey}">${lv==='region'?'Todas las regiones':'Todos los destinos de Córdoba'}</button><button class="button small subtle" data-compare-set="" data-compare-key="${compareKey}"${chosen.length?'':' disabled'}>Quitar todos</button></div></div></div>`;
+ }
+ return {MAX_SERIES,territoryKey,compareKey,territories:eohTerritories,level,keys,all:keys,compare,comparable,isReference,name,set,add,control};
 }
-function addCompare(k){if(k&&!compareKeys().includes(k))setCompare([...compareKeys(),k]);}
+// Demanda hotelera: en escala localidad, Argentina y Córdoba provincia son referencias (solo índice o variación).
+const hotelScope=eohScopeCompare({territoryKey:'territory',compareKey:'compare',refsAt:lv=>lv==='localidad'?['Argentina','Córdoba']:[],refLabel:k=>k==='Argentina'?'Argentina · total nacional (referencia)':'Córdoba · provincia (referencia)'});
+const hotelLevel=hotelScope.level,hotelCompare=hotelScope.compare,hotelName=hotelScope.name,compareKeys=hotelScope.keys;
 // Conectividad aérea: Córdoba (SACO) y una lista de aeropuertos argentinos. Argentina no es un aeropuerto:
 // entra solo como referencia del gráfico de evolución, y únicamente en índice o variación.
 const AIR_REFERENCE='Argentina',AIR_REFERENCE_LABEL='Argentina · total nacional (referencia)';
@@ -180,7 +200,7 @@ function rankPosition(items,key){const item=items.find(r=>r.code===key);return i
 function rangeCaption(ps){return ps.length>1?label(ps[0])+' – '+label(ps.at(-1)):label(ps[0]);}
 function warnHistorical(family){const last=latestSeries(family);return last&&ordinal(new Date().toISOString().slice(0,7))-ordinal(last)>12?notice('Serie histórica · Disponible hasta: '+label(last,['eti','evyth'].includes(family)),'historical'):'';}
 function renderDemand(){
- window.HotelDashboard.render({D,M,model,state,$,esc,fmt,signed,label,value,specs,field,compareFields,scopeOptions,scopeLabel,unique,section,notice,kpi,card,barCard,commonOption,axisLabel,tooltipRows,rangeCaption,render,setCurrent:c=>{current=c;},hotel:{MAX_SERIES,territories:hotelTerritories,level:hotelLevel,compare:hotelCompare,isReference:isHotelReference,name:hotelName,add:addCompare}});
+ window.HotelDashboard.render({D,M,model,state,$,esc,fmt,signed,label,value,specs,field,compareFields,scopeOptions,scopeLabel,unique,section,notice,kpi,card,barCard,commonOption,axisLabel,tooltipRows,rangeCaption,render,setCurrent:c=>{current=c;},hotel:hotelScope});
 }
 
 function renderAir(){
@@ -441,12 +461,14 @@ async function share(){
  syncURL();try{await navigator.clipboard.writeText(location.href);toast(location.protocol==='file:'?'Vista copiada. Para compartirla, enviá también el archivo HTML.':'Enlace de esta vista copiado. Conserva filtros y comparadores.');}
  catch(_){const el=document.createElement('input');el.className='share-input';el.value=location.href;el.readOnly=true;el.setAttribute('aria-label','Enlace de la vista para copiar');$('filters').appendChild(el);el.select();toast('Seleccioná y copiá el enlace mostrado junto a los filtros.');}
 }
-document.addEventListener('change',e=>{if('compareAdd' in e.target.dataset){if(e.target.dataset.compareAdd==='airCompare')addAirCompare(e.target.value);else addCompare(e.target.value);return;}const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
+// Comparadores con fichas, por clave de estado.
+const compareRegistry=()=>({compare:hotelScope,airCompare:{add:addAirCompare,set:setAirCompare,all:airAllKeys}});
+document.addEventListener('change',e=>{if('compareAdd' in e.target.dataset){compareRegistry()[e.target.dataset.compareAdd||'compare']?.add(e.target.value);return;}const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  if(b.dataset.hotelEventYear){state.hotelPreset='year';state.hotelYear=b.dataset.hotelEventYear;state.hotelEventType='all';state.territory='Córdoba';state.compare='Argentina,Cuyo';render();return;}
- if('chipRemove' in b.dataset){if(b.dataset.compareKey==='airCompare')setAirCompare(airAllKeys().filter(k=>k!==b.dataset.chipRemove));else setCompare(compareKeys().filter(k=>k!==b.dataset.chipRemove));return;}
- if('compareSet' in b.dataset){const keys=b.dataset.compareSet.split(',').filter(Boolean);if(b.dataset.compareKey==='airCompare')setAirCompare(keys);else setCompare(keys);return;}
+ if('chipRemove' in b.dataset){const r=compareRegistry()[b.dataset.compareKey||'compare'];r?.set(r.all().filter(k=>k!==b.dataset.chipRemove));return;}
+ if('compareSet' in b.dataset){compareRegistry()[b.dataset.compareKey||'compare']?.set(b.dataset.compareSet.split(',').filter(Boolean));return;}
  if(b.dataset.tab){state.tab=b.dataset.tab;render();return;}
  if(b.dataset.set){
   changeState(b.dataset.set,b.dataset.value);

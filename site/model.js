@@ -147,6 +147,12 @@
       const pick=rows=>rows.filter(r=>r.gateway===gateway&&r.flow===flow);
       return etiAggregate(pick(D.international.series),pick(D.international.spending),ps);
     }
+    // Mercados (receptivo) o destinos (emisivo) de un paso en un período: turistas y pernoctes sumados por
+    // agrupación; nulo si falta algún trimestre.
+    function internationalMarkets(gateway,flow,ps){
+      const rows=D.international.markets.filter(r=>r.gateway===gateway&&r.flow===flow),names=[...new Set(rows.map(r=>r.market))];
+      return names.map(market=>{const rs=rows.filter(r=>r.market===market);return {market,turistas:sum(ps.map(p=>at(rs,p).turistas)),pernoctes:sum(ps.map(p=>at(rs,p).pernoctes))};});
+    }
     // Dos series cualesquiera en % de su propio total del mismo año: no se suman ni se dividen entre sí.
     function crossProfile(rowsA,rowsB,year){return {a:profile(rowsA,year,true),b:profile(rowsB,year,true)};}
     function international(gateway,flow,metric){
@@ -157,7 +163,7 @@
       const ps=months(year+'-01',year+'-12'),values=ps.map(p=>at(rows,p).value??null),total=sum(values);
       return {values:normalized?values.map(v=>ratio(v,total,100)):values,total,complete:values.filter(valid).length};
     }
-    return {eoh,air,routes,routeRegularity,carrierMonthly,international,internationalPeriod,profile,crossProfile};
+    return {eoh,air,routes,routeRegularity,carrierMonthly,international,internationalPeriod,internationalMarkets,profile,crossProfile};
   }
   const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,etiAggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;

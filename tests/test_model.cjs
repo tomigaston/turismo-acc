@@ -51,6 +51,12 @@ for(const ap of ['SACO','SAEZ','SAME'])for(const dir of ['salidas','llegadas'])f
  const c=M.etiAggregate(series,[spending[0]],['2024-01','2024-04']);
  assert.equal(c.turistas,400);assert.equal(c.gasto_total_usd,null);assert.equal(c.gasto_diario_usd,null);near(c.estadia_media,4);
 }
+// Mercados ETI: suma por agrupación; un trimestre faltante anula esa agrupación.
+{
+ const s=M.create({international:{markets:[{gateway:'G',flow:'receptivo',market:'A',period:'2024-01',turistas:10,pernoctes:50},{gateway:'G',flow:'receptivo',market:'A',period:'2024-04',turistas:30,pernoctes:70},{gateway:'G',flow:'receptivo',market:'B',period:'2024-01',turistas:5,pernoctes:9}]}});
+ const r=s.internationalMarkets('G','receptivo',['2024-01','2024-04']);
+ assert.deepEqual(r.find(x=>x.market==='A'),{market:'A',turistas:40,pernoctes:120});assert.equal(r.find(x=>x.market==='B').turistas,null);
+}
 // Balanza ETI: para el aeropuerto de Córdoba, la suma anual de gasto_total_usd coincide con gasto por turista × turistas
 // de cada trimestre (la evolución), salvo el redondeo de la fuente (gasto por turista con un decimal).
 for(const flow of ['receptivo','emisivo'])for(let y=2015;y<=2025;y++){

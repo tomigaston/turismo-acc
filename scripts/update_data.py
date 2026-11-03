@@ -5,7 +5,7 @@ Los datos se procesan en streaming. Ningún faltante se transforma en cero.
 Un fallo impide sustituir la versión completa previamente publicada.
 """
 from __future__ import annotations
-import argparse, csv, hashlib, io, json, math, os, re, shutil, sys, tempfile, unicodedata, urllib.request
+import argparse, csv, hashlib, io, json, math, os, re, shutil, sys, tempfile, unicodedata, urllib.error, urllib.request
 from collections import defaultdict, Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -14,6 +14,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'site/data/dashboard.json'
 CONFIG=ROOT/'config/sources.json'
+# User-Agent de un navegador común (Chrome en Windows): algunos portales rechazan con 403 a clientes no identificados como navegador.
+BROWSER_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 COUNTRY_REGIONS={'CABA','Cuyo','Córdoba','Litoral','Norte','PBA - Partidos del GBA','PBA - Resto','Patagonia'}
 CITIES={'cordoba':'Córdoba capital','carlos paz':'Villa Carlos Paz','villa carlos paz':'Villa Carlos Paz','villa general belgrano':'Villa General Belgrano','rio cuarto':'Río Cuarto','la falda':'La Falda','mina clavero':'Mina Clavero','mar chiquita':'Mar Chiquita'}
 
@@ -36,12 +38,22 @@ def complete_sum(values):
 
 def ratio(a,b,scale=1):return a/b*scale if a is not None and b is not None and b>0 else None
 
+def download_error(source,detail):
+    return f"Descarga fallida: {source.get('name',source['id'])} ({source['family']}, {source['id']}) · {detail} · {source['url']}"
+
 def fetch(source,directory):
     path=directory/source['cache_name']
-    req=urllib.request.Request(source['url'],headers={'User-Agent':'ACC-Turismo/2.0'})
-    with urllib.request.urlopen(req,timeout=90) as res, path.open('wb') as out:
-        shutil.copyfileobj(res,out,1024*1024)
-    if path.stat().st_size<20:raise ValueError('Archivo vacío: '+source['id'])
+    req=urllib.request.Request(source['url'],headers={'User-Agent':BROWSER_USER_AGENT})
+    try:
+        with urllib.request.urlopen(req,timeout=90) as res, path.open('wb') as out:
+            shutil.copyfileobj(res,out,1024*1024)
+    except urllib.error.HTTPError as exc:
+        # El IPC es obligatorio: si la serie no existe, se detiene todo; nunca se sigue sin IPC ni con otra serie.
+        if source['family']=='ipc':raise ValueError(f"IPC: la API de series de tiempo rechazó la serie {source['id']} (HTTP {exc.code}) en {source['url']}. Revisar el id en config/sources.json; no se usa otra serie ni se continúa sin IPC.") from exc
+        raise ValueError(download_error(source,f'HTTP {exc.code}')) from exc
+    except urllib.error.URLError as exc:
+        raise ValueError(download_error(source,f'sin respuesta HTTP ({exc.reason})')) from exc
+    if path.stat().st_size<20:raise ValueError(download_error(source,'archivo vacío'))
     return path
 
 def rows(path):
@@ -188,6 +200,55 @@ def compile_air(d):
     return {'monthly':totals,'airports':airports,'carriers':carriers,'route_columns':['period','origin','destination','kind_index','carrier_index','pasajeros','asientos','vuelos'],'route_rows':records,'periods':periods,'latest_date':latest_date,'received_rows':row_count,'scope_note':'ANAC / Yvera: movimientos de vuelos comerciales regulares y no regulares. Desde Córdoba = aeropuerto de Córdoba como origen, sin filtrar residencia. Hacia Córdoba = aeropuerto de Córdoba como destino. Se conservan las magnitudes tratadas por Yvera. Pasajeros no equivale a personas únicas ni turistas; la ruta indica el tramo inmediato. En ambas direcciones, la participación nacional utiliza llegadas + salidas de aeropuertos argentinos; un tramo de cabotaje interviene en dos aeropuertos. Últimos tres meses provisorios.'}
 
 
+MONTHS_ES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+
+def next_month(p):
+    y,m=int(p[:4]),int(p[5:7]);return f'{y+(m==12)}-{1 if m==12 else m+1:02d}'
+
+def parse_ipc(path,series_id):
+    """IPC mensual: columnas indice_tiempo y la serie (con header=ids, la columna se llama como su id;
+    también se acepta valor). Exige valores > 0 y sin huecos mensuales desde 2016-12; un mes que no
+    supera al anterior solo genera un aviso."""
+    with path.open(encoding='utf-8-sig',newline='') as file:
+        reader=csv.DictReader(file);fields=reader.fieldnames or []
+        values=[f for f in fields if f!='indice_tiempo']
+        column=series_id if series_id in fields else 'valor' if 'valor' in fields else (values[0] if len(values)==1 else None)
+        if 'indice_tiempo' not in fields or column is None:
+            raise ValueError(f'IPC: la respuesta para {series_id} no es el CSV esperado (columnas: {", ".join(fields) or "ninguna"}). Se esperaba indice_tiempo y {series_id}.')
+        monthly=[]
+        for r in reader:
+            dt=period(r.get('indice_tiempo'))
+            if not dt:raise ValueError(f'IPC: fecha no reconocida {r.get("indice_tiempo")!r}')
+            if dt<'2016-12':continue
+            v=number(r.get(column))
+            if v is None or v<=0:raise ValueError(f'IPC: valor vacío o no positivo en {dt}')
+            monthly.append({'period':dt,'index':v})
+    if not monthly or monthly[0]['period']!='2016-12':raise ValueError('IPC: la serie no comienza en 2016-12 (base dic-2016)')
+    for a,b in zip(monthly,monthly[1:]):
+        if b['period']!=next_month(a['period']):raise ValueError(f"IPC: hueco mensual entre {a['period']} y {b['period']}")
+        if not b['index']>a['index']:print(f"AVISO: IPC {b['period']} ({b['index']}) no supera al mes anterior ({a['index']}).",file=sys.stderr)
+    return monthly
+
+def compile_ipc(monthly):
+    """IPC trimestral = promedio simple de los 3 meses; base = último mes publicado."""
+    by={r['period']:r['index'] for r in monthly}
+    quarterly=[]
+    for q in sorted({p[:5]+f'{(int(p[5:7])-1)//3*3+1:02d}' for p in by}):
+        ms=[q,next_month(q),next_month(next_month(q))]
+        if all(m in by for m in ms):quarterly.append({'period':q,'index':sum(by[m] for m in ms)/3})
+    base=monthly[-1]['period']
+    return {'series_id':'148.3_INIVELNAL_DICI_M_26','base_period':base,'base_label':f'pesos de {MONTHS_ES[int(base[5:7])-1]} {base[:4]}','monthly':monthly,'quarterly':quarterly}
+
+def apply_constant_prices(internal,ipc):
+    """Gasto a pesos constantes = nominal × (IPC del mes base ÷ IPC promedio del trimestre). Sin IPC, nulo."""
+    by={r['period']:r['index'] for r in (ipc or {}).get('quarterly',[])}
+    base=next((r['index'] for r in ipc['monthly'] if r['period']==ipc['base_period']),None) if ipc else None
+    for rs in internal['scopes'].values():
+        for r in rs:
+            factor=base/by[r['period']] if base and r['period'] in by else None
+            for k in ['gasto_total_ars','gasto_promedio_ars']:
+                r[k+'_const']=r.get(k)*factor if factor is not None and r.get(k) is not None else None
+
 def compile_quality(d):
     seen=set();counts=Counter();programs=Counter();last=''
     for r in get(d,'5c4c977c-d36c-4bda-b59f-448a17c9bc55'):
@@ -198,7 +259,7 @@ def compile_quality(d):
         if key in seen:continue
         seen.add(key)
         for scope in ['Argentina',r['provincia']]:counts[scope]+=1;programs[scope,r['programa']]+=1
-    return {'counts':dict(counts),'programs':[{'scope':s,'program':p,'records':n} for (s,p),n in sorted(programs.items())],'latest_date':last,'scope_note':'SACT: registros históricos de distinciones, deduplicados por organización, provincia, ciudad, programa y fecha. Una organización puede tener varias distinciones. No mide certificaciones vigentes, oferta total ni pertenencia al clúster.'}
+    return {'counts':dict(counts),'programs':[{'scope':s,'program':p,'records':n} for (s,p),n in sorted(programs.items())],'latest_date':last,'scope_note':'SACT: registros históricos de distinciones, deduplicados por organización, provincia, ciudad, programa y fecha. Una organización puede tener varias distinciones. No mide certificaciones vigentes ni oferta total.'}
 
 
 def validate(data):
@@ -212,6 +273,9 @@ def validate(data):
         for measure in ['viajeros','pernoctes']:
             if r.get(measure) is not None and a[r['period']].get(measure) is not None:assert r[measure]<=a[r['period']][measure]
     assert any(r['value'] is not None for r in data['eoh']['occupancy'])
+    if not data.get('ipc'):print('AVISO: IPC no descargado; el gasto a pesos constantes de la EVyTH queda vacío.',file=sys.stderr)
+    else:
+        ms=[r['period'] for r in data['ipc']['monthly']];assert ms==sorted(ms) and data['ipc']['base_period']==ms[-1],'IPC desordenado'
     json.dumps(data,allow_nan=False)
 
 def main():
@@ -220,13 +284,24 @@ def main():
     parser=argparse.ArgumentParser();parser.add_argument('--input-dir',type=Path);args=parser.parse_args()
     sources=json.loads(CONFIG.read_text());temp=tempfile.TemporaryDirectory();directory=args.input_dir or Path(temp.name)
     if args.input_dir:
+        # Con caché local, el IPC puede faltar: se marca «no descargada» y el gasto constante queda nulo.
         paths=[directory/s['cache_name'] for s in sources]
+        missing=[s['id'] for s,p in zip(sources,paths) if not p.exists() and s['family']!='ipc']
+        if missing:raise ValueError('Faltan en la caché: '+', '.join(missing))
     else:
         with ThreadPoolExecutor(max_workers=6) as pool:paths=list(pool.map(lambda s:fetch(s,directory),sources))
     d={s['id']:p for s,p in zip(sources,paths)}
     stamp=datetime.now(timezone.utc).isoformat(timespec='seconds')
-    data={'schema_version':3,'generated_at':stamp,'eoh':compile_eoh(d),'internal':compile_internal(d),'international':compile_international(d),'air':compile_air(d),'quality':compile_quality(d),'sources':[],'pending_sources':[{'name':'Padrón Único Nacional de Alojamiento (PUNA)','url':'https://datos.gob.ar/dataset/turismo-padron-unico-nacional-alojamiento','status':'Identificado; descarga no disponible en esta validación. Sin cifras incorporadas.'},{'name':'Observatorios turísticos provincial y municipal','url':'https://turismo.cordoba.gob.ar/datos-sectoriales-observatorio/','status':'Pendiente validar un recurso estructurado estable y su alcance geográfico.'},{'name':'Datos propios del clúster','status':'Reservado para una etapa posterior; sin cifras ni empresas incorporadas.'}]}
+    ipc_source=next((s for s in sources if s['family']=='ipc'),None)
+    if ipc_source is None:raise ValueError('IPC: falta la familia ipc en config/sources.json')
+    ipc_path=d[ipc_source['id']]
+    ipc=compile_ipc(parse_ipc(ipc_path,ipc_source['id'])) if ipc_path.exists() else None
+    data={'schema_version':3,'generated_at':stamp,'eoh':compile_eoh(d),'internal':compile_internal(d),'international':compile_international(d),'air':compile_air(d),'quality':compile_quality(d),'ipc':ipc,'sources':[],'pending_sources':[{'name':'Padrón Único Nacional de Alojamiento (PUNA)','url':'https://datos.gob.ar/dataset/turismo-padron-unico-nacional-alojamiento','status':'Identificado; descarga no disponible en esta validación. Sin cifras incorporadas.'},{'name':'Observatorios turísticos provincial y municipal','url':'https://turismo.cordoba.gob.ar/datos-sectoriales-observatorio/','status':'Pendiente validar un recurso estructurado estable y su alcance geográfico.'},{'name':'Datos propios de empresas asociadas','status':'Reservado para una etapa posterior; sin cifras ni empresas incorporadas.'}]}
+    apply_constant_prices(data['internal'],ipc)
     for s,p in zip(sources,paths):
+        if not p.exists():
+            data['sources'].append({**{k:v for k,v in s.items() if k!='cache_name'},'sha256':None,'received_rows':None,'bytes':None,'first_period':None,'latest_period':None,'checked_at':stamp,'status':'no descargada'})
+            continue
         sha=hashlib.sha256()
         with p.open('rb') as f:
             for chunk in iter(lambda:f.read(1024*1024),b''):sha.update(chunk)

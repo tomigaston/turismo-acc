@@ -1,4 +1,4 @@
-// Smoke test de Demanda hotelera con jsdom: carga site/index.html con un stub de ECharts.
+// Smoke test de las seis secciones del tablero con jsdom: carga site/index.html con un stub de ECharts.
 // Uso: node tests/smoke.cjs [ruta a site/]   (por defecto, la carpeta site del repositorio)
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM,VirtualConsole}=require('jsdom');
@@ -8,7 +8,8 @@ const scripts=['data/dashboard.js','model.js','data/hotel.js','hotel-model.js','
 let failures=0;
 const ok=(name,fn)=>{try{fn();console.log('PASS',name);}catch(e){failures++;console.log('FAIL',name,'\n  ',e.message);}};
 
-function open(hash=''){
+// prepare(data): permite modificar DASHBOARD_DATA antes de cargar el tablero (p. ej., un IPC sintético).
+function open(hash='',prepare){
   const errors=[],scrolled=[],vc=new VirtualConsole();
   vc.on('error',(...a)=>errors.push(a.map(String).join(' ')));
   vc.on('jsdomError',e=>errors.push('jsdomError: '+e.message));
@@ -20,7 +21,7 @@ function open(hash=''){
   w.matchMedia=q=>({matches:false,media:q,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){}});
   w.ResizeObserver=class{observe(){}unobserve(){}disconnect(){}};
   w.Element.prototype.scrollIntoView=function(opts){scrolled.push({id:this.id,opts});};
-  for(const code of scripts)w.eval(code);
+  scripts.forEach((code,i)=>{w.eval(code);if(i===0&&prepare)prepare(w.DASHBOARD_DATA);});
   const $=s=>w.document.querySelector(s),$$=s=>[...w.document.querySelectorAll(s)];
   const click=el=>el.dispatchEvent(new w.MouseEvent('click',{bubbles:true}));
   const change=(el,v)=>{el.value=v;el.dispatchEvent(new w.Event('change',{bubbles:true}));};
@@ -138,5 +139,356 @@ ok('8 · Analizar este mes → cambia el evento y desplaza a Datos del mes',()=>
   assert.deepEqual(p.errors,[]);
 });
 
-console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera sin errores.');
+// ---- Conectividad aérea ----
+const air=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({tab:'air',...extra})));
+const subtitle=(p,id)=>p.$('#panel-'+id+' .panel-subtitle').textContent,title=(p,id)=>p.$('#panel-'+id+' h2').textContent;
+
+// 9 · La sección y las demás que comparten app.js renderizan sin errores.
+ok('9 · Conectividad aérea y demás secciones sin errores',()=>{
+  const p=open();
+  for(const tab of ['air','season','international','internal','sources','demand']){
+    p.click(p.$(`[data-tab="${tab}"]`));assert.equal(p.errorBox(),'',tab+': '+p.errorBox());
+    console.log('     ',tab,'·',p.$$('.panel').length,'tarjetas');
+  }
+  // Estacionalidad usa el comparador EOH por territorio (ya no tiene modo aéreo).
+  p.click(p.$('[data-tab="season"]'));
+  assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-compare-add="seasonCompare"]'),'comparador EOH en Estacionalidad');assert.ok(!p.$('select[data-key="seasonData"]'),'sin interruptor de fuente');
+  p.click(p.$('[data-tab="air"]'));
+  for(const k of ['airport-ranking','routes','air-route-changes','air-mix','carrier-share','carrier-trend'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 10 · "Principales aeropuertos del país" → Córdoba + 6 aeropuertos = 7 series.
+ok('10 · "Principales aeropuertos del país" → 7 series',()=>{
+  const p=air();
+  const btn=p.$$('.compare-shortcuts button').find(b=>b.textContent==='Principales aeropuertos del país');assert.ok(btn,'atajo presente');
+  p.click(btn);
+  const s=p.series('air-trend');console.log('     ',s.join(' / '));
+  assert.equal(s.length,7);assert.ok(!s.includes('Argentina'),'Argentina no es un aeropuerto');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 11 · Año completo 2025 cambia el subtítulo del ranking.
+ok('11 · preset "Año completo 2025" cambia el subtítulo del ranking',()=>{
+  const p=air();const before=subtitle(p,'airport-ranking');
+  p.change(p.$('select[data-key="airPreset"]'),'year');p.change(p.$('select[data-key="airYear"]'),'2025');
+  const after=subtitle(p,'airport-ranking');console.log('     ',before,'→',after);
+  assert.notEqual(after,before);assert.match(after,/ene 2025 – dic 2025/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 12 · Con factor de ocupación cambia el título del ranking (y el mínimo de vuelos pasa a 100).
+ok('12 · factor de ocupación → título del ranking y mínimo de vuelos',()=>{
+  const p=air();const before=title(p,'airport-ranking');
+  p.change(p.$('select[data-key="airMetric"]'),'ocupacion');
+  const after=title(p,'airport-ranking');console.log('     ',before,'→',after);
+  assert.equal(after,'Aeropuertos según factor de ocupación');
+  assert.equal(p.$('select[data-key="minFlights"]').value,'100');
+  assert.ok(p.$$('.kpi-label').some(k=>k.textContent==='Brecha de factor de ocupación'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 13 · Rutas regulares ganadas y perdidas: se renderiza (con datos o con su aviso) sin errores.
+ok('13 · rutas regulares ganadas y perdidas sin errores',()=>{
+  for(const extra of [{},{airPreset:'12'},{airPreset:'year',airYear:'2025',kind:'Internacional'}]){
+    const p=air(extra),o=p.options.get('chart-air-route-changes'),empty=p.$('#chart-air-route-changes .empty');
+    assert.ok(o||empty,'gráfico o aviso');assert.equal(p.errorBox(),'');assert.deepEqual(p.errors,[]);
+    console.log('     ',JSON.stringify(extra),'·',subtitle(p,'air-route-changes'));
+  }
+});
+
+// 14 · Hash viejo con airCompare1/airCompare2/airWindow se convierte sin error.
+ok('14 · hash viejo de Conectividad aérea → esquema nuevo',()=>{
+  const p=air({airCompare1:'SAEZ',airCompare2:'Argentina',airWindow:'12',cutoff:'2025-06'});
+  assert.equal(p.errorBox(),'');
+  const chips=p.$$('.chip').map(c=>c.textContent.replace('×','').trim());console.log('      fichas:',chips.join(', '));
+  // Argentina, que antes era comparador, se conserva como referencia del gráfico de evolución.
+  assert.deepEqual(chips,['Ezeiza · SAEZ','Argentina · total nacional (referencia)']);
+  assert.equal(p.$('select[data-key="airPreset"]').value,'custom');
+  assert.equal(p.$('input[data-key="airFrom"]').value,'2024-07');assert.equal(p.$('input[data-key="airTo"]').value,'2025-06');
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.ok(!('airCompare1' in saved)&&!('airWindow' in saved));assert.equal(saved.airCompare,'SAEZ,Argentina');
+  assert.deepEqual(p.errors,[]);
+});
+
+const near100=(xs,msg)=>{const t=xs.filter(v=>typeof v==='number').reduce((a,b)=>a+b,0);assert.ok(Math.abs(t-100)<1e-6,msg+': '+t);};
+const values=(p,id,i=0)=>Array.from(p.options.get('chart-'+id).series[i].data,d=>typeof d==='object'&&d!==null?d.value:d);
+
+// 15 · Participación de las aerolíneas: renderiza, agrupa en Otras y la participación actual suma 100 %.
+ok('15 · participación de las aerolíneas suma 100 %',()=>{
+  for(const extra of [{},{airPreset:'12'},{airPreset:'year',airYear:'2025',airMetric:'vuelos'}]){
+    const p=air(extra),o=p.options.get('chart-carrier-share');assert.ok(o,'gráfico');
+    const names=Array.from(o.yAxis.data,String),now=values(p,'carrier-share',0);
+    assert.ok(names.length<=9,'8 principales + Otras');
+    if(names.length===9)assert.equal(names.at(-1),'Otras');
+    near100(now,'participación actual '+JSON.stringify(extra));
+    console.log('     ',JSON.stringify(extra),'·',names.length,'filas ·',names.slice(0,3).join(', '),'…');
+    assert.deepEqual(p.errors,[]);
+  }
+});
+
+// 16 · Evolución mensual por aerolínea: áreas apiladas; en participación cada mes suma 100 %.
+ok('16 · evolución mensual por aerolínea (valores y participación)',()=>{
+  const p=air({airPreset:'12'});let o=p.options.get('chart-carrier-trend');
+  assert.ok(o.series.every(s=>s.stack==='total'),'stack');assert.equal(o.series.at(-1).name,'Otras');assert.equal(o.series.length,6);
+  p.change(p.$('select[data-key="airCarrierView"]'),'share');o=p.options.get('chart-carrier-trend');
+  for(let i=0;i<o.xAxis.data.length;i++)near100(o.series.map(s=>s.data[i]),'mes '+o.xAxis.data[i]);
+  console.log('     ',o.xAxis.data.length,'meses ·',o.series.map(s=>s.name).join(' / '));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 17 · Conectividad internacional directa: sugerencia sin comparadores; una barra por aeropuerto con comparadores.
+ok('17 · conectividad internacional directa',()=>{
+  let p=air({airCompare:''});
+  assert.match(p.$('#panel-air-intl').textContent,/Agregá aeropuertos en Comparar con/);
+  assert.equal(p.options.get('chart-air-intl').yAxis.data.length,1);
+  p=air({airCompare:'SAME,SAEZ',kind:'Cabotaje',airPreset:'year',airYear:'2025'});
+  const o=p.options.get('chart-air-intl');assert.equal(o.yAxis.data.length,3);
+  assert.equal(p.$$('#panel-air-intl details:not(.method-note)').length,3);
+  assert.match(subtitle(p,'air-intl'),/tráfico internacional/,'aun con Cabotaje en el selector');
+  p.change(p.$('select[data-key="airIntlMetric"]'),'pasajeros');
+  console.log('     ',Array.from(p.options.get('chart-air-intl').yAxis.data,String).join(' / '),'·',title(p,'air-intl'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 18 · Estacionalidad aérea: año completo o último año completo; participación suma 100 %, con Argentina solo en esa lectura.
+ok('18 · estacionalidad aérea',()=>{
+  let p=air();
+  assert.match(subtitle(p,'air-season'),/último año completo disponible/);
+  let o=p.options.get('chart-air-season'),names=o.series.map(s=>s.name);
+  assert.ok(names.includes('Argentina · total nacional'),'referencia en participación');
+  near100(values(p,'air-season',0),'Córdoba');
+  p.change(p.$('select[data-key="airSeasonView"]'),'levels');
+  names=p.options.get('chart-air-season').series.map(s=>s.name);assert.ok(!names.includes('Argentina · total nacional'),'sin referencia en valores');
+  p=air({airPreset:'year',airYear:'2024'});assert.doesNotMatch(subtitle(p,'air-season'),/último año completo/);assert.match(subtitle(p,'air-season'),/2024/);
+  console.log('     ',title(p,'air-season'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 19 · Argentina como referencia en la evolución: no en valores observados (con aviso), sí en índice.
+const AIR_REF='Argentina · total nacional (referencia)';
+ok('19 · Argentina como referencia del gráfico de evolución',()=>{
+  const p=air({view:'levels'});
+  p.change(p.$('select[data-compare-add="airCompare"]'),'Argentina');
+  let s=p.series('air-trend');console.log('     ','valores:',s.join(' / '));
+  assert.ok(!s.includes(AIR_REF),'no se grafica en valores observados');
+  assert.ok(p.$$('.notice').some(n=>n.textContent===AVISO),'aviso de escala');
+  assert.ok(p.$$('.chip').some(c=>c.textContent.includes(AIR_REF)&&c.classList.contains('off')),'ficha punteada');
+  for(const view of ['index','yoy','base2019']){
+    p.change(p.$('select[data-key="view"]'),view);s=p.series('air-trend');
+    assert.ok(s.includes(AIR_REF),view);assert.ok(!p.$$('.notice').some(n=>n.textContent===AVISO),'sin aviso en '+view);
+  }
+  console.log('     ','índice/variación:',s.join(' / '));
+  // El resto de la sección sigue usando solo aeropuertos.
+  assert.ok(!Array.from(p.options.get('chart-air-intl').yAxis.data,String).some(n=>n.includes('Argentina')));
+  assert.ok(!Array.from(p.options.get('chart-air-mix').yAxis.data,String).some(n=>n.includes('Argentina')));
+  assert.deepEqual(p.errors,[]);
+});
+
+// ---- Estacionalidad ----
+const season=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({tab:'season',...extra})));
+const SEASON_CARDS=['season-index','season-index-trend','season-hotel-air','season-valleys','season-heat'];
+
+// 20 · La sección renderiza sin errores con el año por defecto (último año completo).
+ok('20 · Estacionalidad con el año por defecto',()=>{
+  const p=season();
+  assert.equal(p.errorBox(),'');assert.equal(p.$('select[data-key="seasonYear"]').value,'2024');
+  assert.match(p.$('select[data-key="seasonYear"]').textContent,/2025 \(incompleto\)/);
+  for(const k of SEASON_CARDS)assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  for(const k of ['season-profile','season-ranking'])assert.ok(!p.$('#panel-'+k),'ya no existe '+k);
+  assert.ok(!p.$('select[data-key="seasonData"]')&&!p.$('select[data-key="seasonMetric"]'),'sin interruptor de fuente ni selector de indicador');
+  const kpis=p.$$('.kpi-label').map(k=>k.textContent);console.log('     ',kpis.join(' | '));
+  assert.deepEqual(kpis,['Índice de estacionalidad · Córdoba','Mes pico','Mes valle','Temporada baja']);
+  assert.match(p.$('.kpi-value').textContent,/%$/);
+  assert.match(p.$('.hotel-range').textContent,/EOH \(Encuesta de Ocupación Hotelera, INDEC\)/);assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 21 · Con 2025 (incompleto) los cuatro KPI dicen "Año incompleto".
+ok('21 · 2025 → KPI "Año incompleto"',()=>{
+  const p=season();p.change(p.$('select[data-key="seasonYear"]'),'2025');
+  const values=p.$$('.kpi-value').map(k=>k.textContent);console.log('     ',values.join(' | '));
+  assert.deepEqual(values,Array(4).fill('Año incompleto'));
+  assert.equal(p.errorBox(),'');assert.deepEqual(p.errors,[]);
+});
+
+// 22 · "Todas las regiones" → 8 series en la evolución del índice.
+ok('22 · "Todas las regiones" → 8 series en la evolución del índice',()=>{
+  const p=season();
+  p.click(p.$$('.compare-shortcuts button').find(b=>b.textContent==='Todas las regiones'));
+  const s=p.series('season-index-trend');console.log('     ',s.join(' / '));
+  assert.equal(s.length,8);assert.deepEqual(p.errors,[]);
+});
+
+// 23 · Hotelería y llegadas aéreas: 2 series en 2024; 1 en 2015, con aviso (aéreo desde 2017).
+ok('23 · hotelería/aéreo: 2 series en 2024, 1 en 2015 con aviso',()=>{
+  let p=season();assert.equal(p.series('season-hotel-air').length,2);console.log('      2024:',p.series('season-hotel-air').join(' / '));
+  p=season({seasonYear:'2015'});assert.equal(p.series('season-hotel-air').length,1);
+  const aviso=p.$('#panel-season-hotel-air .notice');assert.ok(aviso,'aviso');assert.match(aviso.textContent,/desde 2017/);console.log('      2015:',aviso.textContent);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 24 · Meses valle y calendario: 12 barras.
+ok('24 · meses valle: 12 barras',()=>{
+  const p=season(),o=p.options.get('chart-season-valleys');
+  assert.equal(o.series[0].data.length,12);assert.equal(o.xAxis.data.length,12);
+  console.log('     ',Array.from(o.series[0].data,d=>Math.round(d.value)).join(' '));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 25 · Hash viejo con seasonCity/seasonCompare1 carga sin error.
+ok('25 · hash viejo de Estacionalidad → esquema nuevo',()=>{
+  const p=season({seasonLevel:'localidad',seasonCity:'localidad:Carlos Paz',seasonCompare1:'localidad:Mendoza',seasonData:'air',seasonView:'levels',seasonPeriod:'verano'});
+  assert.equal(p.errorBox(),'');
+  assert.equal(p.$('select[data-key="seasonTerritory"]').value,'localidad:Carlos Paz');
+  const chips=p.$$('.chip').map(c=>c.textContent.replace('×','').trim());console.log('      fichas:',chips.join(', '));
+  assert.ok(chips.includes('Ciudad de Mendoza'));
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.ok(!('seasonCity' in saved)&&!('seasonData' in saved)&&!('seasonCompare1' in saved));
+  assert.deepEqual(p.errors,[]);
+});
+
+// ---- Mercados internacionales ----
+const intl=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({tab:'international',...extra})));
+const INTL_CARDS=['intl-balance','intl-trend','intl-markets','intl-market-trend','intl-motives','intl-stay','intl-spend','intl-share'];
+const kpiValues=p=>p.$$('.kpi').map(k=>k.querySelector('.kpi-value').textContent);
+
+// 26 · La sección renderiza con el período por defecto (año completo, último año con 4 trimestres).
+ok('26 · Mercados internacionales con el período por defecto',()=>{
+  const p=intl();
+  assert.equal(p.errorBox(),'');assert.equal(p.$('select[data-key="intlPreset"]').value,'year');assert.equal(p.$('select[data-key="flow"]').value,'receptivo');
+  for(const k of INTL_CARDS)assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  assert.ok(!p.$('select[data-key="cutoff"]')&&!p.$('select[data-key="intlCompare1"]'),'sin dateFields ni dos comparadores');
+  assert.deepEqual(p.$$('[data-chip-toggle]').map(b=>b.getAttribute('aria-pressed')),['true','true'],'comparadores activos por defecto');
+  assert.ok(!p.$('select[data-compare-add="intlCompare"]'),'sin selector de agregar');
+  assert.match(p.$('.intl-concept').textContent,/ETI \(Encuesta de Turismo Internacional, INDEC\)/);
+  console.log('     ','año',p.$('select[data-key="intlYear"]').value,'·',p.$$('.panel').length,'tarjetas');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 27 · Los 4 KPI de balanza tienen valor con el último año completo.
+ok('27 · KPI de balanza con valor',()=>{
+  const p=intl(),labels=p.$$('.kpi-label').map(k=>k.textContent),values=kpiValues(p);console.log('     ',values.join(' | '));
+  assert.deepEqual(labels,['Ingreso de divisas · receptivo','Gasto en el exterior · emisivo','Saldo','Relación emisivo / receptivo']);
+  assert.ok(values.every(v=>v&&v!=='Sin dato'),'sin "Sin dato"');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 28 · Emisivo no cambia la balanza pero sí la evolución y los mercados.
+ok('28 · emisivo: balanza igual, evolución y mercados distintos',()=>{
+  const p=intl(),kpis=kpiValues(p),trend=JSON.stringify(p.options.get('chart-intl-trend').series.map(s=>s.data)),marketTitle=title(p,'intl-markets'),markets=Array.from(p.options.get('chart-intl-markets').yAxis.data,String);
+  p.change(p.$('select[data-key="flow"]'),'emisivo');
+  assert.deepEqual(kpiValues(p),kpis,'KPI de balanza');
+  assert.notEqual(JSON.stringify(p.options.get('chart-intl-trend').series.map(s=>s.data)),trend,'evolución');
+  assert.notEqual(title(p,'intl-markets'),marketTitle);assert.notDeepEqual(Array.from(p.options.get('chart-intl-markets').yAxis.data,String),markets);
+  console.log('     ',title(p,'intl-trend'),'·',title(p,'intl-markets'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 29 · "Último trimestre" muestra 16 trimestres en la evolución.
+ok('29 · último trimestre → 16 trimestres en la evolución',()=>{
+  const p=intl();p.change(p.$('select[data-key="intlPreset"]'),'latest');
+  const x=Array.from(p.options.get('chart-intl-trend').xAxis.data,String);console.log('     ',x[0],'→',x.at(-1),'·',x.length,'trimestres');
+  assert.equal(x.length,16);assert.match(subtitle(p,'intl-trend'),/16 trimestres hasta/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 30 · Motivos: la participación suma 100 % por paso (±0,1), en ambos sentidos.
+ok('30 · motivos suma 100 % por paso',()=>{
+  for(const flow of ['receptivo','emisivo']){
+    const p=intl({flow}),o=p.options.get('chart-intl-motives');
+    for(const sr of o.series){const t=Array.from(sr.data,d=>d.value).filter(v=>typeof v==='number').reduce((a,b)=>a+b,0);assert.ok(Math.abs(t-100)<=0.1,flow+' '+sr.name+': '+t);}
+    console.log('     ',flow,'·',p.$('.intl-note').textContent);
+    assert.deepEqual(p.errors,[]);
+  }
+});
+
+// 31 · Hash viejo con intlCompare1/cutoff carga sin error.
+ok('31 · hash viejo de Mercados internacionales → esquema nuevo',()=>{
+  const p=intl({intlCompare1:'Aep. Mendoza',intlCompare2:'',cutoff:'2024-07',flow:'emisivo'});
+  assert.equal(p.errorBox(),'');
+  assert.deepEqual(p.$$('[data-chip-toggle]').map(b=>b.getAttribute('aria-pressed')),['true','false']);
+  assert.equal(p.$('select[data-key="intlYear"]').value,'2024');
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.ok(!('intlCompare1' in saved));assert.equal(saved.intlCompare,'Aep. Mendoza');
+  assert.deepEqual(p.errors,[]);
+});
+
+// ---- Navegación, Turismo interno y Fuentes y metodología ----
+const view=(v,prepare)=>open('#vista='+encodeURIComponent(JSON.stringify(v)),prepare);
+
+// 32 · La navegación tiene 6 secciones.
+ok('32 · navegación con 6 secciones',()=>{
+  const p=open(),tabs=p.$$('#navigation .nav-item').map(b=>b.dataset.tab);console.log('     ',tabs.join(' / '));
+  assert.deepEqual(tabs,['demand','air','season','international','internal','sources']);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 33 · Un hash viejo con tab=quality abre Turismo interno.
+ok('33 · tab=quality → Turismo interno',()=>{
+  const p=view({tab:'quality'});
+  assert.equal(p.errorBox(),'');assert.equal(p.$('#page-title').textContent,'Turismo interno');
+  assert.equal(p.$('.nav-item.active').dataset.tab,'internal');
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.equal(saved.tab,'internal');assert.deepEqual(p.errors,[]);
+});
+
+// 34 · En Turismo interno, el selector de la evolución no ofrece gasto en pesos corrientes.
+ok('34 · evolución sin gasto en pesos corrientes',()=>{
+  const p=view({tab:'internal',internalMetric:'gasto_total_ars'}),opts=p.$$('select[data-key="internalMetric"] option').map(o=>o.value);console.log('     ',opts.join(' / '));
+  assert.ok(!opts.includes('gasto_total_ars')&&!opts.includes('gasto_promedio_ars'),'sin gasto nominal');
+  assert.equal(p.$('select[data-key="internalMetric"]').value,'turistas','un hash con gasto nominal vuelve a turistas');
+  const rank=p.$$('select[data-key="internalRankMetric"] option').map(o=>o.value);assert.ok(rank.includes('gasto_total_ars'),'el ranking sí ofrece gasto');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 35 · La tarjeta de calidad turística (SACT) se renderiza en Turismo interno.
+ok('35 · tarjeta de calidad turística',()=>{
+  const p=view({tab:'internal'});
+  assert.ok(p.$('#panel-quality-programs'),'tarjeta presente');assert.equal(title(p,'quality-programs'),'Calidad turística · distinciones del SACT');
+  const names=Array.from(p.options.get('chart-quality-programs').yAxis.data,String);console.log('     ',names.length,'programas ·',p.$$('#panel-quality-programs .mini-kpis div').map(d=>[...d.children].map(c=>c.textContent).join(' ')).join(' · '));
+  assert.ok(names.length>0);assert.match(p.$('#panel-quality-programs').textContent,/no equivale a vigencia/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 36 · Fuentes y metodología: sin SHA-256, clúster ni fuentes pendientes; con las cinco frases de lectura.
+ok('36 · Fuentes y metodología sin trazabilidad técnica en pantalla',()=>{
+  const p=view({tab:'sources'}),text=p.$('#dashboard').textContent+p.$('#filters').textContent;
+  for(const w of ['SHA-256','clúster','pendientes de incorporación'])assert.ok(!text.includes(w),'contiene '+w);
+  assert.equal(p.$$('.reading-guide li').length,5);assert.equal(p.$('#footer-version').textContent,'Fuentes oficiales · Apache ECharts');
+  console.log('     ',p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]).join(' / '));
+  assert.deepEqual(p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]),['EOH','Conectividad aérea','ETI','EVyTH','SACT','IPC','Observatorio Turístico']);
+  assert.deepEqual(p.errors,[]);
+});
+
+// IPC sintético: índice trimestral que se duplica cada 4 trimestres desde 1T-2017; base = último trimestre.
+function syntheticIpc(D){
+  const qs=[...new Set(Object.values(D.internal.scopes).flatMap(rs=>rs.map(r=>r.period)))].filter(p=>p>='2017-01').sort();
+  const quarterly=qs.map((period,i)=>({period,index:100*2**(i/4)})),base=quarterly.at(-1);
+  D.ipc={base_period:base.period,base_label:'pesos de junio 2024',monthly:[{period:base.period,index:base.index}],quarterly};
+  const by=Object.fromEntries(quarterly.map(r=>[r.period,r.index]));
+  for(const rs of Object.values(D.internal.scopes))for(const r of rs)for(const k of ['gasto_total_ars','gasto_promedio_ars'])r[k+'_const']=by[r.period]&&r[k]!=null?r[k]*base.index/by[r.period]:null;
+}
+
+// 37 · Gasto a pesos constantes: dos indicadores en la evolución; KPI y ranking siguen en pesos corrientes.
+ok('37 · evolución del gasto a pesos constantes (IPC sintético)',()=>{
+  const p=view({tab:'internal',internalMetric:'gasto_promedio_ars_const',internalPreset:'4q'},syntheticIpc),opts=p.$$('select[data-key="internalMetric"] option').map(o=>o.textContent);
+  assert.ok(opts.includes('Gasto total · pesos constantes')&&opts.includes('Gasto medio por turista · pesos constantes'),opts.join(' / '));
+  assert.match(subtitle(p,'internal-trend'),/a pesos de junio 2024$/);
+  assert.match(p.$('#panel-internal-trend').textContent,/Deflactado con el IPC nacional nivel general \(INDEC\) promedio del trimestre; antes de 2017 no hay IPC nacional y la serie queda vacía/);
+  const data=Array.from(p.options.get('chart-internal-trend').series[0].data,d=>d&&typeof d==='object'?d.value:d);console.log('     ',title(p,'internal-trend'),'·',data.filter(v=>typeof v==='number').length,'valores');
+  assert.ok(data.some(v=>typeof v==='number'),'la serie tiene valores');
+  assert.match(p.$$('.kpi')[3].textContent,/Pesos corrientes del período/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 38 · Sin IPC en los datos publicados: aviso y evolución vacía, sin errores.
+ok('38 · gasto a pesos constantes sin IPC → aviso',()=>{
+  const p=view({tab:'internal',internalMetric:'gasto_total_ars_const'},D=>{delete D.ipc;});
+  assert.equal(p.errorBox(),'');assert.match(p.$('#dashboard').textContent,/El IPC todavía no se incorporó/);
+  assert.deepEqual(p.errors,[]);
+});
+
+console.log(failures?`\n${failures} fallas`:'\nOK: smoke de las seis secciones sin errores.');
 process.exit(failures?1:0);

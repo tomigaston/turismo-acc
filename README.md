@@ -1,6 +1,6 @@
 # Turismo Córdoba · Paquete para GitHub y Vercel
 
-Versión del 3 de noviembre de 2026: 28 recursos estadísticos oficiales, seis informes municipales y 70 eventos en el calendario (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada). Incluye Apache ECharts 6.0.0 y los filtros, tablas y exportaciones del tablero. Los bloques de notas interpretativas y el espacio reservado para información del clúster ya están retirados. La copia autónoma de `offline/` está regenerada con esta versión.
+Versión del 3 de noviembre de 2026: 28 recursos estadísticos oficiales, seis informes municipales y 70 eventos en el calendario (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada). Seis secciones: Demanda hotelera, Conectividad aérea, Estacionalidad, Mercados internacionales, Turismo interno (con la calidad turística del SACT al cierre) y Fuentes y metodología. Incluye Apache ECharts 6.0.0 y los filtros, tablas y exportaciones del tablero. Los bloques de notas interpretativas ya están retirados. La copia autónoma de `offline/` está regenerada con esta versión.
 
 ## 1. Subir al GitHub existente
 
@@ -35,6 +35,11 @@ Para publicar esta carga no hacen falta una base de datos, variables de entorno 
 - Entrar en Demanda hotelera y recorrer Demanda y posición, Estacionalidad, Ocupación por categoría y Eventos.
 - Cambiar Territorio, agregar y quitar comparadores en Comparar con y cambiar el Período; comprobar que se actualicen los indicadores y gráficos.
 - En Eventos, pulsar «Analizar este mes» en una tarjeta: la página baja a «Datos del mes» de ese evento.
+- En Conectividad aérea, agregar aeropuertos en Comparar con (o «Principales aeropuertos del país») y cambiar el Período del análisis; comprobar que cambien indicadores, ranking, rutas, rutas regulares ganadas y perdidas, conectividad internacional, aerolíneas y estacionalidad aérea. Con lectura en índice, agregar «Argentina · total nacional (referencia)» y ver la comparación de Córdoba con el país.
+- En Mercados internacionales, tener presente que el aeropuerto de Córdoba es un **paso**: receptivo son residentes en el exterior que entraron al país por él, vayan a donde vayan; emisivo, residentes en Argentina de cualquier provincia que salieron por él. Cambiar Sentido, comparadores y Período del análisis. La balanza (ingreso de divisas, gasto en el exterior, saldo) no depende del sentido elegido. Turistas, pernoctes y gasto total se suman; estadía media = suma de pernoctes ÷ suma de turistas; gasto por turista = suma de gasto total ÷ suma de turistas; gasto diario = suma de gasto total ÷ suma de pernoctes. Nunca se promedian promedios trimestrales, y si falta un trimestre del período el agregado queda sin dato (no se imputa).
+- En Estacionalidad, cambiar Territorio, comparadores y Año de análisis. El índice de estacionalidad es la participación de los 3 meses con más pernoctaciones en el total anual, en %. Va de 25 % (los 12 meses iguales: sin estacionalidad) a 100 % (toda la actividad en 3 meses). Con un año incompleto, los indicadores dicen «Año incompleto».
+- En Turismo interno (EVyTH), agregar y quitar regiones en Comparar con y cambiar el Período del análisis. El gasto de la EVyTH en pesos corrientes (gasto total y gasto medio por turista) no se grafica en la evolución: solo aparece en el KPI y en el ranking de un período, con la leyenda «Pesos corrientes del período; no comparable entre años». Al final de la sección está la tarjeta «Calidad turística · distinciones del SACT». Un enlace viejo con la sección Calidad turística abre Turismo interno.
+- En Fuentes y metodología, comprobar una tarjeta por fuente con «Datos disponibles hasta», los informes municipales, el calendario de eventos y «Cómo leer el tablero».
 - En tipologías municipales, comprobar que esté disponible el segundo trimestre de 2026 y las categorías de una a cinco estrellas, apart hoteles y hostels.
 - Abrir una tabla y descargar un CSV con la selección actual.
 - Verificar fuentes y fechas en el pie de los gráficos. La fecha del paquete no modifica la fecha de los datos.
@@ -48,9 +53,9 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 | `site/` | Sitio publicable: HTML, estilos, JavaScript, datos JSON/JS y CSV, ECharts y su licencia |
 | `config/` | Enlaces a las fuentes, transcripciones municipales verificadas y calendario de eventos |
 | `scripts/` | Actualización, compilación de datos hoteleros y creación del HTML autónomo |
-| `tests/` | Comprobaciones de integridad y cálculos, y smoke de la interfaz de Demanda hotelera con jsdom (`tests/smoke.cjs`) |
+| `tests/` | Comprobaciones de integridad y cálculos, y smoke de las seis secciones de la interfaz con jsdom (`tests/smoke.cjs`) |
 | `package.json`, `package-lock.json` | jsdom (versión exacta) como dependencia de desarrollo; `npm test` corre las tres pruebas de JavaScript |
-| `.github/workflows/actualizar-datos.yml` | Actualizador de datos para GitHub Actions; en esta copia se ejecuta solo a pedido |
+| `.github/workflows/actualizar-datos.yml` | «Verificación del tablero»: pruebas, `node --check` y smoke en cada push y pull request; no descarga ni publica datos |
 | `offline/Tablero_turismo_Cordoba_completo.html` | Copia autónoma para abrir sin conexión, regenerada con esta versión |
 | `DOCUMENTACION.md` | Cobertura, metodología, funcionamiento y actualización de fuentes |
 | `VERSION.json` | Identificación de esta entrega y del código de origen |
@@ -58,23 +63,37 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 
 ## 5. Actualización de datos
 
-El tablero contiene datos reales ya procesados. Publicarlo no lo conecta a una base en tiempo real. La actualización requiere ejecutar el proceso de descarga y validación y publicar sus resultados.
+El tablero contiene datos reales ya procesados. Publicarlo no lo conecta a una base en tiempo real. El portal datos.yvera.gob.ar ahora redirige a data-turismo.jefatura.gob.ar, protegido por Cloudflare con verificación humana: ningún script (ni GitHub Actions ni una PC) puede descargar esos archivos, solo un navegador; por eso la actualización ya no puede ser automática.
 
-En esta copia de trabajo, el workflow incluido se ejecuta **solo a pedido** (`workflow_dispatch`, desde la pestaña Actions de GitHub). Los disparadores por cron (lunes 06:00 de Córdoba) y por push a `main` en scripts/configuración están comentados en el archivo; antes de pasar al repositorio institucional se decidirá si se restituyen. El workflow descarga y procesa las fuentes, corre las pruebas de Python y de JavaScript, el smoke de la interfaz (`npm ci && npm test`, con Node 22) y recién entonces publica los datos. Necesita permiso de escritura sobre el repositorio; las reglas de protección de ramas pueden impedir el commit automático. Revisar primero el resultado de una ejecución manual y luego el despliegue correspondiente en Vercel. Descargar este ZIP no activa ni ejecuta ese proceso.
+La actualización se hace a mano desde una PC con Python 3.10 o superior, en tres pasos:
 
-Las series oficiales se descargan desde los enlaces de `config/sources.json`. Los nuevos informes municipales y eventos requieren revisar la fuente y añadir sus registros a los archivos de configuración; el actualizador no transcribe nuevos PDF ni descubre eventos por sí solo. El detalle está en `DOCUMENTACION.md`.
-
-Para actualizar manualmente, desde la raíz del proyecto, con Python 3.10 o superior y Node.js 22.22.2 o superior (jsdom 30 lo requiere para el smoke):
+1. **Verificar en el navegador.** Abrir en Chrome, Edge o Firefox cualquier enlace de `config/sources.json` (por ejemplo, el primero) y completar la verificación humana del portal.
+2. **Bajar los 28 enlaces.** Abrir, en ese mismo navegador, cada `url` de las 28 entradas de turismo de `config/sources.json`, dejando que se guarden en la carpeta Descargas con el nombre que trae cada URL (por ejemplo, `viajeros-hospedados-residentes-y-no-residentes.csv`). Si un archivo se baja dos veces, el navegador lo guarda como «nombre (1).csv» y se toma el más reciente. El IPC no hace falta: se baja directo de apis.datos.gob.ar; si eso falla, guardar su enlace como `ipc.csv` en Descargas.
+3. **Correr los dos comandos**, desde la raíz del proyecto:
 
 ```bash
-python3 scripts/update_data.py
+python3 scripts/descargar_fuentes.py --desde-navegador ~/Downloads --output fuentes
+```
+
+```bash
+python3 scripts/update_data.py --input-dir fuentes
+```
+
+El primero copia cada archivo a `fuentes/` con el nombre que espera el actualizador y termina con un resumen: copiadas, faltantes (con el nombre exacto que falta y su enlace) y el comando siguiente; si falta alguno, sale con error y no hay que seguir. El segundo valida, procesa y escribe `site/data/`.
+
+Después, comprobar con Node.js 22.22.2 o superior (jsdom 30 lo requiere para el smoke) y commitear `site/data/`:
+
+```bash
 python3 -m unittest discover -s tests -v
-node tests/test_model.cjs
-node tests/test_hotel.cjs
+```
+
+```bash
 npm ci && npm test
 ```
 
-Publicar los archivos de `site/data/` únicamente después de completar los controles. La descarga original de aviación puede rondar los 270 MB; esa tarea no se ejecuta en el navegador del visitante. La copia de `offline/` no se actualiza sola: para regenerarla, ejecutar:
+El workflow de GitHub Actions («Verificación del tablero») ya no descarga ni publica datos: en cada push y pull request corre las pruebas de Python, `node --check` y el smoke sobre los datos commiteados. Los nuevos informes municipales y eventos requieren revisar la fuente y añadir sus registros a los archivos de configuración; el detalle está en `DOCUMENTACION.md`.
+
+Publicar los archivos de `site/data/` únicamente después de completar los controles. La base de aviación ronda los 270 MB: conviene bajarla con una buena conexión. La copia de `offline/` no se actualiza sola: para regenerarla, ejecutar:
 
 ```bash
 python3 scripts/build_delivery.py --output offline/Tablero_turismo_Cordoba_completo.html

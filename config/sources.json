@@ -306,5 +306,16 @@
     "catalog": "https://datos.yvera.gob.ar/dataset/encuesta-turismo-internacional",
     "license": "Creative Commons Attribution 4.0",
     "cache_name": "eti-42801ab6-0fc6-476d-8f7c-9ecfc9a9e6e1.csv"
+  },
+  {
+    "id": "148.3_INIVELNAL_DICI_M_26",
+    "family": "ipc",
+    "name": "IPC nacional · nivel general · base dic-2016",
+    "dataset": "sspm_145",
+    "url": "https://apis.datos.gob.ar/series/api/series/?ids=148.3_INIVELNAL_DICI_M_26&format=csv&header=ids&limit=5000",
+    "catalog": "https://datos.gob.ar/dataset/sspm_145",
+    "license": "Creative Commons Attribution 4.0",
+    "metadata_modified": null,
+    "cache_name": "ipc-148.3_INIVELNAL_DICI_M_26.csv"
   }
 ]

@@ -31,12 +31,9 @@
     const rows=Object.keys(D.eoh.scope_meta).filter(k=>D.eoh.scope_meta[k].level===level).map(code=>({code,value:total(D.eoh.scopes[code]||[],periods,metric,residence)})).filter(r=>valid(r.value)).sort((a,b)=>b.value-a.value);
     return rows.map(r=>({...r,rank:1+rows.filter(x=>x.value>r.value).length}));
   }
+  // Perfil mensual: cálculo compartido de model.js con el total hotelero (métrica y residencia).
   function monthlyProfile(rows,periods,metric,residence='total',normalized=true){
-    const denominator=total(rows,periods,metric,residence);
-    return Array.from({length:12},(_,i)=>{
-      const selected=periods.filter(p=>+p.slice(5,7)===i+1),amount=total(rows,selected,metric,residence);
-      return {month:i+1,count:selected.length,value:normalized?ratio(amount,denominator,100):amount};
-    });
+    return M.monthlyProfile(periods,ps=>total(rows,ps,metric,residence),normalized);
   }
   function seasonTotals(rows,periods,metric,residence='total'){
     const selected=new Set(periods),years=[...new Set(periods.map(p=>+p.slice(0,4)))];

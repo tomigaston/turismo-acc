@@ -68,15 +68,7 @@ function render(ctx){
  const ps=H.selection(state,latest,first);state.hotelFrom=ps[0];state.hotelTo=ps.at(-1);
  if(state.hotelPreset==='custom')controls+=`<label class="field"><span>Desde</span><input type="month" data-key="hotelFrom" aria-label="Desde" min="${first}" max="${latest}" value="${ps[0]}"></label><label class="field"><span>Hasta</span><input type="month" data-key="hotelTo" aria-label="Hasta" min="${first}" max="${latest}" value="${ps.at(-1)}"></label>`;
  $('filters').innerHTML=subnav+controls;
- function compareControl(){
-  const opt=([k,l])=>`<option value="${esc(k)}">${esc(l)}</option>`,free=([k])=>!chosen.includes(k);
-  const pool=Object.entries(meta).filter(([k,m])=>k!==focus&&(level==='region'?m.level==='region'||m.level==='pais':m.level==='localidad')).map(([k,m])=>[k,m.level==='pais'?m.label+' · total nacional':m.label]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
-  const references=level==='localidad'?['Argentina','Córdoba'].map(k=>[k,name(k)]):[];
-  const menu=level==='localidad'?`<optgroup label="Localidades relevadas">${pool.filter(free).map(opt).join('')}</optgroup>${references.some(free)?`<optgroup label="Referencias · solo índice o variación">${references.filter(free).map(opt).join('')}</optgroup>`:''}`:pool.filter(free).map(opt).join('');
-  const chips=chosen.map(k=>{const off=refs(k)&&!relative;return `<button class="chip${off?' off':''}" data-chip-remove="${esc(k)}" aria-pressed="true" aria-label="Quitar ${esc(name(k))}${off?' (no se grafica en valores observados)':''}" title="Quitar comparador">${esc(name(k))}${off?' · solo en índice o variación':''} <span aria-hidden="true">×</span></button>`;}).join('');
-  const others=level==='region'?Object.keys(meta).filter(k=>meta[k].level==='region'&&k!==focus).concat('Argentina'):Object.keys(meta).filter(k=>meta[k].cordoba&&k!==focus);
-  return `<div class="compare-group"><label class="field"><span>Comparar con</span><select data-compare-add aria-label="Agregar comparador"><option value="">Agregar comparador…</option>${menu}</select></label><div class="compare-extras"><div class="chips" role="group" aria-label="Comparadores seleccionados: ${chosen.length+1} de ${T.MAX_SERIES} series">${chips||'<span class="chips-empty">Sin comparadores</span>'}</div><div class="compare-shortcuts"><button class="button small" data-compare-set="${esc(others.join(','))}">${level==='region'?'Todas las regiones':'Todos los destinos de Córdoba'}</button><button class="button small subtle" data-compare-set=""${chosen.length?'':' disabled'}>Quitar todos</button></div></div></div>`;
- }
+ function compareControl(){return T.control({relative});}
  ctx.setCurrent({family:'eoh',period:ps.at(-1),latest,quarter:false});
  // Textos: el título nombra indicador y comparación; el subtítulo, ámbitos, período y residencia.
  const who=keys=>keys.map(name).join(' / '),versus=keys=>keys.length>1?' y '+(keys.length-1)+(keys.length>2?' comparadores':' comparador'):'';

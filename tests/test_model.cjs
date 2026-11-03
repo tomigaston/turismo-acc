@@ -51,6 +51,16 @@ for(const ap of ['SACO','SAEZ','SAME'])for(const dir of ['salidas','llegadas'])f
  const c=M.etiAggregate(series,[spending[0]],['2024-01','2024-04']);
  assert.equal(c.turistas,400);assert.equal(c.gasto_total_usd,null);assert.equal(c.gasto_diario_usd,null);near(c.estadia_media,4);
 }
+// Balanza ETI: para el aeropuerto de Córdoba, la suma anual de gasto_total_usd coincide con gasto por turista × turistas
+// de cada trimestre (la evolución), salvo el redondeo de la fuente (gasto por turista con un decimal).
+for(const flow of ['receptivo','emisivo'])for(let y=2015;y<=2025;y++){
+ const qs=M.months(y+'-01',y+'-10',3),agg=m.internationalPeriod('Aep. Córdoba',flow,qs);
+ if(agg.gasto_total_usd===null)continue;
+ const spend=qs.map(p=>D.international.spending.find(r=>r.gateway==='Aep. Córdoba'&&r.flow===flow&&r.period===p)),serie=qs.map(p=>D.international.series.find(r=>r.gateway==='Aep. Córdoba'&&r.flow===flow&&r.period===p));
+ near(agg.gasto_total_usd,spend.reduce((s,r)=>s+r.gasto_total_usd,0));
+ const fromEvolution=qs.reduce((s,_,i)=>s+spend[i].gasto_por_turista_usd*serie[i].turistas,0);
+ assert(Math.abs(fromEvolution/agg.gasto_total_usd-1)<1e-4,`${flow} ${y}: ${fromEvolution} vs ${agg.gasto_total_usd}`);
+}
 // Estacionalidad: índice (3 meses más fuertes / año), serie anual, meses valle y perfil cruzado.
 {
  near(M.seasonalityIndex(Array(12).fill(10)),25);

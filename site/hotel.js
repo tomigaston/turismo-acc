@@ -5,7 +5,7 @@ function render(ctx){
  const H=root.HotelModel,S=root.HOTEL_DATA,obs=S.observatory,calendar=S.calendar,T=ctx.hotel,meta=D.eoh.scope_meta;
  const {valid,sum,ratio,change,at,previous,ordinal,month,months,transform}=M;
  const names=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
- const tabs=[['overview','Demanda y posición'],['seasonality','Estacionalidad'],['typology','Tipologías y estrellas'],['events','Eventos']];
+ const tabs=[['overview','Demanda y posición'],['seasonality','Estacionalidad'],['typology','Ocupación por categoría'],['events','Eventos']];
  if(!tabs.some(([id])=>id===state.hotelTab))state.hotelTab='overview';
  const municipal=state.hotelTab==='typology'&&state.hotelSource==='municipal';
  const checked=new Date(obs.checked_at).toLocaleDateString('es-AR',{timeZone:'America/Argentina/Cordoba'});

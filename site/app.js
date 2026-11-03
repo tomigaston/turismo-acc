@@ -452,7 +452,9 @@ const quarterCaption=ps=>ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),t
 function intlShare(){
  const gates=['Aep. Córdoba',...INTL_PEERS],known=intlQuarters(),qs=months(known[0],known.at(-1),3);
  const rows=flow=>qs.map(p=>{const t=gates.map(g=>at(model.international(g,flow,'turistas'),p).value);return {period:p,value:ratio(t[0],sum(t),100)};});
- return lineCard({id:'intl-share',title:'Participación del aeropuerto de Córdoba entre los tres pasos aéreos relevados',subtitle:'Turistas del aeropuerto de Córdoba ÷ suma de Córdoba, Mendoza y Ezeiza y Aeroparque · '+label(qs[0],true)+' – '+label(qs.at(-1),true)+' · receptivo y emisivo',series:[{name:'Receptivo · entraron por el paso',rows:rows('receptivo')},{name:'Emisivo · salieron por el paso',rows:rows('emisivo')}],periods:qs,metric:'ocupacion',view:'levels',quarter:true,seasonBands:false,method:'No es participación nacional: la ETI releva también pasos terrestres y fluviales que no están en esta base. Un trimestre sin dato en alguno de los tres pasos queda vacío.'});
+ // Primer trimestre con los tres pasos: la serie de Mendoza empieza más tarde que las otras dos.
+ const firstAll=qs.find(p=>['receptivo','emisivo'].some(f=>gates.every(g=>valid(at(model.international(g,f,'turistas'),p).value))));
+ return lineCard({id:'intl-share',title:'Participación del aeropuerto de Córdoba entre los tres pasos aéreos relevados',subtitle:'Turistas del aeropuerto de Córdoba ÷ suma de Córdoba, Mendoza y Ezeiza y Aeroparque · '+label(qs[0],true)+' – '+label(qs.at(-1),true)+' · receptivo y emisivo · con los tres pasos desde '+label(firstAll,true),series:[{name:'Receptivo · entraron por el paso',rows:rows('receptivo')},{name:'Emisivo · salieron por el paso',rows:rows('emisivo')}],periods:qs,metric:'ocupacion',view:'levels',quarter:true,seasonBands:false,method:'No es participación nacional: la ETI releva también pasos terrestres y fluviales que no están en esta base. Un trimestre sin dato en alguno de los tres pasos queda vacío: la serie del Aeropuerto de Mendoza empieza en '+label(firstAll,true)+' y faltan trimestres de 2020 y 2021.'});
 }
 // 6. Estadía media y gasto por turista por paso, en el período (razones de sumas; Córdoba destacada).
 function intlStayAndSpend(ps,caption,scopes){
@@ -512,7 +514,7 @@ function renderInternational(){
  const ps=intlPeriod(),scopes=intlScopes(),last=intlQuarters().at(-1),caption=ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),true):label(ps[0],true);
  current={family:'eti',quarter:true,period:ps.at(-1),latest:last};
  // 1. Franja: sentido, comparadores (fichas activables) y período del análisis.
- let controls=field('flow','Sentido',[['receptivo','Receptivo · entraron al país por el paso'],['emisivo','Emisivo · salieron del país por el paso']])+chipCompare('intlCompare',INTL_PEERS.map(k=>[k,gateLabel(k)]),intlCompareKeys(),gateLabel,[],[],{toggle:true});
+ let controls=field('flow','Sentido',[['receptivo','Receptivo · entraron al país por el paso'],['emisivo','Emisivo · salieron del país por el paso']],{wide:true})+chipCompare('intlCompare',INTL_PEERS.map(k=>[k,gateLabel(k)]),intlCompareKeys(),gateLabel,[],[],{toggle:true});
  controls+=field('intlPreset','Período del análisis',[['year','Año completo'],['4q','Últimos 4 trimestres'],['latest','Último trimestre']]);
  if(state.intlPreset==='year')controls+=field('intlYear','Año',intlYears());
  $('filters').innerHTML=controls;

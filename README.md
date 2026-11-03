@@ -35,6 +35,7 @@ Para publicar esta carga no hacen falta una base de datos, variables de entorno 
 - Entrar en Demanda hotelera y recorrer Demanda y posición, Estacionalidad, Ocupación por categoría y Eventos.
 - Cambiar Territorio, agregar y quitar comparadores en Comparar con y cambiar el Período; comprobar que se actualicen los indicadores y gráficos.
 - En Eventos, pulsar «Analizar este mes» en una tarjeta: la página baja a «Datos del mes» de ese evento.
+- En Conectividad aérea, agregar aeropuertos en Comparar con (o «Principales aeropuertos del país») y cambiar el Período del análisis; comprobar que cambien indicadores, ranking, rutas y la tarjeta de rutas regulares ganadas y perdidas.
 - En tipologías municipales, comprobar que esté disponible el segundo trimestre de 2026 y las categorías de una a cinco estrellas, apart hoteles y hostels.
 - Abrir una tabla y descargar un CSV con la selección actual.
 - Verificar fuentes y fechas en el pie de los gráficos. La fecha del paquete no modifica la fecha de los datos.
@@ -48,7 +49,7 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 | `site/` | Sitio publicable: HTML, estilos, JavaScript, datos JSON/JS y CSV, ECharts y su licencia |
 | `config/` | Enlaces a las fuentes, transcripciones municipales verificadas y calendario de eventos |
 | `scripts/` | Actualización, compilación de datos hoteleros y creación del HTML autónomo |
-| `tests/` | Comprobaciones de integridad y cálculos, y smoke de la interfaz de Demanda hotelera con jsdom (`tests/smoke.cjs`) |
+| `tests/` | Comprobaciones de integridad y cálculos, y smoke de la interfaz (Demanda hotelera y Conectividad aérea) con jsdom (`tests/smoke.cjs`) |
 | `package.json`, `package-lock.json` | jsdom (versión exacta) como dependencia de desarrollo; `npm test` corre las tres pruebas de JavaScript |
 | `.github/workflows/actualizar-datos.yml` | Actualizador de datos para GitHub Actions; en esta copia se ejecuta solo a pedido |
 | `offline/Tablero_turismo_Cordoba_completo.html` | Copia autónoma para abrir sin conexión, regenerada con esta versión |

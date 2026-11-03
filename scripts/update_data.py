@@ -198,7 +198,7 @@ def compile_quality(d):
         if key in seen:continue
         seen.add(key)
         for scope in ['Argentina',r['provincia']]:counts[scope]+=1;programs[scope,r['programa']]+=1
-    return {'counts':dict(counts),'programs':[{'scope':s,'program':p,'records':n} for (s,p),n in sorted(programs.items())],'latest_date':last,'scope_note':'SACT: registros históricos de distinciones, deduplicados por organización, provincia, ciudad, programa y fecha. Una organización puede tener varias distinciones. No mide certificaciones vigentes, oferta total ni pertenencia al clúster.'}
+    return {'counts':dict(counts),'programs':[{'scope':s,'program':p,'records':n} for (s,p),n in sorted(programs.items())],'latest_date':last,'scope_note':'SACT: registros históricos de distinciones, deduplicados por organización, provincia, ciudad, programa y fecha. Una organización puede tener varias distinciones. No mide certificaciones vigentes ni oferta total.'}
 
 
 def validate(data):
@@ -225,7 +225,7 @@ def main():
         with ThreadPoolExecutor(max_workers=6) as pool:paths=list(pool.map(lambda s:fetch(s,directory),sources))
     d={s['id']:p for s,p in zip(sources,paths)}
     stamp=datetime.now(timezone.utc).isoformat(timespec='seconds')
-    data={'schema_version':3,'generated_at':stamp,'eoh':compile_eoh(d),'internal':compile_internal(d),'international':compile_international(d),'air':compile_air(d),'quality':compile_quality(d),'sources':[],'pending_sources':[{'name':'Padrón Único Nacional de Alojamiento (PUNA)','url':'https://datos.gob.ar/dataset/turismo-padron-unico-nacional-alojamiento','status':'Identificado; descarga no disponible en esta validación. Sin cifras incorporadas.'},{'name':'Observatorios turísticos provincial y municipal','url':'https://turismo.cordoba.gob.ar/datos-sectoriales-observatorio/','status':'Pendiente validar un recurso estructurado estable y su alcance geográfico.'},{'name':'Datos propios del clúster','status':'Reservado para una etapa posterior; sin cifras ni empresas incorporadas.'}]}
+    data={'schema_version':3,'generated_at':stamp,'eoh':compile_eoh(d),'internal':compile_internal(d),'international':compile_international(d),'air':compile_air(d),'quality':compile_quality(d),'sources':[],'pending_sources':[{'name':'Padrón Único Nacional de Alojamiento (PUNA)','url':'https://datos.gob.ar/dataset/turismo-padron-unico-nacional-alojamiento','status':'Identificado; descarga no disponible en esta validación. Sin cifras incorporadas.'},{'name':'Observatorios turísticos provincial y municipal','url':'https://turismo.cordoba.gob.ar/datos-sectoriales-observatorio/','status':'Pendiente validar un recurso estructurado estable y su alcance geográfico.'},{'name':'Datos propios de empresas asociadas','status':'Reservado para una etapa posterior; sin cifras ni empresas incorporadas.'}]}
     for s,p in zip(sources,paths):
         sha=hashlib.sha256()
         with p.open('rb') as f:

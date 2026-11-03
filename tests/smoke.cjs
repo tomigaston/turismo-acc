@@ -211,5 +211,79 @@ ok('14 · hash viejo de Conectividad aérea → esquema nuevo',()=>{
   assert.deepEqual(p.errors,[]);
 });
 
+const near100=(xs,msg)=>{const t=xs.filter(v=>typeof v==='number').reduce((a,b)=>a+b,0);assert.ok(Math.abs(t-100)<1e-6,msg+': '+t);};
+const values=(p,id,i=0)=>Array.from(p.options.get('chart-'+id).series[i].data,d=>typeof d==='object'&&d!==null?d.value:d);
+
+// 15 · Participación de las aerolíneas: renderiza, agrupa en Otras y la participación actual suma 100 %.
+ok('15 · participación de las aerolíneas suma 100 %',()=>{
+  for(const extra of [{},{airPreset:'12'},{airPreset:'year',airYear:'2025',airMetric:'vuelos'}]){
+    const p=air(extra),o=p.options.get('chart-carrier-share');assert.ok(o,'gráfico');
+    const names=Array.from(o.yAxis.data,String),now=values(p,'carrier-share',0);
+    assert.ok(names.length<=9,'8 principales + Otras');
+    if(names.length===9)assert.equal(names.at(-1),'Otras');
+    near100(now,'participación actual '+JSON.stringify(extra));
+    console.log('     ',JSON.stringify(extra),'·',names.length,'filas ·',names.slice(0,3).join(', '),'…');
+    assert.deepEqual(p.errors,[]);
+  }
+});
+
+// 16 · Evolución mensual por aerolínea: áreas apiladas; en participación cada mes suma 100 %.
+ok('16 · evolución mensual por aerolínea (valores y participación)',()=>{
+  const p=air({airPreset:'12'});let o=p.options.get('chart-carrier-trend');
+  assert.ok(o.series.every(s=>s.stack==='total'),'stack');assert.equal(o.series.at(-1).name,'Otras');assert.equal(o.series.length,6);
+  p.change(p.$('select[data-key="airCarrierView"]'),'share');o=p.options.get('chart-carrier-trend');
+  for(let i=0;i<o.xAxis.data.length;i++)near100(o.series.map(s=>s.data[i]),'mes '+o.xAxis.data[i]);
+  console.log('     ',o.xAxis.data.length,'meses ·',o.series.map(s=>s.name).join(' / '));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 17 · Conectividad internacional directa: sugerencia sin comparadores; una barra por aeropuerto con comparadores.
+ok('17 · conectividad internacional directa',()=>{
+  let p=air({airCompare:''});
+  assert.match(p.$('#panel-air-intl').textContent,/Agregá aeropuertos en Comparar con/);
+  assert.equal(p.options.get('chart-air-intl').yAxis.data.length,1);
+  p=air({airCompare:'SAME,SAEZ',kind:'Cabotaje',airPreset:'year',airYear:'2025'});
+  const o=p.options.get('chart-air-intl');assert.equal(o.yAxis.data.length,3);
+  assert.equal(p.$$('#panel-air-intl details').length,3);
+  assert.match(subtitle(p,'air-intl'),/tráfico internacional/,'aun con Cabotaje en el selector');
+  p.change(p.$('select[data-key="airIntlMetric"]'),'pasajeros');
+  console.log('     ',Array.from(p.options.get('chart-air-intl').yAxis.data,String).join(' / '),'·',title(p,'air-intl'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 18 · Estacionalidad aérea: año completo o último año completo; participación suma 100 %, con Argentina solo en esa lectura.
+ok('18 · estacionalidad aérea',()=>{
+  let p=air();
+  assert.match(subtitle(p,'air-season'),/último año completo disponible/);
+  let o=p.options.get('chart-air-season'),names=o.series.map(s=>s.name);
+  assert.ok(names.includes('Argentina · total nacional'),'referencia en participación');
+  near100(values(p,'air-season',0),'Córdoba');
+  p.change(p.$('select[data-key="airSeasonView"]'),'levels');
+  names=p.options.get('chart-air-season').series.map(s=>s.name);assert.ok(!names.includes('Argentina · total nacional'),'sin referencia en valores');
+  p=air({airPreset:'year',airYear:'2024'});assert.doesNotMatch(subtitle(p,'air-season'),/último año completo/);assert.match(subtitle(p,'air-season'),/2024/);
+  console.log('     ',title(p,'air-season'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 19 · Argentina como referencia en la evolución: no en valores observados (con aviso), sí en índice.
+const AIR_REF='Argentina · total nacional (referencia)';
+ok('19 · Argentina como referencia del gráfico de evolución',()=>{
+  const p=air({view:'levels'});
+  p.change(p.$('select[data-compare-add="airCompare"]'),'Argentina');
+  let s=p.series('air-trend');console.log('     ','valores:',s.join(' / '));
+  assert.ok(!s.includes(AIR_REF),'no se grafica en valores observados');
+  assert.ok(p.$$('.notice').some(n=>n.textContent===AVISO),'aviso de escala');
+  assert.ok(p.$$('.chip').some(c=>c.textContent.includes(AIR_REF)&&c.classList.contains('off')),'ficha punteada');
+  for(const view of ['index','yoy','base2019']){
+    p.change(p.$('select[data-key="view"]'),view);s=p.series('air-trend');
+    assert.ok(s.includes(AIR_REF),view);assert.ok(!p.$$('.notice').some(n=>n.textContent===AVISO),'sin aviso en '+view);
+  }
+  console.log('     ','índice/variación:',s.join(' / '));
+  // El resto de la sección sigue usando solo aeropuertos.
+  assert.ok(!Array.from(p.options.get('chart-air-intl').yAxis.data,String).some(n=>n.includes('Argentina')));
+  assert.ok(!Array.from(p.options.get('chart-air-mix').yAxis.data,String).some(n=>n.includes('Argentina')));
+  assert.deepEqual(p.errors,[]);
+});
+
 console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera y Conectividad aérea sin errores.');
 process.exit(failures?1:0);

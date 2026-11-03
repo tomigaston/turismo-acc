@@ -202,11 +202,12 @@ ok('14 · hash viejo de Conectividad aérea → esquema nuevo',()=>{
   const p=air({airCompare1:'SAEZ',airCompare2:'Argentina',airWindow:'12',cutoff:'2025-06'});
   assert.equal(p.errorBox(),'');
   const chips=p.$$('.chip').map(c=>c.textContent.replace('×','').trim());console.log('      fichas:',chips.join(', '));
-  assert.deepEqual(chips,['Ezeiza · SAEZ']);
+  // Argentina, que antes era comparador, se conserva como referencia del gráfico de evolución.
+  assert.deepEqual(chips,['Ezeiza · SAEZ','Argentina · total nacional (referencia)']);
   assert.equal(p.$('select[data-key="airPreset"]').value,'custom');
   assert.equal(p.$('input[data-key="airFrom"]').value,'2024-07');assert.equal(p.$('input[data-key="airTo"]').value,'2025-06');
   const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
-  assert.ok(!('airCompare1' in saved)&&!('airWindow' in saved));assert.equal(saved.airCompare,'SAEZ');
+  assert.ok(!('airCompare1' in saved)&&!('airWindow' in saved));assert.equal(saved.airCompare,'SAEZ,Argentina');
   assert.deepEqual(p.errors,[]);
 });
 

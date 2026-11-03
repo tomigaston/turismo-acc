@@ -35,7 +35,7 @@ Para publicar esta carga no hacen falta una base de datos, variables de entorno 
 - Entrar en Demanda hotelera y recorrer Demanda y posición, Estacionalidad, Ocupación por categoría y Eventos.
 - Cambiar Territorio, agregar y quitar comparadores en Comparar con y cambiar el Período; comprobar que se actualicen los indicadores y gráficos.
 - En Eventos, pulsar «Analizar este mes» en una tarjeta: la página baja a «Datos del mes» de ese evento.
-- En Conectividad aérea, agregar aeropuertos en Comparar con (o «Principales aeropuertos del país») y cambiar el Período del análisis; comprobar que cambien indicadores, ranking, rutas y la tarjeta de rutas regulares ganadas y perdidas.
+- En Conectividad aérea, agregar aeropuertos en Comparar con (o «Principales aeropuertos del país») y cambiar el Período del análisis; comprobar que cambien indicadores, ranking, rutas, rutas regulares ganadas y perdidas, conectividad internacional, aerolíneas y estacionalidad aérea. Con lectura en índice, agregar «Argentina · total nacional (referencia)» y ver la comparación de Córdoba con el país.
 - En tipologías municipales, comprobar que esté disponible el segundo trimestre de 2026 y las categorías de una a cinco estrellas, apart hoteles y hostels.
 - Abrir una tabla y descargar un CSV con la selección actual.
 - Verificar fuentes y fechas en el pie de los gráficos. La fecha del paquete no modifica la fecha de los datos.

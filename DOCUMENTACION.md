@@ -1,6 +1,8 @@
 # Inteligencia turística · Córdoba y Argentina
 
-Tablero de la Agencia Competitividad Córdoba con **28 archivos estadísticos oficiales, seis informes municipales y un calendario de 70 eventos (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada)**, gráficos Apache ECharts 6.0.0 y comparaciones integradas en cada sección. La información propia del clúster queda pendiente.
+Tablero de la Agencia Competitividad Córdoba con **28 archivos estadísticos oficiales, seis informes municipales y un calendario de 70 eventos (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada)**, gráficos Apache ECharts 6.0.0 y comparaciones integradas en cada sección.
+
+El menú tiene **seis secciones**: Demanda hotelera, Conectividad aérea, Estacionalidad, Mercados internacionales, Turismo interno (que cierra con la calidad turística del SACT) y Fuentes y metodología.
 
 ## Cómo utilizarlo
 
@@ -78,9 +80,20 @@ Las vistas analíticas muestran datos, comparaciones, unidades, fuentes y fechas
     - Motivos en participación por paso. Para Córdoba, la ETI no publica estimación de «Negocios, congresos y conferencias».
     - Estadía media y gasto por turista por paso.
     - Participación del aeropuerto de Córdoba entre los tres pasos aéreos relevados. No es participación nacional: la ETI releva también pasos terrestres y fluviales que no están en esta base.
-- **Turismo interno:** Córdoba, Argentina y las ocho regiones de destino de la EVyTH. Quintiles únicamente nacionales y gasto en pesos corrientes.
-- **Calidad turística:** distinciones históricas por provincia y programa. No se presentan como certificaciones vigentes ni como empresas del clúster.
-- **Fuentes y metodología:** enlaces a los 28 archivos originales, cobertura, fecha de incorporación, huella SHA-256 y criterios de cálculo.
+- **Turismo interno (EVyTH, Encuesta de Viajes y Turismo de los Hogares, INDEC/Yvera):** viajes de los argentinos dentro del país, con Córdoba como región de destino.
+  - **Filtros:**
+    - Comparar con: fichas de las otras siete regiones de destino; por defecto, Argentina y Cuyo. Argentina es el total nacional y se grafica solo en índice base 100 y variación interanual; en valores observados aparece el aviso de escala.
+    - Período del análisis: último trimestre (por defecto), últimos 4 trimestres o año completo. Con un solo trimestre, la evolución muestra 16 trimestres.
+  - **Reglas de agregación del período:** las mismas que la ETI: turistas, pernoctes y gasto se suman; estadía media = suma de pernoctes ÷ suma de turistas; gasto medio = suma de gasto ÷ suma de turistas; si falta un trimestre, el agregado queda sin dato.
+  - **Gasto nominal:** El gasto de la EVyTH en pesos corrientes (gasto total y gasto medio por turista) no se grafica en la evolución: solo aparece en el KPI y en el ranking de un período, con la leyenda «Pesos corrientes del período; no comparable entre años».
+  - **Contenido:**
+    - Aviso fijo: «Última publicación de la EVyTH incorporada: <trimestre>. La encuesta se publica con rezago».
+    - KPI: turistas con destino Córdoba, participación en el turismo interno, estadía media y gasto medio frente a Argentina.
+    - Evolución por región de destino (turistas, pernoctes, estadía media y gasto a pesos constantes) y ranking regional del período con todos los indicadores.
+    - Participación de Córdoba en el turismo interno, por año (2012–2023; los años incompletos se omiten; Argentina = 100 %).
+    - **Calidad turística · distinciones del SACT:** registros de Córdoba y su porcentaje del país, y distinciones por programa. Es un padrón histórico: una organización puede tener varias distinciones y no equivale a vigencia. Sin comparador provincial.
+  - La antigua sección Calidad turística se integró aquí; los enlaces viejos que la abrían llevan a Turismo interno.
+- **Fuentes y metodología:** una tarjeta por fuente (institución, qué mide, periodicidad, datos disponibles hasta y enlace al catálogo oficial), los informes municipales incorporados, el calendario de eventos con fuente oficial y «Cómo leer el tablero». Los identificadores, huellas SHA-256 y filas de cada recurso no se muestran en pantalla: quedan en `config/sources.json` y en el ETL.
 
 ## Cobertura de los archivos incorporados
 
@@ -125,7 +138,7 @@ node tests/test_hotel.cjs
 npm ci && npm test
 ```
 
-`npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre los filtros y tarjetas de Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales. También comprueba que las demás secciones carguen sin errores.
+`npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre las seis secciones: filtros y tarjetas de Demanda hotelera, Conectividad aérea, Estacionalidad, Mercados internacionales y Turismo interno (sin gasto nominal en la evolución, tarjeta del SACT, gasto a pesos constantes con un IPC sintético), la redirección de enlaces viejos y que Fuentes y metodología no muestre «SHA-256», «clúster» ni «pendientes de incorporación».
 
 El actualizador descarga 28 archivos, procesa la base aérea en streaming y conserva todas las rutas mensuales. Esa descarga ronda los 270 MB y se realiza en el servidor de actualización, no en el navegador. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
 
@@ -168,6 +181,7 @@ La implementación actual puede alojarse como sitio estático. Para integrarla c
 - **Pasajeros** no equivale a turistas ni personas únicas. Se mantienen las magnitudes publicadas por Yvera, sin aplicar otra división. Al sumar llegadas y salidas, un tramo de cabotaje participa en sus dos extremos argentinos.
 - **Faltantes** no se completan con cero. Los rankings estacionales exigen todos los meses de la temporada y los porcentajes mensuales exigen doce meses completos. Verano = diciembre del año anterior + enero y febrero del año elegido.
 - **Promedios:** ocupación aérea = pasajeros/asientos; estadía = noches/viajeros o turistas; promedios nacionales EVyTH ponderados por turistas. Las tasas hoteleras son las oficiales para cada categoría.
+- **Gasto en pesos corrientes (EVyTH):** El gasto de la EVyTH en pesos corrientes (gasto total y gasto medio por turista) no se grafica en la evolución: solo aparece en el KPI y en el ranking de un período, con la leyenda «Pesos corrientes del período; no comparable entre años».
 - **ETI y pasos:** el paso Córdoba no identifica la residencia provincial de quien viaja. Turistas, pernoctes y gasto total se suman; estadía media = suma de pernoctes ÷ suma de turistas; gasto por turista = suma de gasto total ÷ suma de turistas; gasto diario = suma de gasto total ÷ suma de pernoctes. Nunca se promedian promedios trimestrales, y si falta un trimestre del período el agregado queda sin dato (no se imputa).
 - **ETI emisiva:** residentes en Argentina que viajan al exterior por el paso Córdoba; no solo cordobeses. ETI receptiva mide su viaje por Argentina, sin atribuir todas las noches o gastos a Córdoba. Mercados geográficos no idénticos entre pasos se conservan separados.
 - **Territorio:** EOH región Córdoba corresponde a la provincia. Cuyo comprende Mendoza, San Juan, San Luis y La Rioja. Las localidades no se suman para reconstruir provincias. En Demanda hotelera se comparan solo ámbitos de la misma escala; las referencias nacional y provincial frente a una localidad se grafican únicamente en índice o variación.
@@ -182,7 +196,7 @@ Los enlaces a los archivos específicos, identificación y licencias están en `
 - [EVyTH](https://datos.yvera.gob.ar/dataset/encuesta-viajes-turismo-hogares-evyth)
 - [SACT](https://datos.yvera.gob.ar/dataset/organizaciones-distinguidas-sistema-argentino-calidad-turistica-sact)
 
-PUNA y observatorios provincial/municipal quedan pendientes de validar recursos estructurados estables. La información propia del clúster continúa reservada para una etapa posterior. También queda pendiente conectar la actualización al alojamiento institucional.
+PUNA y observatorios provincial/municipal quedan pendientes de validar recursos estructurados estables. La información propia de empresas asociadas continúa reservada para una etapa posterior. También queda pendiente conectar la actualización al alojamiento institucional.
 
 ## Verificación de esta entrega
 

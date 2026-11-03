@@ -448,6 +448,21 @@ function seasonHeat(focus,scopes,level,year,name){
 const usd=x=>valid(x)?(Math.abs(x)>=1e6?'USD '+fmt(x/1e6,1)+' M':'USD '+fmt(x,0)):'Sin dato';
 const INTL_MARKET_METHOD='Agrupaciones de países publicadas por la ETI para este paso; difieren entre receptivo y emisivo y entre pasos: no se cruzan ni se unifican. Estimaciones muestrales: en un paso chico los trimestres sueltos son ruidosos; preferí el año completo.';
 const quarterCaption=ps=>ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),true):label(ps[0],true);
+// 5. Motivo principal del viaje: participación (%) de cada motivo en los turistas de cada paso.
+function intlMotives(ps,caption,scopes){
+ const inbound=state.flow==='receptivo',motives=unique(D.international.motives.filter(r=>r.flow===state.flow).map(r=>r.motive)),BUSINESS='Negocios/congreso/conferencia';
+ // El total de cada paso viene de la serie por mercados; un motivo sin estimación en algún trimestre queda sin dato.
+ const totals=Object.fromEntries(scopes.map(g=>[g,sum(model.internationalMarkets(g,state.flow,ps).map(r=>r.turistas))]));
+ const motiveTotal=(g,m)=>sum(ps.map(p=>D.international.motives.find(r=>r.period===p&&r.gateway===g&&r.flow===state.flow&&r.motive===m)?.turistas??null));
+ const shares=Object.fromEntries(scopes.map(g=>[g,Object.fromEntries(motives.map(m=>[m,ratio(motiveTotal(g,m),totals[g],100)]))]));
+ const pct=g=>valid(shares[g][BUSINESS])?fmt(shares[g][BUSINESS],1)+' %':'sin estimación publicada';
+ const shortName=g=>g==='Aep. Córdoba'?'Córdoba':g==='Aep. Mendoza'?'Mendoza':'Ezeiza y Aeroparque';
+ const note=`<p class="intl-note"><strong>Negocios, congresos y conferencias:</strong> ${valid(shares['Aep. Córdoba'][BUSINESS])?esc(pct('Aep. Córdoba'))+' de los':'sin estimación publicada para los'} turistas ${inbound?'entrados':'salidos'} por Córdoba${scopes.length>1?' ('+scopes.slice(1).map(g=>esc(shortName(g))+' '+esc(pct(g))).join(', ')+')':''}.</p>`;
+ const html=barCard({id:'intl-motives',title:'Motivo principal del viaje · participación por paso',subtitle:scopes.map(gateLabel).join(' / ')+' · '+caption+' · % de los turistas '+(inbound?'entrados':'salidos')+' por cada aeropuerto',items:motives.map(m=>({name:m,values:scopes.map(g=>shares[g][m])})),seriesNames:scopes.map(gateLabel),metric:'ocupacion',unit:'%',limit:motives.length,columns:['Motivo',...scopes.map(gateLabel)],rows:motives.map(m=>[m,...scopes.map(g=>shares[g][m])]),digits:[null,...scopes.map(()=>1)],extra:note,method:'Las categorías sin estimación publicada permanecen sin dato. El total de turistas se obtiene de la serie por mercados, no de sumar motivos incompletos. Participación: turistas del motivo ÷ total del paso en el período.'});
+ // Tooltip: participación y total de turistas de cada paso como referencia.
+ cards.get('intl-motives').option.tooltip.formatter=params=>'<strong>'+esc(params[0]?.name||'')+'</strong>'+params.map(p=>{const g=scopes[p.seriesIndex];return '<div style="margin-top:5px">'+p.marker+' '+esc(p.seriesName)+': <strong>'+(valid(p.value)?fmt(p.value,1)+' %':'Sin estimación')+'</strong> de '+fmt(totals[g])+' turistas</div>';}).join('');
+ return html;
+}
 // 4a. Mercados de residencia (receptivo) o destinos (emisivo) del aeropuerto de Córdoba: período y año anterior.
 function intlMarkets(ps,caption){
  const inbound=state.flow==='receptivo',before=ps.map(previous),now=model.internationalMarkets('Aep. Córdoba',state.flow,ps),old=model.internationalMarkets('Aep. Córdoba',state.flow,before);
@@ -502,8 +517,7 @@ function renderInternational(){
  const inbound=state.flow==='receptivo';
  html+=lineCard({id:'intl-trend',title:specs[metric][0]+' · turistas '+(inbound?'receptivos por aeropuerto de entrada':'emisivos por aeropuerto de salida'),subtitle:scopes.map(gateLabel).join(' / ')+' · '+(ps.length===1?'16 trimestres hasta '+label(ps[0],true):caption)+' · '+(inbound?'residentes en el exterior entrados por cada aeropuerto':'residentes en Argentina salidos por cada aeropuerto'),series:scopes.map(k=>({name:gateLabel(k),rows:get(k)})),periods:trendPs,metric,quarter:true,seasonBands:false,method:'Los pasos seleccionados no constituyen el total nacional.'});
  html+='<div class="grid equal">'+intlMarkets(ps,caption)+intlMarketTrend()+'</div>';
- const motives=unique(D.international.motives.filter(r=>r.flow===state.flow).map(r=>r.motive)),p=ps.at(-1);
- html+='<div class="grid equal">'+barCard({id:'intl-motives',title:'Motivo principal del viaje · comparación por paso',subtitle:'Turistas · '+label(p,true),items:motives.map(m=>({name:m,values:scopes.map(g=>D.international.motives.find(r=>r.period===p&&r.gateway===g&&r.flow===state.flow&&r.motive===m)?.turistas??null)})),seriesNames:scopes.map(gateLabel),metric:'turistas',method:'Las categorías sin estimación publicada permanecen sin dato. El total de turistas se obtiene de la serie por mercados, no de sumar motivos incompletos.'})+barCard({id:'intl-spend',title:'Gasto medio por turista · comparación por paso',subtitle:'Dólares estadounidenses · '+caption,items:scopes.map(g=>({name:gateLabel(g),values:[agg(g).gasto_por_turista_usd],highlight:g==='Aep. Córdoba'})),seriesNames:['USD por turista'],unit:'USD',metric:'gasto_por_turista_usd',method:state.flow==='emisivo'?'Gasto durante el viaje al exterior. No es gasto turístico realizado en Córdoba.':'Gasto durante el viaje en Argentina. No es gasto exclusivamente realizado en Córdoba.'})+'</div>';
+ html+='<div class="grid equal">'+intlMotives(ps,caption,scopes)+barCard({id:'intl-spend',title:'Gasto medio por turista · comparación por paso',subtitle:'Dólares estadounidenses · '+caption,items:scopes.map(g=>({name:gateLabel(g),values:[agg(g).gasto_por_turista_usd],highlight:g==='Aep. Córdoba'})),seriesNames:['USD por turista'],unit:'USD',metric:'gasto_por_turista_usd',method:state.flow==='emisivo'?'Gasto durante el viaje al exterior. No es gasto turístico realizado en Córdoba.':'Gasto durante el viaje en Argentina. No es gasto exclusivamente realizado en Córdoba.'})+'</div>';
  $('dashboard').innerHTML=html;
 }
 function renderInternal(){

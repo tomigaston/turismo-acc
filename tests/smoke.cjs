@@ -458,6 +458,7 @@ ok('36 · Fuentes y metodología sin trazabilidad técnica en pantalla',()=>{
   for(const w of ['SHA-256','clúster','pendientes de incorporación'])assert.ok(!text.includes(w),'contiene '+w);
   assert.equal(p.$$('.reading-guide li').length,5);assert.equal(p.$('#footer-version').textContent,'Fuentes oficiales · Apache ECharts');
   console.log('     ',p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]).join(' / '));
+  assert.deepEqual(p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]),['EOH','Conectividad aérea','ETI','EVyTH','SACT','IPC','Observatorio Turístico']);
   assert.deepEqual(p.errors,[]);
 });
 

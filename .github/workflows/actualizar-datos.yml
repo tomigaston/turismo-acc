@@ -1,0 +1,53 @@
+name: Actualización datos turísticos
+on:
+  # Copia de trabajo (tomigaston/turismo-acc, noviembre 2026): se ejecuta solo a pedido.
+  # Antes de pasar al repositorio institucional se decidirá si se restituyen los
+  # disparadores por cron (lunes 06:00 Córdoba) y por push a main en scripts/config,
+  # una vez verificado el circuito descarga → validación → commit → despliegue.
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 9 * * 1'
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'scripts/update_data.py'
+  #     - 'config/sources.json'
+  #     - 'config/hotel_observatory.json'
+  #     - 'config/hotel_events.json'
+  #     - 'scripts/build_hotel_data.py'
+  #     - '.github/workflows/actualizar-datos.yml'
+permissions:
+  contents: write
+concurrency:
+  group: actualizar-turismo
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Descargar y procesar fuentes reales
+        run: python scripts/update_data.py
+      - name: Comprobar integridad y cálculos
+        run: python -m unittest discover -s tests -v
+      - name: Verificar JavaScript
+        run: |
+          node --check site/app.js
+          node --check site/model.js
+          node tests/test_model.cjs
+          node --check site/hotel.js
+          node --check site/hotel-model.js
+          node tests/test_hotel.cjs
+      - name: Publicar datos verificados
+        run: |
+          if ! git diff --quiet -- site/data; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add site/data
+            git commit -m 'datos: actualización oficial turismo Córdoba y Argentina'
+            git push
+          fi

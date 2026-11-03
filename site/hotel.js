@@ -20,7 +20,7 @@ function render(ctx){
   opt.tooltip.formatter=p=>{
    if(!Array.isArray(p))return p.componentType==='markLine'&&opt.series[0]?.markLine?.tooltip?opt.series[0].markLine.tooltip.formatter(p):esc(p.name||'');
    const es=eventRows.find(r=>r.period===p[0]?.axisValue)?.events||[];
-   return tooltipRows(p,u)+(es.length?'<div style="border-top:1px solid #ddd;margin-top:8px;padding-top:6px;color:#8c641c">'+es.map(e=>esc(e.name)+' · '+esc(eventDate(e))+(e.source_url?'':' · pendiente de verificación')).join('<br>')+'</div>':'');
+   return tooltipRows(p,u)+(es.length?'<div style="border-top:1px solid #ddd;margin-top:8px;padding-top:6px;color:#8c641c">'+es.map(e=>esc(e.name)+' · '+esc(eventDate(e))).join('<br>')+'</div>':'');
   };
   opt.xAxis={type:'category',data:tr.periods,boundaryGap:tr.periods.length===1,axisLabel:{formatter:p=>label(p,quarter),hideOverlap:true,fontSize:10,color:'#6d8391'},axisTick:{show:false},axisLine:{lineStyle:{color:'#dfe7eb'}}};
   opt.yAxis={type:'value',name:view==='index'?'Base 100':u,nameTextStyle:{fontSize:10,align:'left'},axisLabel:{formatter:axisLabel,fontSize:10},splitLine:{lineStyle:{color:'#edf1f4'}},scale:view==='index'};
@@ -33,7 +33,7 @@ function render(ctx){
    opt.series[0].markArea={silent:true,label:{show:false},data:bands};
    // Una marca por mes: el tooltip detalla cada evento y la etiqueta indica cuántos hay (◆N).
    const shortDate=e=>{const d=x=>x.slice(8,10)+'/'+x.slice(5,7);return e.start_date===e.end_date?d(e.start_date):d(e.start_date)+'–'+d(e.end_date);};
-   const eventTip=p=>{const r=eventRows.find(x=>x.period===p.data?.period);return r?'<strong>'+esc(label(r.period))+' · '+r.events.length+(r.events.length>1?' eventos':' evento')+'</strong>'+r.events.map(e=>'<div style="margin-top:6px"><strong>'+esc(e.name)+'</strong><br>'+esc(shortDate(e))+' · '+esc(e.category)+' · '+esc(e.locality)+(e.source_url?'':'<br><em>Pendiente de verificación</em>')+'</div>').join(''):'';};
+   const eventTip=p=>{const r=eventRows.find(x=>x.period===p.data?.period);return r?'<strong>'+esc(label(r.period))+' · '+r.events.length+(r.events.length>1?' eventos':' evento')+'</strong>'+r.events.map(e=>'<div style="margin-top:6px"><strong>'+esc(e.name)+'</strong><br>'+esc(shortDate(e))+' · '+esc(e.category)+' · '+esc(e.locality)+'</div>').join(''):'';};
    if(eventRows.length)opt.series[0].markLine={symbol:'none',lineStyle:{color:'#b58431',type:'dashed',width:1.5},label:{show:true,formatter:p=>p.data?.count>1?'◆'+p.data.count:'◆',position:'end',rotate:0,distance:4,color:'#9d7022',fontSize:12},tooltip:{show:true,trigger:'item',formatter:eventTip},data:eventRows.map(r=>({xAxis:r.period,period:r.period,count:r.events.length,name:r.events.map(e=>e.name).join(' / ')}))};
   }
   if(zoom&&tr.periods.length>1)opt.dataZoom=[{type:'slider',start:0,end:100,bottom:6,height:20,realtime:false,filterMode:'none',textStyle:{fontSize:9},borderColor:'#d9e4e7',fillerColor:'#d4eae3',handleStyle:{color:'#378d7d'}}];
@@ -154,14 +154,14 @@ function render(ctx){
   if(!availableEvents.length)out+=notice('Sin eventos registrados para esta selección.');
   else{
    if(!availableEvents.some(e=>e.id===state.hotelEvent))state.hotelEvent=availableEvents[0].id;
-   out+='<div class="hotel-events">'+availableEvents.map(e=>`<article class="hotel-event ${e.id===state.hotelEvent?'selected':''}"><span>${esc(e.category)} · ${esc(eventDate(e))}</span><h3>${esc(e.name)}</h3><p>${esc(e.locality)}</p><div><button class="button small" data-set="hotelEvent" data-value="${e.id}" aria-pressed="${e.id===state.hotelEvent}">Analizar este mes</button>${e.source_url?`<a href="${esc(e.source_url)}" target="_blank" rel="noopener noreferrer">Fuente oficial ↗</a>`:'<span class="event-status">Pendiente de verificación</span>'}</div></article>`).join('')+'</div>';
+   out+='<div class="hotel-events">'+availableEvents.map(e=>`<article class="hotel-event ${e.id===state.hotelEvent?'selected':''}"><span>${esc(e.category)} · ${esc(eventDate(e))}</span><h3>${esc(e.name)}</h3><p>${esc(e.locality)}</p><div><button class="button small" data-set="hotelEvent" data-value="${e.id}" aria-pressed="${e.id===state.hotelEvent}">Analizar este mes</button>${e.source_url?`<a href="${esc(e.source_url)}" target="_blank" rel="noopener noreferrer">Fuente oficial ↗</a>`:''}</div></article>`).join('')+'</div>';
    // Mes analizado: el primero del evento dentro de la selección (un evento puede empezar el año anterior).
    const e=availableEvents.find(e=>e.id===state.hotelEvent),period=ps.find(p=>p>=e.start_date.slice(0,7)&&p<=e.end_date.slice(0,7))||e.start_date.slice(0,7),s=H.snapshot(D,focus,[period],state.residence);
    out+=section('Datos del mes · '+label(period),e.name+' · '+scopeLabel(focus));
    out+='<div class="kpis">'+kpi('Pernoctaciones del mes',fmt(s.pernoctes),signed(s.changes.pernoctes)+' % interanual',label(period)+' · total mensual',true)+kpi('Viajeros del mes',fmt(s.viajeros),signed(s.changes.viajeros)+' % interanual','Misma residencia seleccionada')+kpi('Estadía media',value(s.estadia_media,'estadia_media'),'Año anterior: '+value(s.old.estadia_media,'estadia_media'),'Noches / viajeros del mes')+kpi('Participación nacional en noches',value(s.share,'ocupacion'),valid(s.share)&&valid(s.oldShare)?signed(s.share-s.oldShare)+' pp interanuales':'Sin dato','Mismo mes y residencia')+'</div>';
    out+=barCard({id:'hotel-event-yoy',title:'Pernoctaciones en el mes del evento frente al mismo mes del año anterior',subtitle:who(base)+' · '+label(period)+' frente a '+label(previous(period))+' · '+residenceLabel,items:base.map(k=>({name:name(k),values:[H.total(records(k),[previous(period)],'pernoctes',state.residence),H.total(records(k),[period],'pernoctes',state.residence)]})),seriesNames:[label(previous(period)),label(period)],metric:'pernoctes',unit:'noches',periodText:label(period)+' y '+label(previous(period)),method:'Contraste descriptivo del mismo mes en dos años. Las diferencias incluyen estacionalidad, coyuntura, otros eventos y cambios de oferta; no son una estimación del impacto del evento.'});
   }
-  out+=`<div class="chart-foot"><span>Calendario: ${calendar.events.length} eventos · ${calendar.events.filter(e=>e.source_url).length} verificados con fuente oficial · ${calendar.events.filter(e=>!e.source_url).length} pendientes de verificación · actualizado el ${esc(new Date(calendar.checked_at).toLocaleDateString('es-AR'))}.</span><span>${calendar.events.length} eventos registrados</span></div>`;
+  out+=`<div class="chart-foot"><span>Calendario: ${calendar.events.length} eventos · ${calendar.events.filter(e=>e.source_url).length} con fuente oficial · ${calendar.events.filter(e=>!e.source_url).length} tomados del calendario de trabajo, sin fuente confirmada · actualizado el ${esc(new Date(calendar.checked_at).toLocaleDateString('es-AR'))}.</span><span>${calendar.events.length} eventos registrados</span></div>`;
   return out;
  }
  function renderMunicipal(){

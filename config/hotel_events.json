@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-30T14:43:03+00:00",
+  "coverage_note": "Selección inicial de cuatro eventos de 2024 verificados; no es un calendario exhaustivo. La ausencia de una marca no implica que no haya habido eventos.",
+  "interpretation": "Las marcas permiten contrastar el calendario con las series mensuales. Una coincidencia temporal no identifica causalidad ni impacto atribuible.",
+  "events": [
+    {
+      "id": "cosquin-rock-2024",
+      "name": "Cosquín Rock 2024",
+      "start_date": "2024-02-10",
+      "end_date": "2024-02-11",
+      "locality": "Santa María de Punilla",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Aeródromo de Santa María de Punilla",
+      "source_url": "https://cordobaturismo.gov.ar/prensa/cosquin-rock-2024-musica-fiestas-y-una-experiencia-360-en-las-sierras-de-santa-maria-de-punilla/",
+      "source_title": "Cosquín Rock 2024 · Agencia Córdoba Turismo",
+      "published_at": "2024-02-07",
+      "status": "fecha oficial publicada",
+      "notes": "Evento de Punilla. Su ubicación no se asigna a Córdoba capital ni a Villa Carlos Paz. Coincide con el fin de semana de Carnaval; no aisla un efecto del festival."
+    },
+    {
+      "id": "mccartney-2024",
+      "name": "Paul McCartney en Córdoba",
+      "start_date": "2024-10-23",
+      "end_date": "2024-10-23",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": "https://cordobaturismo.gov.ar/prensa/22-mil-millones-en-tres-eventos-el-impacto-economico-y-fiscal-de-congresos-recitales-y-eventos-deportivos-en-cordoba/",
+      "source_title": "Registro de tres eventos de 2024 · Agencia Córdoba Turismo",
+      "published_at": "2024-11-29",
+      "status": "realización documentada",
+      "notes": "La fuente oficial posterior al evento confirma fecha y ciudad. No se incorporan las estimaciones de impacto económico del artículo."
+    },
+    {
+      "id": "slatme-2024",
+      "name": "Congreso SLATME y Congreso Regional de Oncología",
+      "start_date": "2024-11-07",
+      "end_date": "2024-11-08",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": null,
+      "source_url": "https://cordobaturismo.gov.ar/prensa/22-mil-millones-en-tres-eventos-el-impacto-economico-y-fiscal-de-congresos-recitales-y-eventos-deportivos-en-cordoba/",
+      "source_title": "Registro de tres eventos de 2024 · Agencia Córdoba Turismo",
+      "published_at": "2024-11-29",
+      "status": "realización documentada",
+      "notes": "XII Congreso de la Sociedad Latinoamericana de Tumores Musculoesqueléticos. La fuente confirma fecha y ciudad; no atribuye pernoctaciones de EOH al evento."
+    },
+    {
+      "id": "copa-argentina-2024",
+      "name": "Copa Argentina · semifinal Boca–Vélez",
+      "start_date": "2024-11-27",
+      "end_date": "2024-11-27",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": null,
+      "source_url": "https://cordobaturismo.gov.ar/prensa/22-mil-millones-en-tres-eventos-el-impacto-economico-y-fiscal-de-congresos-recitales-y-eventos-deportivos-en-cordoba/",
+      "source_title": "Registro de tres eventos de 2024 · Agencia Córdoba Turismo",
+      "published_at": "2024-11-29",
+      "status": "realización documentada",
+      "notes": "La fuente oficial posterior al partido confirma fecha y ciudad. Coincide en el mismo mes con el congreso registrado: no se pueden separar efectos con datos mensuales."
+    }
+  ]
+}

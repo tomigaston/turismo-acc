@@ -1,0 +1,43 @@
+﻿periodo;fuente;id;label;stars;type;occupancy_percent
+2025-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-1%C2%B0-trimestre-2025.pdf;5-estrellas;5 estrellas;5;hotel;37.6
+2025-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-1%C2%B0-trimestre-2025.pdf;4-estrellas;4 estrellas;4;hotel;55.6
+2025-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-1%C2%B0-trimestre-2025.pdf;3-estrellas;3 estrellas;3;hotel;53.5
+2025-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-1%C2%B0-trimestre-2025.pdf;2-estrellas;2 estrellas;2;hotel;40.7
+2025-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-1%C2%B0-trimestre-2025.pdf;1-estrellas;1 estrella;1;hotel;57.2
+2025-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-1%C2%B0-trimestre-2025.pdf;apart-hotel;Apart hotel;;apart;38.1
+2025-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-1%C2%B0-trimestre-2025.pdf;hostel;Hostel;;hostel;41.8
+2025-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-2%C2%B0-trimestre-2025.pdf;5-estrellas;5 estrellas;5;hotel;33.1
+2025-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-2%C2%B0-trimestre-2025.pdf;4-estrellas;4 estrellas;4;hotel;58.5
+2025-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-2%C2%B0-trimestre-2025.pdf;3-estrellas;3 estrellas;3;hotel;57.4
+2025-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-2%C2%B0-trimestre-2025.pdf;2-estrellas;2 estrellas;2;hotel;37.5
+2025-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-2%C2%B0-trimestre-2025.pdf;1-estrellas;1 estrella;1;hotel;47.9
+2025-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-2%C2%B0-trimestre-2025.pdf;apart-hotel;Apart hotel;;apart;33.6
+2025-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2025/09/Reporte-estadistico-2%C2%B0-trimestre-2025.pdf;hostel;Hostel;;hostel;45.4
+2025-07;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-3%C2%B0-trimestre-2025.pdf;5-estrellas;5 estrellas;5;hotel;43.6
+2025-07;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-3%C2%B0-trimestre-2025.pdf;4-estrellas;4 estrellas;4;hotel;69.1
+2025-07;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-3%C2%B0-trimestre-2025.pdf;3-estrellas;3 estrellas;3;hotel;72.0
+2025-07;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-3%C2%B0-trimestre-2025.pdf;2-estrellas;2 estrellas;2;hotel;53.1
+2025-07;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-3%C2%B0-trimestre-2025.pdf;1-estrellas;1 estrella;1;hotel;58.4
+2025-07;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-3%C2%B0-trimestre-2025.pdf;apart-hotel;Apart hotel;;apart;41.9
+2025-07;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-3%C2%B0-trimestre-2025.pdf;hostel;Hostel;;hostel;52.9
+2025-10;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-4%C2%B0-trimestre-2025.pdf;5-estrellas;5 estrellas;5;hotel;46.8
+2025-10;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-4%C2%B0-trimestre-2025.pdf;4-estrellas;4 estrellas;4;hotel;65.8
+2025-10;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-4%C2%B0-trimestre-2025.pdf;3-estrellas;3 estrellas;3;hotel;69.6
+2025-10;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-4%C2%B0-trimestre-2025.pdf;2-estrellas;2 estrellas;2;hotel;43.2
+2025-10;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-4%C2%B0-trimestre-2025.pdf;1-estrellas;1 estrella;1;hotel;54.0
+2025-10;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-4%C2%B0-trimestre-2025.pdf;apart-hotel;Apart hotel;;apart;46.8
+2025-10;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/03/Reporte-estadistico-4%C2%B0-trimestre-2025.pdf;hostel;Hostel;;hostel;57.6
+2026-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-1%C2%B0-trimestre-2026-1.pdf;5-estrellas;5 estrellas;5;hotel;41.2
+2026-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-1%C2%B0-trimestre-2026-1.pdf;4-estrellas;4 estrellas;4;hotel;59.2
+2026-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-1%C2%B0-trimestre-2026-1.pdf;3-estrellas;3 estrellas;3;hotel;61.6
+2026-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-1%C2%B0-trimestre-2026-1.pdf;2-estrellas;2 estrellas;2;hotel;48.3
+2026-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-1%C2%B0-trimestre-2026-1.pdf;1-estrellas;1 estrella;1;hotel;49.6
+2026-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-1%C2%B0-trimestre-2026-1.pdf;apart-hotel;Apart hotel;;apart;44.9
+2026-01;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-1%C2%B0-trimestre-2026-1.pdf;hostel;Hostel;;hostel;53.7
+2026-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-2%C2%B0-trimestre-2026-1.pdf;5-estrellas;5 estrellas;5;hotel;38.2
+2026-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-2%C2%B0-trimestre-2026-1.pdf;4-estrellas;4 estrellas;4;hotel;60.5
+2026-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-2%C2%B0-trimestre-2026-1.pdf;3-estrellas;3 estrellas;3;hotel;58.9
+2026-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-2%C2%B0-trimestre-2026-1.pdf;2-estrellas;2 estrellas;2;hotel;42.0
+2026-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-2%C2%B0-trimestre-2026-1.pdf;1-estrellas;1 estrella;1;hotel;46.6
+2026-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-2%C2%B0-trimestre-2026-1.pdf;apart-hotel;Apart hotel;;apart;39.4
+2026-04;https://turismo.cordoba.gob.ar/wp-content/uploads/2026/08/Reporte-estadistico-2%C2%B0-trimestre-2026-1.pdf;hostel;Hostel;;hostel;46.8

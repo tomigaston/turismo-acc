@@ -1,0 +1,11 @@
+{
+  "package": "turismo-acc-vercel",
+  "package_date": "2026-11-02",
+  "source_commit": "09ae758990745ae6d4a426d75db7e794d9771355",
+  "dashboard_matches_previous_html": true,
+  "publish_directory": "site",
+  "official_resources": 28,
+  "municipal_reports": 6,
+  "documented_events": 4,
+  "data_refreshed_for_this_package": false
+}

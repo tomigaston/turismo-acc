@@ -140,7 +140,7 @@ npm ci && npm test
 
 `npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre las seis secciones: filtros y tarjetas de Demanda hotelera, Conectividad aérea, Estacionalidad, Mercados internacionales y Turismo interno (sin gasto nominal en la evolución, tarjeta del SACT, gasto a pesos constantes con un IPC sintético), la redirección de enlaces viejos y que Fuentes y metodología no muestre «SHA-256», «clúster» ni «pendientes de incorporación».
 
-El actualizador descarga 28 archivos, procesa la base aérea en streaming y conserva todas las rutas mensuales. Esa descarga ronda los 270 MB y se realiza en el servidor de actualización, no en el navegador. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
+El actualizador descarga 29 archivos (28 de turismo y el IPC), procesa la base aérea en streaming y conserva todas las rutas mensuales. Esa descarga ronda los 270 MB y se realiza en el servidor de actualización, no en el navegador. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
 
 Para regenerar el HTML autocontenido después de una actualización:
 
@@ -171,6 +171,27 @@ El flujo `.github/workflows/actualizar-datos.yml` está incluido. **En esta copi
 
 La versión privada publicada para esta entrega contiene la carga verificada. No tiene una actualización desatendida activa. No se aprovisionó una base Neon ni se generaron credenciales.
 
+## Gasto a precios constantes (IPC)
+
+El gasto de la EVyTH se publica en pesos corrientes. Para graficar su evolución, el ETL lo deflacta con el **IPC nacional, nivel general, base diciembre 2016 = 100** (INDEC), serie `148.3_INIVELNAL_DICI_M_26` de la API de series de tiempo de datos.gob.ar ([catálogo](https://datos.gob.ar/dataset/sspm_145)).
+
+1. **IPC mensual:** se lee el CSV (`indice_tiempo`, `valor`). Se exige que los valores sean mayores que cero, crecientes y sin meses faltantes desde 2016-12.
+2. **IPC trimestral:** promedio simple de los 3 meses del trimestre. Un trimestre sin sus 3 meses no tiene IPC.
+3. **Base:** el último mes publicado del IPC. El tablero lo indica en el subtítulo: «a pesos de <mes año>».
+4. **Fórmula**, para cada región y trimestre *t*:
+
+   ```
+   gasto_total_ars_const(t)    = gasto_total_ars(t)    × IPC(mes base) ÷ IPC trimestral(t)
+   gasto_promedio_ars_const(t) = gasto_promedio_ars(t) × IPC(mes base) ÷ IPC trimestral(t)
+   ```
+
+   Si los precios del trimestre son el doble que los del mes base, el mismo gasto nominal vale la mitad a pesos constantes.
+5. **Sin IPC:** antes del primer trimestre de 2017 no hay IPC nacional, y el gasto constante queda nulo; no se empalma con otros índices.
+
+En pantalla, «Gasto total · pesos constantes» y «Gasto medio por turista · pesos constantes» son indicadores de la evolución de Turismo interno. El KPI y el ranking siguen en pesos corrientes. Si los datos publicados todavía no incluyen el IPC, la evolución queda vacía con un aviso.
+
+**Fallas y caché.** Si la API rechaza la serie (por ejemplo, porque el id dejó de existir), el ETL se detiene con un mensaje que nombra la serie: nunca continúa sin IPC ni usa otra serie. Con `--input-dir` (caché local) sin el CSV del IPC, el resto del proceso sigue: la fuente queda «no descargada», los campos constantes quedan nulos y `validate()` avisa. El dato real lo trae el workflow de GitHub Actions.
+
 ## Si se decide utilizar una base de datos
 
 La implementación actual puede alojarse como sitio estático. Para integrarla con la infraestructura existente de la Agencia, el mismo proceso Python puede guardar los indicadores en una base y una API puede entregarlos al tablero. Se necesitan el esquema y los accesos del backend elegido; una conexión a Neon nunca se incluye en el HTML público. Esta integración no forma parte de la versión entregada.
@@ -195,6 +216,7 @@ Los enlaces a los archivos específicos, identificación y licencias están en `
 - [ETI](https://datos.yvera.gob.ar/dataset/encuesta-turismo-internacional)
 - [EVyTH](https://datos.yvera.gob.ar/dataset/encuesta-viajes-turismo-hogares-evyth)
 - [SACT](https://datos.yvera.gob.ar/dataset/organizaciones-distinguidas-sistema-argentino-calidad-turistica-sact)
+- [IPC nacional · nivel general](https://datos.gob.ar/dataset/sspm_145)
 
 PUNA y observatorios provincial/municipal quedan pendientes de validar recursos estructurados estables. La información propia de empresas asociadas continúa reservada para una etapa posterior. También queda pendiente conectar la actualización al alojamiento institucional.
 

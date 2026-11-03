@@ -304,7 +304,12 @@ document.addEventListener('click',e=>{
  if('chipRemove' in b.dataset){setCompare(compareKeys().filter(k=>k!==b.dataset.chipRemove));return;}
  if('compareSet' in b.dataset){setCompare(b.dataset.compareSet.split(',').filter(Boolean));return;}
  if(b.dataset.tab){state.tab=b.dataset.tab;render();return;}
- if(b.dataset.set){changeState(b.dataset.set,b.dataset.value);return;}
+ if(b.dataset.set){
+  changeState(b.dataset.set,b.dataset.value);
+  // "Analizar este mes": llevar la vista a la sección del mes del evento.
+  if(b.dataset.set==='hotelEvent')$('hotel-event-month')?.scrollIntoView?.({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+  return;
+ }
  if(b.dataset.table){const id=b.dataset.table,c=cards.get(id),t=$('table-'+id),show=t.hidden;t.hidden=!show;$('chart-'+id).hidden=show;b.setAttribute('aria-expanded',String(show));b.classList.toggle('active',show);b.textContent=show?'Gráfico':'Tabla';if(show)t.innerHTML=tableHTML(c);else charts.get(id)?.resize();return;}
  if(b.dataset.sort){const c=cards.get(b.dataset.sort),i=+b.dataset.column;c.sortDir=c.sortColumn===i?-c.sortDir:1;c.sortColumn=i;c.rows.sort((a,b)=>{if(a[i]==null)return 1;if(b[i]==null)return -1;return c.sortDir*(typeof a[i]==='number'&&typeof b[i]==='number'?a[i]-b[i]:String(a[i]).localeCompare(String(b[i]),'es',{numeric:true}));});$('table-'+c.id).innerHTML=tableHTML(c);return;}
  if(b.dataset.csv){exportCSV(b.dataset.csv);return;}if(b.dataset.png){exportPNG(b.dataset.png);return;}

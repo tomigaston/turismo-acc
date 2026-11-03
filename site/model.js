@@ -34,6 +34,15 @@
     const a=new Map(now.map(r=>[r.code,r])),b=new Map(before.map(r=>[r.code,r]));
     return {gained:now.filter(r=>r.regular&&!b.get(r.code)?.regular),lost:before.filter(r=>r.regular&&!a.get(r.code)?.regular),kept:now.filter(r=>r.regular&&b.get(r.code)?.regular)};
   }
+  // Perfil mensual: suma de los meses homónimos del período; normalizado, cada mes como % del total del período.
+  // amountOf(periodos) devuelve el agregado del ámbito (null si falta algún mes).
+  function monthlyProfile(periods,amountOf,normalized=true){
+    const denominator=amountOf(periods);
+    return Array.from({length:12},(_,i)=>{
+      const selected=periods.filter(p=>+p.slice(5,7)===i+1),amount=amountOf(selected);
+      return {month:i+1,count:selected.length,value:normalized?ratio(amount,denominator,100):amount};
+    });
+  }
   function transform(series,ps,view){
     const base=view==='index'?ps.find(p=>series.every(s=>valid(at(s.rows,p).value)&&at(s.rows,p).value>0)):null;
     const dates=base?ps.filter(p=>p>=base):ps;
@@ -115,6 +124,6 @@
     }
     return {eoh,air,routes,routeRegularity,carrierMonthly,international,profile};
   }
-  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
+  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,monthlyProfile,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

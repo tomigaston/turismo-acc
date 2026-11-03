@@ -34,6 +34,14 @@
     const a=new Map(now.map(r=>[r.code,r])),b=new Map(before.map(r=>[r.code,r]));
     return {gained:now.filter(r=>r.regular&&!b.get(r.code)?.regular),lost:before.filter(r=>r.regular&&!a.get(r.code)?.regular),kept:now.filter(r=>r.regular&&b.get(r.code)?.regular)};
   }
+  // ETI: agregado de un período de trimestres. Turistas, pernoctes y gasto total se suman; estadía, gasto por
+  // turista y gasto diario se calculan sobre las sumas (nunca como promedio de promedios trimestrales).
+  // Si falta un trimestre del período, el agregado correspondiente es nulo (no se imputa).
+  function etiAggregate(seriesRows,spendingRows,ps){
+    const s=ps.map(p=>at(seriesRows,p)),g=ps.map(p=>at(spendingRows,p));
+    const turistas=sum(s.map(r=>r.turistas)),pernoctes=sum(s.map(r=>r.pernoctes)),gasto=sum(g.map(r=>r.gasto_total_usd));
+    return {turistas,pernoctes,gasto_total_usd:gasto,estadia_media:ratio(pernoctes,turistas),gasto_por_turista_usd:ratio(gasto,turistas),gasto_diario_usd:ratio(gasto,pernoctes)};
+  }
   // Estacionalidad: participación de los 3 meses de mayor valor en la suma anual (%).
   // 25 = sin estacionalidad; 100 = toda la actividad en 3 meses. Requiere 12 valores válidos.
   const complete12=v=>Array.isArray(v)&&v.length===12&&v.every(valid);
@@ -134,6 +142,11 @@
       });
       return [...out.values()];
     }
+    // Agregado ETI de un paso, sentido y período (lista de trimestres).
+    function internationalPeriod(gateway,flow,ps){
+      const pick=rows=>rows.filter(r=>r.gateway===gateway&&r.flow===flow);
+      return etiAggregate(pick(D.international.series),pick(D.international.spending),ps);
+    }
     // Dos series cualesquiera en % de su propio total del mismo año: no se suman ni se dividen entre sí.
     function crossProfile(rowsA,rowsB,year){return {a:profile(rowsA,year,true),b:profile(rowsB,year,true)};}
     function international(gateway,flow,metric){
@@ -144,8 +157,8 @@
       const ps=months(year+'-01',year+'-12'),values=ps.map(p=>at(rows,p).value??null),total=sum(values);
       return {values:normalized?values.map(v=>ratio(v,total,100)):values,total,complete:values.filter(valid).length};
     }
-    return {eoh,air,routes,routeRegularity,carrierMonthly,international,profile,crossProfile};
+    return {eoh,air,routes,routeRegularity,carrierMonthly,international,internationalPeriod,profile,crossProfile};
   }
-  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
+  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,etiAggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

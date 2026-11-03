@@ -40,6 +40,17 @@ for(const ap of ['SACO','SAEZ','SAME'])for(const dir of ['salidas','llegadas'])f
  const byRoute=m.routeRegularity(ap,ps,dir,'Internacional').reduce((s,r)=>s+r.pasajeros,0),monthly=M.aggregate(m.air(dir,'Internacional')[ap]||[],ps,'pasajeros');
  near(byRoute,monthly);
 }
+// ETI: sumas y razones de sumas por período; un trimestre faltante anula el agregado.
+{
+ const series=[{period:'2024-01',turistas:100,pernoctes:1000},{period:'2024-04',turistas:300,pernoctes:600}],spending=[{period:'2024-01',gasto_total_usd:10000},{period:'2024-04',gasto_total_usd:30000}];
+ const a=M.etiAggregate(series,spending,['2024-01','2024-04']);
+ assert.equal(a.turistas,400);assert.equal(a.pernoctes,1600);assert.equal(a.gasto_total_usd,40000);
+ near(a.estadia_media,4,'pernoctes ÷ turistas, no el promedio de 10 y 2 (6)');near(a.gasto_por_turista_usd,100);near(a.gasto_diario_usd,25);
+ const b=M.etiAggregate(series,spending,['2024-01','2024-04','2024-07']);
+ assert.equal(b.turistas,null);assert.equal(b.estadia_media,null);assert.equal(b.gasto_por_turista_usd,null);
+ const c=M.etiAggregate(series,[spending[0]],['2024-01','2024-04']);
+ assert.equal(c.turistas,400);assert.equal(c.gasto_total_usd,null);assert.equal(c.gasto_diario_usd,null);near(c.estadia_media,4);
+}
 // Estacionalidad: índice (3 meses más fuertes / año), serie anual, meses valle y perfil cruzado.
 {
  near(M.seasonalityIndex(Array(12).fill(10)),25);

@@ -1,4 +1,4 @@
-// Smoke test de Demanda hotelera con jsdom: carga site/index.html con un stub de ECharts.
+// Smoke test de Demanda hotelera y Conectividad aérea con jsdom: carga site/index.html con un stub de ECharts.
 // Uso: node tests/smoke.cjs [ruta a site/]   (por defecto, la carpeta site del repositorio)
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM,VirtualConsole}=require('jsdom');
@@ -138,5 +138,77 @@ ok('8 · Analizar este mes → cambia el evento y desplaza a Datos del mes',()=>
   assert.deepEqual(p.errors,[]);
 });
 
-console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera sin errores.');
+// ---- Conectividad aérea ----
+const air=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({tab:'air',...extra})));
+const subtitle=(p,id)=>p.$('#panel-'+id+' .panel-subtitle').textContent,title=(p,id)=>p.$('#panel-'+id+' h2').textContent;
+
+// 9 · La sección y las demás que comparten app.js renderizan sin errores.
+ok('9 · Conectividad aérea y demás secciones sin errores',()=>{
+  const p=open();
+  for(const tab of ['air','season','international','internal','quality','sources','demand']){
+    p.click(p.$(`[data-tab="${tab}"]`));assert.equal(p.errorBox(),'',tab+': '+p.errorBox());
+    console.log('     ',tab,'·',p.$$('.panel').length,'tarjetas');
+  }
+  // Estacionalidad en modo aéreo usa la misma lista de comparadores.
+  p.click(p.$('[data-tab="season"]'));p.change(p.$('select[data-key="seasonData"]'),'air');
+  assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-compare-add="airCompare"]'),'comparador aéreo en Estacionalidad');
+  p.click(p.$('[data-tab="air"]'));
+  for(const k of ['airport-ranking','routes','air-route-changes','air-mix','carriers'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 10 · "Principales aeropuertos del país" → Córdoba + 6 aeropuertos = 7 series.
+ok('10 · "Principales aeropuertos del país" → 7 series',()=>{
+  const p=air();
+  const btn=p.$$('.compare-shortcuts button').find(b=>b.textContent==='Principales aeropuertos del país');assert.ok(btn,'atajo presente');
+  p.click(btn);
+  const s=p.series('air-trend');console.log('     ',s.join(' / '));
+  assert.equal(s.length,7);assert.ok(!s.includes('Argentina'),'Argentina no es un aeropuerto');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 11 · Año completo 2025 cambia el subtítulo del ranking.
+ok('11 · preset "Año completo 2025" cambia el subtítulo del ranking',()=>{
+  const p=air();const before=subtitle(p,'airport-ranking');
+  p.change(p.$('select[data-key="airPreset"]'),'year');p.change(p.$('select[data-key="airYear"]'),'2025');
+  const after=subtitle(p,'airport-ranking');console.log('     ',before,'→',after);
+  assert.notEqual(after,before);assert.match(after,/ene 2025 – dic 2025/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 12 · Con factor de ocupación cambia el título del ranking (y el mínimo de vuelos pasa a 100).
+ok('12 · factor de ocupación → título del ranking y mínimo de vuelos',()=>{
+  const p=air();const before=title(p,'airport-ranking');
+  p.change(p.$('select[data-key="airMetric"]'),'ocupacion');
+  const after=title(p,'airport-ranking');console.log('     ',before,'→',after);
+  assert.equal(after,'Aeropuertos según factor de ocupación');
+  assert.equal(p.$('select[data-key="minFlights"]').value,'100');
+  assert.ok(p.$$('.kpi-label').some(k=>k.textContent==='Brecha de factor de ocupación'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 13 · Rutas regulares ganadas y perdidas: se renderiza (con datos o con su aviso) sin errores.
+ok('13 · rutas regulares ganadas y perdidas sin errores',()=>{
+  for(const extra of [{},{airPreset:'12'},{airPreset:'year',airYear:'2025',kind:'Internacional'}]){
+    const p=air(extra),o=p.options.get('chart-air-route-changes'),empty=p.$('#chart-air-route-changes .empty');
+    assert.ok(o||empty,'gráfico o aviso');assert.equal(p.errorBox(),'');assert.deepEqual(p.errors,[]);
+    console.log('     ',JSON.stringify(extra),'·',subtitle(p,'air-route-changes'));
+  }
+});
+
+// 14 · Hash viejo con airCompare1/airCompare2/airWindow se convierte sin error.
+ok('14 · hash viejo de Conectividad aérea → esquema nuevo',()=>{
+  const p=air({airCompare1:'SAEZ',airCompare2:'Argentina',airWindow:'12',cutoff:'2025-06'});
+  assert.equal(p.errorBox(),'');
+  const chips=p.$$('.chip').map(c=>c.textContent.replace('×','').trim());console.log('      fichas:',chips.join(', '));
+  assert.deepEqual(chips,['Ezeiza · SAEZ']);
+  assert.equal(p.$('select[data-key="airPreset"]').value,'custom');
+  assert.equal(p.$('input[data-key="airFrom"]').value,'2024-07');assert.equal(p.$('input[data-key="airTo"]').value,'2025-06');
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.ok(!('airCompare1' in saved)&&!('airWindow' in saved));assert.equal(saved.airCompare,'SAEZ');
+  assert.deepEqual(p.errors,[]);
+});
+
+console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera y Conectividad aérea sin errores.');
 process.exit(failures?1:0);

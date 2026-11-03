@@ -1,4 +1,4 @@
-// Smoke test de Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales con jsdom: carga site/index.html con un stub de ECharts.
+// Smoke test de las seis secciones del tablero con jsdom: carga site/index.html con un stub de ECharts.
 // Uso: node tests/smoke.cjs [ruta a site/]   (por defecto, la carpeta site del repositorio)
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM,VirtualConsole}=require('jsdom');
@@ -414,5 +414,51 @@ ok('31 · hash viejo de Mercados internacionales → esquema nuevo',()=>{
   assert.deepEqual(p.errors,[]);
 });
 
-console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales sin errores.');
+// ---- Navegación, Turismo interno y Fuentes y metodología ----
+const view=v=>open('#vista='+encodeURIComponent(JSON.stringify(v)));
+
+// 32 · La navegación tiene 6 secciones.
+ok('32 · navegación con 6 secciones',()=>{
+  const p=open(),tabs=p.$$('#navigation .nav-item').map(b=>b.dataset.tab);console.log('     ',tabs.join(' / '));
+  assert.deepEqual(tabs,['demand','air','season','international','internal','sources']);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 33 · Un hash viejo con tab=quality abre Turismo interno.
+ok('33 · tab=quality → Turismo interno',()=>{
+  const p=view({tab:'quality'});
+  assert.equal(p.errorBox(),'');assert.equal(p.$('#page-title').textContent,'Turismo interno');
+  assert.equal(p.$('.nav-item.active').dataset.tab,'internal');
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.equal(saved.tab,'internal');assert.deepEqual(p.errors,[]);
+});
+
+// 34 · En Turismo interno, el selector de la evolución no ofrece gasto en pesos corrientes.
+ok('34 · evolución sin gasto en pesos corrientes',()=>{
+  const p=view({tab:'internal',internalMetric:'gasto_total_ars'}),opts=p.$$('select[data-key="internalMetric"] option').map(o=>o.value);console.log('     ',opts.join(' / '));
+  assert.ok(!opts.includes('gasto_total_ars')&&!opts.includes('gasto_promedio_ars'),'sin gasto nominal');
+  assert.equal(p.$('select[data-key="internalMetric"]').value,'turistas','un hash con gasto nominal vuelve a turistas');
+  const rank=p.$$('select[data-key="internalRankMetric"] option').map(o=>o.value);assert.ok(rank.includes('gasto_total_ars'),'el ranking sí ofrece gasto');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 35 · La tarjeta de calidad turística (SACT) se renderiza en Turismo interno.
+ok('35 · tarjeta de calidad turística',()=>{
+  const p=view({tab:'internal'});
+  assert.ok(p.$('#panel-quality-programs'),'tarjeta presente');assert.equal(title(p,'quality-programs'),'Calidad turística · distinciones del SACT');
+  const names=Array.from(p.options.get('chart-quality-programs').yAxis.data,String);console.log('     ',names.length,'programas ·',p.$$('#panel-quality-programs .mini-kpis div').map(d=>[...d.children].map(c=>c.textContent).join(' ')).join(' · '));
+  assert.ok(names.length>0);assert.match(p.$('#panel-quality-programs').textContent,/no equivale a vigencia/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 36 · Fuentes y metodología: sin SHA-256, clúster ni fuentes pendientes; con las cinco frases de lectura.
+ok('36 · Fuentes y metodología sin trazabilidad técnica en pantalla',()=>{
+  const p=view({tab:'sources'}),text=p.$('#dashboard').textContent+p.$('#filters').textContent;
+  for(const w of ['SHA-256','clúster','pendientes de incorporación'])assert.ok(!text.includes(w),'contiene '+w);
+  assert.equal(p.$$('.reading-guide li').length,5);assert.equal(p.$('#footer-version').textContent,'Fuentes oficiales · Apache ECharts');
+  console.log('     ',p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]).join(' / '));
+  assert.deepEqual(p.errors,[]);
+});
+
+console.log(failures?`\n${failures} fallas`:'\nOK: smoke de las seis secciones sin errores.');
 process.exit(failures?1:0);

@@ -20,7 +20,7 @@ function render(ctx){
   opt.tooltip.formatter=p=>{
    if(!Array.isArray(p))return p.componentType==='markLine'&&opt.series[0]?.markLine?.tooltip?opt.series[0].markLine.tooltip.formatter(p):esc(p.name||'');
    const es=eventRows.find(r=>r.period===p[0]?.axisValue)?.events||[];
-   return tooltipRows(p,u)+(es.length?'<div style="border-top:1px solid #ddd;margin-top:8px;padding-top:6px;color:#8c641c">'+es.map(e=>esc(e.name)+' · '+esc(eventDate(e))).join('<br>')+'</div>':'');
+   return tooltipRows(p,u)+(es.length?'<div style="border-top:1px solid #ddd;margin-top:8px;padding-top:6px;color:#8c641c">'+es.map(e=>esc(e.name)+' · '+esc(eventDate(e))+(e.source_url?'':' · pendiente de verificación')).join('<br>')+'</div>':'');
   };
   opt.xAxis={type:'category',data:tr.periods,boundaryGap:tr.periods.length===1,axisLabel:{formatter:p=>label(p,quarter),hideOverlap:true,fontSize:10,color:'#6d8391'},axisTick:{show:false},axisLine:{lineStyle:{color:'#dfe7eb'}}};
   opt.yAxis={type:'value',name:view==='index'?'Base 100':u,nameTextStyle:{fontSize:10,align:'left'},axisLabel:{formatter:axisLabel,fontSize:10},splitLine:{lineStyle:{color:'#edf1f4'}},scale:view==='index'};
@@ -33,7 +33,7 @@ function render(ctx){
    opt.series[0].markArea={silent:true,label:{show:false},data:bands};
    // Una marca por mes: el tooltip detalla cada evento y la etiqueta indica cuántos hay (◆N).
    const shortDate=e=>{const d=x=>x.slice(8,10)+'/'+x.slice(5,7);return e.start_date===e.end_date?d(e.start_date):d(e.start_date)+'–'+d(e.end_date);};
-   const eventTip=p=>{const r=eventRows.find(x=>x.period===p.data?.period);return r?'<strong>'+esc(label(r.period))+' · '+r.events.length+(r.events.length>1?' eventos':' evento')+'</strong>'+r.events.map(e=>'<div style="margin-top:6px"><strong>'+esc(e.name)+'</strong><br>'+esc(shortDate(e))+' · '+esc(e.category)+' · '+esc(e.locality)+'</div>').join(''):'';};
+   const eventTip=p=>{const r=eventRows.find(x=>x.period===p.data?.period);return r?'<strong>'+esc(label(r.period))+' · '+r.events.length+(r.events.length>1?' eventos':' evento')+'</strong>'+r.events.map(e=>'<div style="margin-top:6px"><strong>'+esc(e.name)+'</strong><br>'+esc(shortDate(e))+' · '+esc(e.category)+' · '+esc(e.locality)+(e.source_url?'':'<br><em>Pendiente de verificación</em>')+'</div>').join(''):'';};
    if(eventRows.length)opt.series[0].markLine={symbol:'none',lineStyle:{color:'#b58431',type:'dashed',width:1.5},label:{show:true,formatter:p=>p.data?.count>1?'◆'+p.data.count:'◆',position:'insideEndTop',color:'#9d7022',fontSize:12},tooltip:{show:true,trigger:'item',formatter:eventTip},data:eventRows.map(r=>({xAxis:r.period,period:r.period,count:r.events.length,name:r.events.map(e=>e.name).join(' / ')}))};
   }
   if(zoom&&tr.periods.length>1)opt.dataZoom=[{type:'slider',start:0,end:100,bottom:6,height:20,realtime:false,filterMode:'none',textStyle:{fontSize:9},borderColor:'#d9e4e7',fillerColor:'#d4eae3',handleStyle:{color:'#378d7d'}}];

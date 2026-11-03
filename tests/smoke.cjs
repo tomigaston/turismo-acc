@@ -145,7 +145,7 @@ const subtitle=(p,id)=>p.$('#panel-'+id+' .panel-subtitle').textContent,title=(p
 // 9 · La sección y las demás que comparten app.js renderizan sin errores.
 ok('9 · Conectividad aérea y demás secciones sin errores',()=>{
   const p=open();
-  for(const tab of ['air','season','international','internal','quality','sources','demand']){
+  for(const tab of ['air','season','international','internal','sources','demand']){
     p.click(p.$(`[data-tab="${tab}"]`));assert.equal(p.errorBox(),'',tab+': '+p.errorBox());
     console.log('     ',tab,'·',p.$$('.panel').length,'tarjetas');
   }

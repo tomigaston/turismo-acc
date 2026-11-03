@@ -137,11 +137,11 @@ function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,qu
  let ps=fixed||(start&&current.period?months(start,current.period,quarter?3:1):[]);
  // Trimestres expresados por el primer mes del trimestre.
  if(quarter&&!fixed)ps=all.filter(p=>p<=current.period&&(state.range==='all'||ordinal(p)>ordinal(current.period)-(+state.range)));
- const tr=transform(series,ps,view),unit=view==='index'?'índice':view==='yoy'?'%':specs[metric]?.[1]||'';
+ const tr=transform(series,ps,view),unit=view==='index'||view==='base2019'?'índice':view==='yoy'?'%':specs[metric]?.[1]||'';
  const opt=commonOption();
  opt.tooltip.formatter=params=>tooltipRows(params,unit);
  opt.xAxis={type:'category',boundaryGap:false,data:tr.periods,axisLabel:{formatter:p=>label(p,quarter),fontSize:9,color:'#7a8d98',hideOverlap:true},axisLine:{lineStyle:{color:'#dfe7eb'}},axisTick:{show:false}};
- opt.yAxis={type:'value',name:view==='index'?'Base 100':view==='yoy'?'Var. interanual (%)':unit,nameTextStyle:{fontSize:9,color:'#82949d',align:'left'},axisLabel:{formatter:axisLabel,fontSize:9,color:'#7a8d98'},splitLine:{lineStyle:{color:'#edf1f4'}},scale:view==='index'};
+ opt.yAxis={type:'value',name:view==='index'?'Base 100':view==='base2019'?'Base 2019 = 100':view==='yoy'?'Var. interanual (%)':unit,nameTextStyle:{fontSize:9,color:'#82949d',align:'left'},axisLabel:{formatter:axisLabel,fontSize:9,color:'#7a8d98'},splitLine:{lineStyle:{color:'#edf1f4'}},scale:view==='index'};
  opt.dataZoom=[{type:'inside',filterMode:'none',zoomOnMouseWheel:'ctrl'},{type:'slider',bottom:6,height:16,borderColor:'#dfe8ed',fillerColor:'#dcefe8',handleStyle:{color:'#5d9b89'},textStyle:{fontSize:8},start:0,end:100}];
  opt.series=tr.series.map((s,i)=>({name:s.name,type:'line',data:s.values,connectNulls:false,showSymbol:tr.periods.length<30,symbolSize:5,lineStyle:{width:i?2:2.8},emphasis:{focus:'series'},itemStyle:{color:colors[i]},areaStyle:i?undefined:{color:'#087f73',opacity:.035}}));
  if(seasonBands&&!quarter&&opt.series.length){
@@ -150,7 +150,7 @@ function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,qu
   }
   opt.series[0].markArea={silent:true,label:{show:false},data:bands};
  }
- const note=(view==='index'?'Base 100: '+(tr.base?label(tr.base,quarter):'sin período común con valores positivos')+'. ':view==='yoy'?'Comparación con el mismo período del año anterior. ':'')+(seasonBands&&!quarter?'Bandas: verano (dic.–feb.) e invierno (jun.–ago.). ':'')+'El zoom visual no cambia el período de los indicadores ni del CSV. Los faltantes interrumpen la línea.';
+ const note=(view==='index'?'Base 100: '+(tr.base?label(tr.base,quarter):'sin período común con valores positivos')+'. ':view==='yoy'?'Comparación con el mismo período del año anterior. ':view==='base2019'?'Mismo mes de 2019 = 100; meses sin base quedan vacíos. ':'')+(seasonBands&&!quarter?'Bandas: verano (dic.–feb.) e invierno (jun.–ago.). ':'')+'El zoom visual no cambia el período de los indicadores ni del CSV. Los faltantes interrumpen la línea.';
  return card({id,title,subtitle,metric,unit,basePeriod:tr.base,option:opt,columns:['Período',...series.map(s=>s.name)],rows:tr.periods.map((p,i)=>[label(p,quarter),...tr.series.map(s=>s.values[i])]),periodText:label(tr.periods[0],quarter)+' – '+label(tr.periods.at(-1),quarter),...rest,method:note+(rest.method?' '+rest.method:'')});
 }
 function barCard({id,title,subtitle,items,seriesNames=['Córdoba'],unit='',metric='viajeros',limit=10,onClick,...rest}){
@@ -190,7 +190,7 @@ function renderAir(){
  if(state.airPreset==='year')controls+=field('airYear','Año',airYears());
  if(state.airPreset==='custom')controls+=`<label class="field"><span>Desde</span><input type="month" data-key="airFrom" aria-label="Desde" min="${D.air.periods[0]}" max="${latest}" value="${selected[0]}"></label><label class="field"><span>Hasta</span><input type="month" data-key="airTo" aria-label="Hasta" min="${D.air.periods[0]}" max="${latest}" value="${selected.at(-1)}"></label>`;
  $('filters').innerHTML=controls;
- const local=field('airMetric','Indicador',['pasajeros','asientos','vuelos','ocupacion'].map(k=>[k,airMetricLabel(k)]))+field('view','Lectura de la evolución',[['index','Índice base 100'],['levels','Valores observados'],['yoy','Variación interanual (%)']]);
+ const local=field('airMetric','Indicador',['pasajeros','asientos','vuelos','ocupacion'].map(k=>[k,airMetricLabel(k)]))+field('view','Lectura de la evolución',[['index','Índice base 100'],['levels','Valores observados'],['yoy','Variación interanual (%)'],['base2019','Índice base 2019 (= 100)']]);
  const eligible=Object.keys(data).filter(k=>k!=='Argentina'&&aggregate(get(k),selected,'vuelos')>=+state.minFlights),ranking=rankItems(eligible,get,selected,state.airMetric),rank=rankPosition(ranking,'SACO'),c=val('SACO'),a=val('Argentina'),old=aggregate(get('SACO'),selected.map(previous),state.airMetric),share=state.airMetric!=='ocupacion',peer=airCompareKeys()[0];
  const coverageNote=selected.some(p=>!valid(at(get('SACO'),p).pasajeros))?' Cobertura parcial en Córdoba: el detalle suma solo los registros disponibles; los indicadores que requieren todos los meses quedan sin dato.':'';
  const denom=state.direction==='ambos'?'Llegadas + salidas en aeropuertos argentinos':state.direction==='salidas'?'Salidas desde aeropuertos argentinos':'Llegadas a aeropuertos argentinos';

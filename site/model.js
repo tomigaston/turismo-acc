@@ -39,7 +39,8 @@
     const dates=base?ps.filter(p=>p>=base):ps;
     return {base,periods:dates,series:series.map(s=>({...s,values:dates.map(p=>{
       const v=at(s.rows,p).value;
-      return view==='index'?ratio(v,at(s.rows,base).value,100):view==='yoy'?change(v,at(s.rows,previous(p)).value):v??null;
+      // base2019: cada mes sobre el mismo mes de 2019 del mismo ámbito; sin base (faltante o 0) queda nulo.
+      return view==='index'?ratio(v,at(s.rows,base).value,100):view==='yoy'?change(v,at(s.rows,previous(p)).value):view==='base2019'?ratio(v,at(s.rows,'2019'+p.slice(4)).value,100):v??null;
     })}))};
   }
   function create(D){

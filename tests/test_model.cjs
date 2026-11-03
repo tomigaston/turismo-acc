@@ -28,6 +28,13 @@ const active=m.routes('SACO',[p],'salidas','all','all','carrier');
 for(const carrier of active){near(M.at(m.air('salidas','all',carrier.code).SACO,p).pasajeros,carrier.pasajeros);}
 assert.equal(M.at(m.international('Aep. Córdoba','emisivo','turistas'),'2025-10').value,105494);
 assert.equal(M.at(m.international('Aep. Córdoba','receptivo','turistas'),'2025-10').value,22913);
+// Índice base 2019: cada mes sobre el mismo mes de 2019; sin base (faltante o 0) queda nulo, sin imputar.
+{
+ const rows=[{period:'2019-01',value:200},{period:'2019-02',value:0},{period:'2025-01',value:150},{period:'2025-02',value:90},{period:'2025-03',value:80}];
+ const t=M.transform([{name:'A',rows}],['2025-01','2025-02','2025-03'],'base2019');
+ assert.deepEqual(t.series[0].values,[75,null,null]);assert.equal(t.base,null);
+ assert.equal(M.transform([{name:'A',rows}],['2019-01'],'base2019').series[0].values[0],100);
+}
 // Rutas regulares: umbral (4 vuelos en la mitad de los meses) y clasificación nueva / perdida / se mantiene.
 assert.equal(M.regularThreshold(12),6);assert.equal(M.regularThreshold(1),1);assert.equal(M.regularThreshold(5),3);
 assert.equal(M.isRegular([4,4,4,4,4,4,0,0,0,0,0,0]),true);

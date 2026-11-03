@@ -5,6 +5,8 @@ function render(ctx){
  const H=root.HotelModel,S=root.HOTEL_DATA,obs=S.observatory,calendar=S.calendar,T=ctx.hotel,meta=D.eoh.scope_meta;
  const {valid,sum,ratio,change,at,previous,ordinal,month,months,transform}=M;
  const names=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+ // Un símbolo distinto por serie: los ámbitos no se distinguen solo por color.
+ const symbols=['circle','rect','triangle','diamond','roundRect','pin','arrow','emptyCircle','emptyTriangle'];
  const tabs=[['overview','Demanda y posición'],['seasonality','Estacionalidad'],['typology','Ocupación por categoría'],['events','Eventos']];
  if(!tabs.some(([id])=>id===state.hotelTab))state.hotelTab='overview';
  const municipal=state.hotelTab==='typology'&&state.hotelSource==='municipal';
@@ -22,7 +24,7 @@ function render(ctx){
   };
   opt.xAxis={type:'category',data:tr.periods,boundaryGap:tr.periods.length===1,axisLabel:{formatter:p=>label(p,quarter),hideOverlap:true,fontSize:10,color:'#6d8391'},axisTick:{show:false},axisLine:{lineStyle:{color:'#dfe7eb'}}};
   opt.yAxis={type:'value',name:view==='index'?'Base 100':u,nameTextStyle:{fontSize:10,align:'left'},axisLabel:{formatter:axisLabel,fontSize:10},splitLine:{lineStyle:{color:'#edf1f4'}},scale:view==='index'};
-  opt.series=tr.series.map((s,i)=>({name:s.name,type:'line',data:s.values,connectNulls:false,showSymbol:tr.periods.length<30,symbolSize:6,lineStyle:{width:i?2:3},emphasis:{focus:'series'}}));
+  opt.series=tr.series.map((s,i)=>({name:s.name,type:'line',data:s.values,connectNulls:false,showSymbol:tr.periods.length<30,symbol:symbols[i%symbols.length],symbolSize:6,lineStyle:{width:i?2:3},emphasis:{focus:'series'}}));
   if(opt.series.length&&!quarter){
    const bands=[];
    for(let y=+(periods[0]||'2024').slice(0,4)-1;y<=+(periods.at(-1)||'2025').slice(0,4);y++)for(const [season,color] of [['verano','#f8edd3'],['invierno','#e5eef8']]){
@@ -123,7 +125,7 @@ function render(ctx){
   let out='<div class="inline-controls">'+field('hotelSeasonMetric','Indicador estacional',[['pernoctes','Pernoctaciones'],['viajeros','Viajeros hospedados']])+field('hotelProfile','Lectura del patrón',[['share','Peso en el total del intervalo (%)'],['levels','Volumen acumulado por mes']])+residenceControl()+'</div>';
   const opt=commonOption();opt.grid.bottom=35;opt.tooltip.formatter=p=>tooltipRows(p,normalized?'%':specs[metric][1]);
   opt.xAxis={type:'category',data:names,boundaryGap:false,axisLabel:{fontSize:10},axisTick:{show:false}};opt.yAxis={type:'value',name:normalized?'% del intervalo':specs[metric][1],nameTextStyle:{fontSize:9,align:'left'},axisLabel:{formatter:axisLabel,fontSize:10},splitLine:{lineStyle:{color:'#edf1f4'}}};
-  opt.series=scopes.map((k,i)=>({type:'line',name:name(k),data:profs[i].map(r=>r.value),connectNulls:false,symbolSize:7,lineStyle:{width:i?2:3}}));
+  opt.series=scopes.map((k,i)=>({type:'line',name:name(k),data:profs[i].map(r=>r.value),connectNulls:false,symbol:symbols[i%symbols.length],symbolSize:7,lineStyle:{width:i?2:3}}));
   out+='<div class="grid equal">'+card({id:'hotel-profile',title:specs[metric][0]+' por mes del año · distribución por ámbito',subtitle:who(scopes)+' · '+caption+' · '+residenceLabel+' · '+(normalized?'cada ámbito suma 100 % en su intervalo':'volumen acumulado por mes'),option:opt,metric:normalized?'ocupacion':metric,unit:normalized?'%':specs[metric][1],periodText:caption,columns:['Mes','Cantidad de meses observados en la selección',...scopes.map(name)],rows:names.map((n,i)=>[n,profs[0][i].count,...profs.map(p=>p[i].value)]),method:'Se suman los meses homónimos incluidos en la selección. '+(normalized?'Cada suma se divide por el total del intervalo de ese mismo destino; con un año completo, es su perfil anual. Los porcentajes requieren cobertura completa. ':'No se normalizan los tamaños de los destinos. ')+'Los meses fuera de la selección quedan vacíos. Para comparar veranos e inviernos entre años, elegí años completos o la misma temporada.'})+rankCard('hotel-season-rank',metric)+'</div>';
   const years=unique(ps.map(p=>p.slice(0,4))),heat=commonOption(),hrows=years.flatMap(y=>scopes.map(k=>({year:y,scope:k,name:name(k)+' · '+y})));
   const vals=hrows.flatMap((r,y)=>names.flatMap((_,x)=>{const p=r.year+'-'+String(x+1).padStart(2,'0');if(!ps.includes(p))return [];const v=at(get(r.scope,metric),p).value;return valid(v)?[[x,y,v]]:[];}));

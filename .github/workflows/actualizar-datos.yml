@@ -42,6 +42,11 @@ jobs:
           node --check site/hotel.js
           node --check site/hotel-model.js
           node tests/test_hotel.cjs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Smoke de la interfaz (jsdom) y pruebas de JavaScript
+        run: npm ci && npm test
       - name: Publicar datos verificados
         run: |
           if ! git diff --quiet -- site/data; then

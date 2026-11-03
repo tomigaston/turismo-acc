@@ -213,10 +213,10 @@ function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,qu
  const note=(view==='index'?'Base 100: '+(tr.base?label(tr.base,quarter):'sin período común con valores positivos')+'. ':view==='yoy'?'Comparación con el mismo período del año anterior. ':view==='base2019'?'Mismo mes de 2019 = 100; meses sin base quedan vacíos. ':'')+(seasonBands&&!quarter?'Bandas: verano (dic.–feb.) e invierno (jun.–ago.). ':'')+'El zoom visual no cambia el período de los indicadores ni del CSV. Los faltantes interrumpen la línea.';
  return card({id,title,subtitle,metric,unit,basePeriod:tr.base,option:opt,columns:['Período',...series.map(s=>s.name)],rows:tr.periods.map((p,i)=>[label(p,quarter),...tr.series.map(s=>s.values[i])]),periodText:label(tr.periods[0],quarter)+' – '+label(tr.periods.at(-1),quarter),...rest,method:note+(rest.method?' '+rest.method:'')});
 }
-function barCard({id,title,subtitle,items,seriesNames=['Córdoba'],unit='',metric='viajeros',limit=10,onClick,...rest}){
+function barCard({id,title,subtitle,items,seriesNames=['Córdoba'],unit='',metric='viajeros',limit=10,onClick,labelDigits=null,...rest}){
  const shown=items.slice(0,limit),opt=commonOption();opt.grid={left:4,right:40,top:seriesNames.length>1?40:12,bottom:12,containLabel:true};opt.legend.show=seriesNames.length>1;opt.tooltip.formatter=p=>tooltipRows(p,unit);
  opt.xAxis={type:'value',axisLabel:{fontSize:9,color:'#7c909b',formatter:axisLabel},splitLine:{lineStyle:{color:'#edf1f4'}}};opt.yAxis={type:'category',inverse:true,data:shown.map(r=>r.name),axisLabel:{fontSize:10,color:'#4d6b7c',width:150,overflow:'truncate'},axisTick:{show:false},axisLine:{show:false}};
- opt.series=seriesNames.map((s,i)=>({name:s,type:'bar',barMaxWidth:14,data:shown.map(r=>({value:r.values[i],itemStyle:{color:r.highlight&&seriesNames.length===1?colors[0]:seriesNames.length===1?'#a3baca':colors[i],borderRadius:[0,3,3,0]}})),label:{show:seriesNames.length===1,position:'right',fontSize:9,color:'#597787',formatter:p=>valid(p.value)?fmt(p.value,unit==='%'?1:0):''},emphasis:{focus:'series'}}));
+ opt.series=seriesNames.map((s,i)=>({name:s,type:'bar',barMaxWidth:14,data:shown.map(r=>({value:r.values[i],itemStyle:{color:r.highlight&&seriesNames.length===1?colors[0]:seriesNames.length===1?'#a3baca':colors[i],borderRadius:[0,3,3,0]}})),label:{show:seriesNames.length===1,position:'right',fontSize:9,color:'#597787',formatter:p=>valid(p.value)?fmt(p.value,labelDigits??(unit==='%'?1:0)):''},emphasis:{focus:'series'}}));
  return card({id,title,subtitle,metric,unit,option:opt,columns:['Categoría',...seriesNames],rows:items.map(r=>[r.name,...r.values]),onClick:onClick?params=>onClick(shown[params.dataIndex]):null,className:shown.length>8?'tall':'',...rest});
 }
 function paint(){
@@ -448,6 +448,13 @@ function seasonHeat(focus,scopes,level,year,name){
 const usd=x=>valid(x)?(Math.abs(x)>=1e6?'USD '+fmt(x/1e6,1)+' M':'USD '+fmt(x,0)):'Sin dato';
 const INTL_MARKET_METHOD='Agrupaciones de países publicadas por la ETI para este paso; difieren entre receptivo y emisivo y entre pasos: no se cruzan ni se unifican. Estimaciones muestrales: en un paso chico los trimestres sueltos son ruidosos; preferí el año completo.';
 const quarterCaption=ps=>ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),true):label(ps[0],true);
+// 6. Estadía media y gasto por turista por paso, en el período (razones de sumas; Córdoba destacada).
+function intlStayAndSpend(ps,caption,scopes){
+ const inbound=state.flow==='receptivo',agg=Object.fromEntries(scopes.map(g=>[g,model.internationalPeriod(g,state.flow,ps)])),who='turistas '+(inbound?'entrados':'salidos')+' por cada aeropuerto';
+ const trip=inbound?'Noches y gasto del viaje por Argentina, no solo en Córdoba.':'Noches y gasto del viaje al exterior. No es gasto turístico realizado en Córdoba.';
+ const items=k=>scopes.map(g=>({code:g,name:gateLabel(g),values:[agg[g][k]],highlight:g==='Aep. Córdoba'}));
+ return barCard({id:'intl-stay',title:'Estadía media · '+who,subtitle:scopes.map(gateLabel).join(' / ')+' · '+caption+' · noches por turista',items:items('estadia_media'),seriesNames:['Estadía media'],metric:'estadia_media',unit:'noches',labelDigits:1,digits:[null,1],periodText:caption,method:'Pernoctes del período ÷ turistas del período (no se promedian estadías trimestrales); sin dato si falta un trimestre. '+trip})+barCard({id:'intl-spend',title:'Gasto por turista · '+who,subtitle:scopes.map(gateLabel).join(' / ')+' · '+caption+' · dólares corrientes',items:items('gasto_por_turista_usd'),seriesNames:['USD por turista'],metric:'gasto_por_turista_usd',unit:'USD',digits:[null,1],periodText:caption,method:'Gasto total del período ÷ turistas del período (no se promedian gastos trimestrales); sin dato si falta un trimestre. '+(inbound?'Gasto durante el viaje en Argentina. No es gasto exclusivamente realizado en Córdoba.':'Gasto durante el viaje al exterior. No es gasto turístico realizado en Córdoba.')});
+}
 // 5. Motivo principal del viaje: participación (%) de cada motivo en los turistas de cada paso.
 function intlMotives(ps,caption,scopes){
  const inbound=state.flow==='receptivo',motives=unique(D.international.motives.filter(r=>r.flow===state.flow).map(r=>r.motive)),BUSINESS='Negocios/congreso/conferencia';
@@ -517,7 +524,8 @@ function renderInternational(){
  const inbound=state.flow==='receptivo';
  html+=lineCard({id:'intl-trend',title:specs[metric][0]+' · turistas '+(inbound?'receptivos por aeropuerto de entrada':'emisivos por aeropuerto de salida'),subtitle:scopes.map(gateLabel).join(' / ')+' · '+(ps.length===1?'16 trimestres hasta '+label(ps[0],true):caption)+' · '+(inbound?'residentes en el exterior entrados por cada aeropuerto':'residentes en Argentina salidos por cada aeropuerto'),series:scopes.map(k=>({name:gateLabel(k),rows:get(k)})),periods:trendPs,metric,quarter:true,seasonBands:false,method:'Los pasos seleccionados no constituyen el total nacional.'});
  html+='<div class="grid equal">'+intlMarkets(ps,caption)+intlMarketTrend()+'</div>';
- html+='<div class="grid equal">'+intlMotives(ps,caption,scopes)+barCard({id:'intl-spend',title:'Gasto medio por turista · comparación por paso',subtitle:'Dólares estadounidenses · '+caption,items:scopes.map(g=>({name:gateLabel(g),values:[agg(g).gasto_por_turista_usd],highlight:g==='Aep. Córdoba'})),seriesNames:['USD por turista'],unit:'USD',metric:'gasto_por_turista_usd',method:state.flow==='emisivo'?'Gasto durante el viaje al exterior. No es gasto turístico realizado en Córdoba.':'Gasto durante el viaje en Argentina. No es gasto exclusivamente realizado en Córdoba.'})+'</div>';
+ html+=intlMotives(ps,caption,scopes);
+ html+='<div class="grid equal">'+intlStayAndSpend(ps,caption,scopes)+'</div>';
  $('dashboard').innerHTML=html;
 }
 function renderInternal(){

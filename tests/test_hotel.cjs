@@ -25,7 +25,7 @@ assert.equal(H.ranking(D,'region',year,'pernoctes','total').some(r=>r.code==='Ar
 assert.equal(H.ranking(D,'region',M.months('2025-01','2025-12'),'pernoctes','total').length,0);
 const ev=S.calendar.events;
 assert.equal(H.eventsFor(ev,'Córdoba',year).length,28);
-assert.equal(H.eventsFor(ev,'localidad:Córdoba',year).length,19);
+assert.equal(H.eventsFor(ev,'localidad:Córdoba',year).length,20);
 assert.equal(H.eventsFor(ev,'localidad:Carlos Paz',year).length,0);
 assert.equal(H.eventsFor(ev,'Córdoba',year,'Congresos').length,2);
 assert.equal(H.eventMonths(ev,year).find(r=>r.period==='2024-11').events.length,3);

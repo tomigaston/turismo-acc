@@ -79,17 +79,18 @@
       "name": "Córdoba Open 2024 (ATP 250)",
       "start_date": "2024-02-03",
       "end_date": "2024-02-11",
-      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "locality": "Córdoba capital",
       "scopes": [
-        "Córdoba"
+        "Córdoba",
+        "localidad:Córdoba"
       ],
       "category": "Deportes",
-      "venue": null,
+      "venue": "Polo Deportivo · Estadio Mario Alberto Kempes",
       "source_url": null,
       "source_title": "Referencia sin verificar: lista de trabajo ACC",
       "published_at": null,
       "status": "pendiente de verificación",
-      "notes": "Última edición del torneo ATP 250 según la lista. La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en fechas con: Cosquín Rock 2024; Festival de Peñas de Villa María (56ª edición). Coincide en el mes con: Fin de semana largo · Carnaval 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+      "notes": "Última edición del torneo ATP 250 según la lista. Coincide en fechas con: Cosquín Rock 2024; Festival de Peñas de Villa María (56ª edición). Coincide en el mes con: Fin de semana largo · Carnaval 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
     },
     {
       "id": "penas-villa-maria-2024",
@@ -590,7 +591,7 @@
       "name": "Mundial de Motocross (MXGP) · fecha inaugural",
       "start_date": "2025-03-01",
       "end_date": "2025-03-02",
-      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "locality": "Córdoba · localidad sin precisar",
       "scopes": [
         "Córdoba"
       ],
@@ -661,7 +662,7 @@
       "name": "Rally de Córdoba · Rally Argentino",
       "start_date": "2025-04-11",
       "end_date": "2025-04-13",
-      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "locality": "Córdoba · localidad sin precisar",
       "scopes": [
         "Córdoba"
       ],
@@ -732,7 +733,7 @@
       "name": "X Congreso de Matemática Aplicada, Computacional e Industrial (MACI)",
       "start_date": "2025-05-12",
       "end_date": "2025-05-15",
-      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "locality": "Córdoba · localidad sin precisar",
       "scopes": [
         "Córdoba"
       ],
@@ -946,7 +947,7 @@
       "name": "Jornadas de Estudios de Población y Congreso Internacional de Población del Cono Sur",
       "start_date": "2025-09-23",
       "end_date": "2025-09-26",
-      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "locality": "Córdoba · localidad sin precisar",
       "scopes": [
         "Córdoba"
       ],
@@ -1053,9 +1054,10 @@
       "name": "Oftalmo Córdoba 2025",
       "start_date": "2025-10-08",
       "end_date": "2025-10-10",
-      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "locality": "Córdoba capital",
       "scopes": [
-        "Córdoba"
+        "Córdoba",
+        "localidad:Córdoba"
       ],
       "category": "Congresos",
       "venue": null,
@@ -1063,14 +1065,14 @@
       "source_title": "Referencia sin verificar: IntraMed",
       "published_at": null,
       "status": "pendiente de verificación",
-      "notes": "La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en fechas con: Feria del Libro Córdoba (39ª edición); 6° Congreso Internacional «Entre Educación y Salud» (UPC). Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+      "notes": "Coincide en fechas con: Feria del Libro Córdoba (39ª edición); 6° Congreso Internacional «Entre Educación y Salud» (UPC). Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
     },
     {
       "id": "rally-argentino-special-edition-2025",
       "name": "Rally Argentino Special Edition",
       "start_date": "2025-11-01",
       "end_date": "2025-11-02",
-      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "locality": "Córdoba · localidad sin precisar",
       "scopes": [
         "Córdoba"
       ],

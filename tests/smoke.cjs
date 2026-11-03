@@ -1,4 +1,4 @@
-// Smoke test de Demanda hotelera y Conectividad aérea con jsdom: carga site/index.html con un stub de ECharts.
+// Smoke test de Demanda hotelera, Conectividad aérea y Estacionalidad con jsdom: carga site/index.html con un stub de ECharts.
 // Uso: node tests/smoke.cjs [ruta a site/]   (por defecto, la carpeta site del repositorio)
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM,VirtualConsole}=require('jsdom');
@@ -285,5 +285,68 @@ ok('19 · Argentina como referencia del gráfico de evolución',()=>{
   assert.deepEqual(p.errors,[]);
 });
 
-console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera y Conectividad aérea sin errores.');
+// ---- Estacionalidad ----
+const season=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({tab:'season',...extra})));
+const SEASON_CARDS=['season-index','season-index-trend','season-hotel-air','season-valleys','season-heat'];
+
+// 20 · La sección renderiza sin errores con el año por defecto (último año completo).
+ok('20 · Estacionalidad con el año por defecto',()=>{
+  const p=season();
+  assert.equal(p.errorBox(),'');assert.equal(p.$('select[data-key="seasonYear"]').value,'2024');
+  assert.match(p.$('select[data-key="seasonYear"]').textContent,/2025 \(incompleto\)/);
+  for(const k of SEASON_CARDS)assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  for(const k of ['season-profile','season-ranking'])assert.ok(!p.$('#panel-'+k),'ya no existe '+k);
+  assert.ok(!p.$('select[data-key="seasonData"]')&&!p.$('select[data-key="seasonMetric"]'),'sin interruptor de fuente ni selector de indicador');
+  const kpis=p.$$('.kpi-label').map(k=>k.textContent);console.log('     ',kpis.join(' | '));
+  assert.deepEqual(kpis,['Índice de estacionalidad · Córdoba','Mes pico','Mes valle','Temporada baja']);
+  assert.match(p.$('.kpi-value').textContent,/%$/);
+  assert.match(p.$('.hotel-range').textContent,/EOH \(Encuesta de Ocupación Hotelera, INDEC\)/);assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 21 · Con 2025 (incompleto) los cuatro KPI dicen "Año incompleto".
+ok('21 · 2025 → KPI "Año incompleto"',()=>{
+  const p=season();p.change(p.$('select[data-key="seasonYear"]'),'2025');
+  const values=p.$$('.kpi-value').map(k=>k.textContent);console.log('     ',values.join(' | '));
+  assert.deepEqual(values,Array(4).fill('Año incompleto'));
+  assert.equal(p.errorBox(),'');assert.deepEqual(p.errors,[]);
+});
+
+// 22 · "Todas las regiones" → 8 series en la evolución del índice.
+ok('22 · "Todas las regiones" → 8 series en la evolución del índice',()=>{
+  const p=season();
+  p.click(p.$$('.compare-shortcuts button').find(b=>b.textContent==='Todas las regiones'));
+  const s=p.series('season-index-trend');console.log('     ',s.join(' / '));
+  assert.equal(s.length,8);assert.deepEqual(p.errors,[]);
+});
+
+// 23 · Hotelería y llegadas aéreas: 2 series en 2024; 1 en 2015, con aviso (aéreo desde 2017).
+ok('23 · hotelería/aéreo: 2 series en 2024, 1 en 2015 con aviso',()=>{
+  let p=season();assert.equal(p.series('season-hotel-air').length,2);console.log('      2024:',p.series('season-hotel-air').join(' / '));
+  p=season({seasonYear:'2015'});assert.equal(p.series('season-hotel-air').length,1);
+  const aviso=p.$('#panel-season-hotel-air .notice');assert.ok(aviso,'aviso');assert.match(aviso.textContent,/desde 2017/);console.log('      2015:',aviso.textContent);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 24 · Meses valle y calendario: 12 barras.
+ok('24 · meses valle: 12 barras',()=>{
+  const p=season(),o=p.options.get('chart-season-valleys');
+  assert.equal(o.series[0].data.length,12);assert.equal(o.xAxis.data.length,12);
+  console.log('     ',Array.from(o.series[0].data,d=>Math.round(d.value)).join(' '));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 25 · Hash viejo con seasonCity/seasonCompare1 carga sin error.
+ok('25 · hash viejo de Estacionalidad → esquema nuevo',()=>{
+  const p=season({seasonLevel:'localidad',seasonCity:'localidad:Carlos Paz',seasonCompare1:'localidad:Mendoza',seasonData:'air',seasonView:'levels',seasonPeriod:'verano'});
+  assert.equal(p.errorBox(),'');
+  assert.equal(p.$('select[data-key="seasonTerritory"]').value,'localidad:Carlos Paz');
+  const chips=p.$$('.chip').map(c=>c.textContent.replace('×','').trim());console.log('      fichas:',chips.join(', '));
+  assert.ok(chips.includes('Ciudad de Mendoza'));
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.ok(!('seasonCity' in saved)&&!('seasonData' in saved)&&!('seasonCompare1' in saved));
+  assert.deepEqual(p.errors,[]);
+});
+
+console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera, Conectividad aérea y Estacionalidad sin errores.');
 process.exit(failures?1:0);

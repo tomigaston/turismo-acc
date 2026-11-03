@@ -241,9 +241,9 @@ function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,qu
  const note=(view==='index'?'Base 100: '+(tr.base?label(tr.base,quarter):'sin período común con valores positivos')+'. ':view==='yoy'?'Comparación con el mismo período del año anterior. ':view==='base2019'?'Mismo mes de 2019 = 100; meses sin base quedan vacíos. ':'')+(seasonBands&&!quarter?'Bandas: verano (dic.–feb.) e invierno (jun.–ago.). ':'')+'El zoom visual no cambia el período de los indicadores ni del CSV. Los faltantes interrumpen la línea.';
  return card({id,title,subtitle,metric,unit,basePeriod:tr.base,option:opt,columns:['Período',...series.map(s=>s.name)],rows:tr.periods.map((p,i)=>[label(p,quarter),...tr.series.map(s=>s.values[i])]),periodText:label(tr.periods[0],quarter)+' – '+label(tr.periods.at(-1),quarter),...rest,method:note+(rest.method?' '+rest.method:'')});
 }
-function barCard({id,title,subtitle,items,seriesNames=['Córdoba'],unit='',metric='viajeros',limit=10,onClick,labelDigits=null,...rest}){
+function barCard({id,title,subtitle,items,seriesNames=['Córdoba'],unit='',metric='viajeros',limit=10,onClick,labelDigits=null,labelWidth=150,...rest}){
  const shown=items.slice(0,limit),opt=commonOption();opt.grid={left:4,right:40,top:seriesNames.length>1?40:12,bottom:12,containLabel:true};opt.legend.show=seriesNames.length>1;opt.tooltip.formatter=p=>tooltipRows(p,unit);
- opt.xAxis={type:'value',axisLabel:{fontSize:9,color:'#7c909b',formatter:axisLabel},splitLine:{lineStyle:{color:'#edf1f4'}}};opt.yAxis={type:'category',inverse:true,data:shown.map(r=>r.name),axisLabel:{fontSize:10,color:'#4d6b7c',width:150,overflow:'truncate'},axisTick:{show:false},axisLine:{show:false}};
+ opt.xAxis={type:'value',axisLabel:{fontSize:9,color:'#7c909b',formatter:axisLabel},splitLine:{lineStyle:{color:'#edf1f4'}}};opt.yAxis={type:'category',inverse:true,data:shown.map(r=>r.name),axisLabel:{fontSize:10,color:'#4d6b7c',width:labelWidth,overflow:'truncate'},axisTick:{show:false},axisLine:{show:false}};
  opt.series=seriesNames.map((s,i)=>({name:s,type:'bar',barMaxWidth:14,data:shown.map(r=>({value:r.values[i],itemStyle:{color:r.highlight&&seriesNames.length===1?colors[0]:seriesNames.length===1?'#a3baca':colors[i],borderRadius:[0,3,3,0]}})),label:{show:seriesNames.length===1,position:'right',fontSize:9,color:'#597787',formatter:p=>valid(p.value)?fmt(p.value,labelDigits??(unit==='%'?1:0)):''},emphasis:{focus:'series'}}));
  return card({id,title,subtitle,metric,unit,option:opt,columns:['Categoría',...seriesNames],rows:items.map(r=>[r.name,...r.values]),onClick:onClick?params=>onClick(shown[params.dataIndex]):null,className:shown.length>8?'tall':'',...rest});
 }
@@ -565,6 +565,14 @@ function renderInternational(){
  html+=intlShare();
  $('dashboard').innerHTML=html;
 }
+// 5. Calidad turística (SACT): padrón histórico de distinciones de Córdoba, al cierre de Turismo interno.
+function qualityCard(){
+ const Q=D.quality,co=Q.counts['Córdoba'],ar=Q.counts.Argentina,date=Q.latest_date.split('-').reverse().join('/');
+ const items=Q.programs.filter(r=>r.scope==='Córdoba').sort((a,b)=>b.records-a.records||a.program.localeCompare(b.program,'es')).map(r=>({name:r.program,values:[r.records]}));
+ const mini=`<div class="mini-kpis"><div><strong>${fmt(co)}</strong><span>registros de Córdoba</span></div><div><strong>${value(ratio(co,ar,100),'ocupacion')}</strong><span>del total del país (${fmt(ar)})</span></div></div>`;
+ const text='Padrón histórico del Sistema Argentino de Calidad Turística; última fecha registrada '+date+'. Una organización puede tener varias distinciones; no equivale a vigencia.';
+ return barCard({id:'quality-programs',title:'Calidad turística · distinciones del SACT',subtitle:'Córdoba · distinciones por programa · padrón histórico al '+date,controls:mini,items,seriesNames:['Distinciones'],unit:'distinciones',metric:'turistas',limit:items.length,labelWidth:300,family:'quality',periodText:'Padrón histórico; última fecha '+date,latest:date,extra:'<p class="intl-note">'+esc(text)+'</p>',method:text});
+}
 // Participación anual de Córdoba en los turistas del turismo interno (años con 4 trimestres).
 function internalShareByYear(){
  const years=[],omitted=[],all=unique(internalQuarters().map(p=>p.slice(0,4)));
@@ -598,6 +606,7 @@ function renderInternal(){
  const trendPs=ps.length===1?months(month(ordinal(ps[0])-45),ps[0],3):ps;
  html+='<div class="grid">'+lineCard({id:'internal-trend',title:specs[metric][0]+' por región de destino · Córdoba'+(scopes.length>1?' y '+(scopes.length-1)+(scopes.length>2?' comparadores':' comparador'):''),subtitle:scopes.map(internalName).join(' / ')+' · '+(ps.length===1?'16 trimestres hasta '+label(ps[0],true):caption),series:scopes.map(k=>({name:internalName(k),rows:get(k)})),periods:trendPs,metric,quarter:true,seasonBands:false,method:'Residentes de los grandes aglomerados urbanos relevados, en viajes dentro de Argentina.'})+barCard({id:'internal-ranking',title:'Ranking de regiones de destino por '+specs[rankMetric][0].toLowerCase(),subtitle:'Ocho regiones de destino · '+caption+' · Córdoba destacada'+(nominal?' · '+NOMINAL:''),controls:field('internalRankMetric','Indicador del ranking',metricOptions(['turistas','pernoctes','estadia_media','gasto_promedio_ars','gasto_total_ars'])),items:rank.map(r=>({name:r.code,values:[r.value],highlight:r.code==='Córdoba'})),seriesNames:[specs[rankMetric][0]],metric:rankMetric,unit:specs[rankMetric][1],limit:10,method:'Ocho regiones de destino mutuamente excluyentes. Los promedios nacionales se calculan ponderando por turistas; no se promedian las tasas regionales.'+(nominal?' '+NOMINAL:'')})+'</div>';
  html+=internalShareByYear();
+ html+=qualityCard();
  $('dashboard').innerHTML=html;
 }
 function renderQuality(){

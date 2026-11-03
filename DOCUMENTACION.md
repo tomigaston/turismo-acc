@@ -175,7 +175,7 @@ La versión privada publicada para esta entrega contiene la carga verificada. No
 
 El gasto de la EVyTH se publica en pesos corrientes. Para graficar su evolución, el ETL lo deflacta con el **IPC nacional, nivel general, base diciembre 2016 = 100** (INDEC), serie `148.3_INIVELNAL_DICI_M_26` de la API de series de tiempo de datos.gob.ar ([catálogo](https://datos.gob.ar/dataset/sspm_145)).
 
-1. **IPC mensual:** se lee el CSV (`indice_tiempo`, `valor`). Se exige que los valores sean mayores que cero, crecientes y sin meses faltantes desde 2016-12.
+1. **IPC mensual:** se lee el CSV de la API con `header=ids` (columnas `indice_tiempo` y `148.3_INIVELNAL_DICI_M_26`; también se acepta `valor`). Se exige que los valores sean mayores que cero y sin meses faltantes desde 2016-12. Un mes que no supera al anterior no detiene el proceso: solo genera un aviso en la salida.
 2. **IPC trimestral:** promedio simple de los 3 meses del trimestre. Un trimestre sin sus 3 meses no tiene IPC.
 3. **Base:** el último mes publicado del IPC. El tablero lo indica en el subtítulo: «a pesos de <mes año>».
 4. **Fórmula**, para cada región y trimestre *t*:
@@ -222,6 +222,6 @@ PUNA y observatorios provincial/municipal quedan pendientes de validar recursos 
 
 ## Verificación de esta entrega
 
-Se comprobaron trece pruebas Python (siete de ellas sobre el IPC, con datos sintéticos: el IPC real lo trae el workflow), valores conocidos de EOH/ETI, faltantes, ponderaciones, índices comunes, temporadas y conciliación entre rutas, aeropuertos, sentidos y aerolíneas. Se revisó la interfaz en navegador de escritorio, el cambio de filtros, tablas y exportaciones. El diseño incluye reglas adaptables; no se realizó una prueba en un dispositivo móvil real. `tests/smoke.cjs` (jsdom, 38 casos) recorre las seis secciones; en Demanda hotelera verifica las cuatro solapas sin errores, comparadores y escalas, tope de 9 series, conversión de enlaces anteriores, etiquetas del calendario de intensidad y «Analizar este mes».
+Se comprobaron catorce pruebas Python (ocho de ellas sobre el IPC, con datos sintéticos: el IPC real lo trae el workflow), valores conocidos de EOH/ETI, faltantes, ponderaciones, índices comunes, temporadas y conciliación entre rutas, aeropuertos, sentidos y aerolíneas. Se revisó la interfaz en navegador de escritorio, el cambio de filtros, tablas y exportaciones. El diseño incluye reglas adaptables; no se realizó una prueba en un dispositivo móvil real. `tests/smoke.cjs` (jsdom, 38 casos) recorre las seis secciones; en Demanda hotelera verifica las cuatro solapas sin errores, comparadores y escalas, tope de 9 series, conversión de enlaces anteriores, etiquetas del calendario de intensidad y «Analizar este mes».
 
 Apache ECharts 6.0.0 se incluye bajo Apache License 2.0. Los archivos LICENSE y NOTICE se conservan en `site/vendor/`.

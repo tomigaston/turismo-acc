@@ -312,7 +312,7 @@
     "family": "ipc",
     "name": "IPC nacional · nivel general · base dic-2016",
     "dataset": "sspm_145",
-    "url": "https://apis.datos.gob.ar/series/api/series/?ids=148.3_INIVELNAL_DICI_M_26&format=csv&limit=5000",
+    "url": "https://apis.datos.gob.ar/series/api/series/?ids=148.3_INIVELNAL_DICI_M_26&format=csv&header=ids&limit=5000",
     "catalog": "https://datos.gob.ar/dataset/sspm_145",
     "license": "Creative Commons Attribution 4.0",
     "metadata_modified": null,

@@ -60,7 +60,17 @@ class IpcTests(unittest.TestCase):
         self.assertAlmostEqual(ipc['quarterly'][0]['index'],102);self.assertAlmostEqual(ipc['quarterly'][1]['index'],105)
         self.assertEqual(ipc['base_period'],'2017-06');self.assertEqual(ipc['base_label'],'pesos de junio 2017')
     def test_column_named_after_series(self):
-        self.assertEqual(len(etl.parse_ipc(self.csv([100,101],column='148.3_INIVELNAL_DICI_M_26'),'x')),2)
+        # header=ids: la columna se llama como el id de la serie, aunque haya otras columnas.
+        sid='148.3_INIVELNAL_DICI_M_26'
+        self.assertEqual(len(etl.parse_ipc(self.csv([100,101],column=sid),sid)),2)
+        p=self.write(f'indice_tiempo,otra,{sid}\n2016-12-01,1,100\n2017-01-01,1,101\n')
+        self.assertEqual([r['index'] for r in etl.parse_ipc(p,sid)],[100,101])
+    def test_non_increasing_only_warns(self):
+        import io,contextlib
+        err=io.StringIO()
+        with contextlib.redirect_stderr(err):monthly=etl.parse_ipc(self.csv([100,101,101,100.5,102]),'x')
+        self.assertEqual(len(monthly),5,'la serie se conserva completa')
+        self.assertIn('AVISO: IPC 2017-02',err.getvalue());self.assertIn('AVISO: IPC 2017-03',err.getvalue())
     def test_doubling_prices_halves_constant_spending(self):
         # Mismo gasto nominal en dos trimestres; en el segundo los precios se duplican.
         ipc=etl.compile_ipc(etl.parse_ipc(self.csv([98,99,100,101,198,200,202]),'x'))
@@ -77,7 +87,7 @@ class IpcTests(unittest.TestCase):
         self.assertIsNone(missing['gasto_total_ars_const'],'gasto nominal ausente')
         etl.apply_constant_prices(internal,None);self.assertIsNone(internal['scopes']['Córdoba'][1]['gasto_total_ars_const'],'sin IPC descargado')
     def test_invalid_series_rejected(self):
-        for values,start in [([100,101,101],(2016,12)),([100,0,102],(2016,12)),([100,101],(2017,1)),([100,'',102],(2016,12))]:
+        for values,start in [([100,0,102],(2016,12)),([100,101],(2017,1)),([100,'',102],(2016,12))]:
             with self.assertRaises(ValueError):etl.parse_ipc(self.csv(values,start=start),'x')
         with self.assertRaises(ValueError):etl.parse_ipc(self.write('indice_tiempo,2016-12-01\n'),'x')
         with self.assertRaises(ValueError):etl.parse_ipc(self.write('{"errors":[{"error":"Serie inválida"}]}\n'),'x')

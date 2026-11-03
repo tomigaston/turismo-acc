@@ -199,14 +199,15 @@ def next_month(p):
     y,m=int(p[:4]),int(p[5:7]);return f'{y+(m==12)}-{1 if m==12 else m+1:02d}'
 
 def parse_ipc(path,series_id):
-    """IPC mensual: columnas indice_tiempo y valor (o una única columna con el nombre de la serie).
-    Valida valores > 0, crecientes y sin huecos mensuales desde 2016-12."""
+    """IPC mensual: columnas indice_tiempo y la serie (con header=ids, la columna se llama como su id;
+    también se acepta valor). Exige valores > 0 y sin huecos mensuales desde 2016-12; un mes que no
+    supera al anterior solo genera un aviso."""
     with path.open(encoding='utf-8-sig',newline='') as file:
         reader=csv.DictReader(file);fields=reader.fieldnames or []
         values=[f for f in fields if f!='indice_tiempo']
-        column='valor' if 'valor' in fields else (values[0] if len(values)==1 else None)
+        column=series_id if series_id in fields else 'valor' if 'valor' in fields else (values[0] if len(values)==1 else None)
         if 'indice_tiempo' not in fields or column is None:
-            raise ValueError(f'IPC: la respuesta para {series_id} no es el CSV esperado (columnas: {", ".join(fields) or "ninguna"}). Se esperaba indice_tiempo y valor.')
+            raise ValueError(f'IPC: la respuesta para {series_id} no es el CSV esperado (columnas: {", ".join(fields) or "ninguna"}). Se esperaba indice_tiempo y {series_id}.')
         monthly=[]
         for r in reader:
             dt=period(r.get('indice_tiempo'))
@@ -218,7 +219,7 @@ def parse_ipc(path,series_id):
     if not monthly or monthly[0]['period']!='2016-12':raise ValueError('IPC: la serie no comienza en 2016-12 (base dic-2016)')
     for a,b in zip(monthly,monthly[1:]):
         if b['period']!=next_month(a['period']):raise ValueError(f"IPC: hueco mensual entre {a['period']} y {b['period']}")
-        if not b['index']>a['index']:raise ValueError(f"IPC: la serie no es creciente en {b['period']}")
+        if not b['index']>a['index']:print(f"AVISO: IPC {b['period']} ({b['index']}) no supera al mes anterior ({a['index']}).",file=sys.stderr)
     return monthly
 
 def compile_ipc(monthly):

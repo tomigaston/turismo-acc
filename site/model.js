@@ -23,6 +23,14 @@
     if(field==='gasto_promedio_ars')return ratio(values('gasto_total_ars'),values('turistas'));
     return values(field);
   }
+  // Ruta regular: al menos 4 vuelos en al menos la mitad de los meses del período (6 de 12).
+  const regularThreshold=n=>Math.max(1,Math.ceil(n/2));
+  function isRegular(monthlyFlights,n=monthlyFlights.length,minFlights=4){return monthlyFlights.filter(v=>valid(v)&&v>=minFlights).length>=regularThreshold(n);}
+  // Compara dos listas {code,regular}: nuevas (regulares ahora y no antes), perdidas (al revés) y mantenidas.
+  function classifyRoutes(now,before){
+    const a=new Map(now.map(r=>[r.code,r])),b=new Map(before.map(r=>[r.code,r]));
+    return {gained:now.filter(r=>r.regular&&!b.get(r.code)?.regular),lost:before.filter(r=>r.regular&&!a.get(r.code)?.regular),kept:now.filter(r=>r.regular&&b.get(r.code)?.regular)};
+  }
   function transform(series,ps,view){
     const base=view==='index'?ps.find(p=>series.every(s=>valid(at(s.rows,p).value)&&at(s.rows,p).value>0)):null;
     const dates=base?ps.filter(p=>p>=base):ps;
@@ -69,6 +77,18 @@
       });
       return [...groups.values()].map(r=>({...r,ocupacion:ratio(r.pasajeros,r.asientos,100)}));
     }
+    // Rutas de un aeropuerto con sus vuelos por mes y su condición de regular en el período.
+    function routeRegularity(airport,ps,direction='salidas',kind='all',carrier='all'){
+      const periods=new Set(ps),groups=new Map();
+      D.air.route_rows.forEach(r=>{
+        if(!periods.has(r[0])||(kind!=='all'&&r[3]!==+(kind==='Internacional'))||(carrier!=='all'&&r[4]!==+carrier))return;
+        const outgoing=r[1]===airport&&(direction==='salidas'||direction==='ambos'),incoming=r[2]===airport&&(direction==='llegadas'||direction==='ambos');
+        if(!outgoing&&!incoming)return;
+        const code=outgoing?r[2]:r[1],item=groups.get(code)||{code,monthly:{},pasajeros:0,asientos:0,vuelos:0};
+        ['pasajeros','asientos','vuelos'].forEach((k,i)=>item[k]+=r[i+5]);item.monthly[r[0]]=(item.monthly[r[0]]||0)+r[7];groups.set(code,item);
+      });
+      return [...groups.values()].map(r=>({...r,regular:isRegular(ps.map(p=>r.monthly[p]||0),ps.length)}));
+    }
     function international(gateway,flow,metric){
       const fields=['gasto_total_usd','gasto_diario_usd','gasto_por_turista_usd'];
       return (fields.includes(metric)?D.international.spending:D.international.series).filter(r=>r.gateway===gateway&&r.flow===flow).map(r=>({...r,value:r[metric]}));
@@ -77,8 +97,8 @@
       const ps=months(year+'-01',year+'-12'),values=ps.map(p=>at(rows,p).value??null),total=sum(values);
       return {values:normalized?values.map(v=>ratio(v,total,100)):values,total,complete:values.filter(valid).length};
     }
-    return {eoh,air,routes,international,profile};
+    return {eoh,air,routes,routeRegularity,international,profile};
   }
-  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,transform,create};
+  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

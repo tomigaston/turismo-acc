@@ -28,4 +28,28 @@ const active=m.routes('SACO',[p],'salidas','all','all','carrier');
 for(const carrier of active){near(M.at(m.air('salidas','all',carrier.code).SACO,p).pasajeros,carrier.pasajeros);}
 assert.equal(M.at(m.international('Aep. Córdoba','emisivo','turistas'),'2025-10').value,105494);
 assert.equal(M.at(m.international('Aep. Córdoba','receptivo','turistas'),'2025-10').value,22913);
-console.log('OK: faltantes, ponderación, índice común, temporadas y conciliación de rutas, aeropuertos, sentidos y aerolíneas.');
+// Rutas regulares: umbral (4 vuelos en la mitad de los meses) y clasificación nueva / perdida / se mantiene.
+assert.equal(M.regularThreshold(12),6);assert.equal(M.regularThreshold(1),1);assert.equal(M.regularThreshold(5),3);
+assert.equal(M.isRegular([4,4,4,4,4,4,0,0,0,0,0,0]),true);
+assert.equal(M.isRegular([4,4,4,4,4,3,9,0,0,0,0,0]),true);
+assert.equal(M.isRegular([4,4,4,4,4,3,3,3,3,3,3,3]),false,'5 meses con 4 vuelos no alcanzan el umbral de 6');
+assert.equal(M.isRegular([4]),true);assert.equal(M.isRegular([3]),false);
+{
+ const year=y=>M.months(y+'-01',y+'-12'),rows=[];
+ // AAAA→BBBB regular en ambos años; AAAA→CCCC solo en 2025 (nueva); AAAA→DDDD solo en 2024 (perdida); AAAA→EEEE nunca regular.
+ for(const p of year(2024)){rows.push([p,'AAAA','BBBB',0,0,100,120,8]);rows.push([p,'AAAA','DDDD',0,0,50,60,4]);}
+ for(const p of year(2025)){rows.push([p,'AAAA','BBBB',0,0,100,120,8]);rows.push([p,'AAAA','EEEE',0,0,10,20,2]);}
+ for(const p of year(2025).slice(0,6))rows.push([p,'AAAA','CCCC',0,0,70,80,5]);
+ rows.push(['2024-03','EEEE','AAAA',0,0,10,20,30]);
+ const airports=Object.fromEntries(['AAAA','BBBB','CCCC','DDDD','EEEE'].map(k=>[k,{city:k,domestic:true}]));
+ const s=M.create({air:{route_rows:rows,airports,monthly:[]}});
+ const now=s.routeRegularity('AAAA',year(2025)),before=s.routeRegularity('AAAA',year(2024));
+ assert.deepEqual(now.filter(r=>r.regular).map(r=>r.code).sort(),['BBBB','CCCC']);
+ assert.equal(now.find(r=>r.code==='EEEE').regular,false);
+ const c=M.classifyRoutes(now,before);
+ assert.deepEqual(c.gained.map(r=>r.code),['CCCC']);assert.deepEqual(c.lost.map(r=>r.code),['DDDD']);assert.deepEqual(c.kept.map(r=>r.code),['BBBB']);
+ assert.equal(c.gained[0].pasajeros,420);assert.equal(c.lost[0].vuelos,48);
+ // Las llegadas a AAAA no cuentan como salidas.
+ assert.equal(s.routeRegularity('AAAA',year(2024),'llegadas').map(r=>r.code).join(),'EEEE');
+}
+console.log('OK: faltantes, ponderación, índice común, temporadas, conciliación de rutas, aeropuertos, sentidos y aerolíneas, y rutas regulares.');

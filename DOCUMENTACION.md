@@ -42,7 +42,24 @@ Las vistas analíticas muestran datos, comparaciones, unidades, fuentes y fechas
     - Usan todas las aerolíneas. Con factor de ocupación, que no se suma, se usan pasajeros.
   - **Estacionalidad aérea:** perfil mensual del indicador en el año del período, o en el último año completo si el período no es un año completo. Lectura en peso de cada mes en el año (con «Argentina · total nacional» como referencia) o en valores observados. El cálculo de perfil mensual es el mismo que usa Demanda hotelera.
   - Un clic en una barra agrega un comparador o aplica una aerolínea. Los enlaces guardados con el esquema anterior (dos comparadores y ventana de meses) se convierten al abrirse.
-- **Estacionalidad:** curvas mensuales, porcentaje del total anual, calendario de intensidad y rankings de verano/invierno/otras temporadas. Córdoba capital puede compararse con Ciudad de Mendoza; región Córdoba, con Cuyo. No se presenta Cuyo como si fuera Mendoza provincia.
+- **Estacionalidad:** cuándo viaja la gente a Córdoba y cuánto se concentra la actividad en pocos meses.
+  - **Preguntas que responde:** cuán estacional es Córdoba frente a otros destinos; si lo es más o menos con los años; si el aéreo sigue el patrón hotelero; cuáles son los meses valle y qué hay en el calendario esos meses.
+  - **Filtros:** Territorio (Córdoba provincia o un destino de Córdoba relevado), Comparar con y Año de análisis.
+    - Comparar con usa los mismos componentes y la misma regla de escalas que Demanda hotelera. Como todo se lee en porcentajes, Argentina se admite como ámbito también frente a una localidad.
+    - Año de análisis: solo años con 12 meses observados, más el último año incompleto, marcado. Por defecto, el último completo.
+  - **Indicador fijo:** pernoctaciones EOH, todas las residencias.
+  - **Contenido:**
+    - Indicadores del año (índice, mes pico, mes valle y meses debajo del promedio).
+    - Índice por ámbito (territorio, comparadores y los 10 ámbitos de mayor volumen de la misma escala, hasta 14).
+    - Evolución del índice por año completo desde 2007.
+    - Hotelería frente a llegadas aéreas a SACO, cada una en % de su propio año (aéreo desde 2017; fuera de provincia y capital, SACO es referencia provincial).
+    - Meses valle con el conteo de feriados, fines de semana largos y eventos del calendario.
+    - Calendario de intensidad por destino.
+  - **Índice de estacionalidad:** participación de los 3 meses con más pernoctaciones en el total anual, en %. Va de 25 % (los 12 meses iguales: sin estacionalidad) a 100 % (toda la actividad en 3 meses). Requiere los 12 meses observados; los años incompletos se omiten y el año en curso muestra «Año incompleto».
+    - Mide concentración, no volumen. Los 3 meses no tienen por qué ser consecutivos.
+    - Años excepcionales, como 2020 en Argentina (con los 3 meses previos a la pandemia), dan valores muy altos que no describen una temporada típica.
+    - El índice no se calcula sobre localidades sumadas ni se compara con otros indicadores de concentración.
+  - **Meses valle:** (mes ÷ promedio mensual del año − 1) × 100. El conteo de feriados y eventos es descriptivo: no atribuye la actividad a los eventos, y el calendario no es exhaustivo (cargado para 2024 y 2025).
 - **Mercados internacionales:** ETI emisiva y receptiva por Córdoba, Mendoza y Ezeiza/Aeroparque; turistas, noches, estadía, mercados, motivos y gasto. Los pasos relevados no equivalen al total nacional.
 - **Turismo interno:** Córdoba, Argentina y las ocho regiones de destino de la EVyTH. Quintiles únicamente nacionales y gasto en pesos corrientes.
 - **Calidad turística:** distinciones históricas por provincia y programa. No se presentan como certificaciones vigentes ni como empresas del clúster.
@@ -91,7 +108,7 @@ node tests/test_hotel.cjs
 npm ci && npm test
 ```
 
-`npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre los filtros y solapas de Demanda hotelera y de Conectividad aérea. También comprueba que las demás secciones carguen sin errores.
+`npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre los filtros y tarjetas de Demanda hotelera, Conectividad aérea y Estacionalidad. También comprueba que las demás secciones carguen sin errores.
 
 El actualizador descarga 28 archivos, procesa la base aérea en streaming y conserva todas las rutas mensuales. Esa descarga ronda los 270 MB y se realiza en el servidor de actualización, no en el navegador. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
 

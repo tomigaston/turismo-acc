@@ -60,7 +60,24 @@ Las vistas analíticas muestran datos, comparaciones, unidades, fuentes y fechas
     - Años excepcionales, como 2020 en Argentina (con los 3 meses previos a la pandemia), dan valores muy altos que no describen una temporada típica.
     - El índice no se calcula sobre localidades sumadas ni se compara con otros indicadores de concentración.
   - **Meses valle:** (mes ÷ promedio mensual del año − 1) × 100. El conteo de feriados y eventos es descriptivo: no atribuye la actividad a los eventos, y el calendario no es exhaustivo (cargado para 2024 y 2025).
-- **Mercados internacionales:** ETI emisiva y receptiva por Córdoba, Mendoza y Ezeiza/Aeroparque; turistas, noches, estadía, mercados, motivos y gasto. Los pasos relevados no equivalen al total nacional.
+- **Mercados internacionales (ETI, Encuesta de Turismo Internacional, INDEC):** el aeropuerto de Córdoba como **paso**, no como destino.
+  - **Concepto de paso:**
+    - Receptivo: residentes en el exterior que entraron al país por el aeropuerto de Córdoba, vayan a donde vayan.
+    - Emisivo: residentes en Argentina, de cualquier provincia, que salieron del país por ese aeropuerto.
+    - «Paso Córdoba» no es «turismo en Córdoba». Los títulos hablan de turistas «entrados» o «salidos» por el aeropuerto de Córdoba.
+  - **Filtros:**
+    - Sentido: receptivo por defecto.
+    - Comparar con: fichas activables del Aeropuerto de Mendoza y de Ezeiza y Aeroparque, los dos pasos aéreos con serie.
+    - Período del análisis: año completo (por defecto, el último con sus 4 trimestres), últimos 4 trimestres o último trimestre.
+    - Indicador y lectura van junto al gráfico de evolución.
+  - **Reglas de agregación del período:** Turistas, pernoctes y gasto total se suman; estadía media = suma de pernoctes ÷ suma de turistas; gasto por turista = suma de gasto total ÷ suma de turistas; gasto diario = suma de gasto total ÷ suma de pernoctes. Nunca se promedian promedios trimestrales, y si falta un trimestre del período el agregado queda sin dato (no se imputa).
+  - **Contenido:**
+    - Balanza del aeropuerto de Córdoba, independiente del sentido: ingreso de divisas (receptivo), gasto en el exterior (emisivo), saldo y relación. Incluye barras anuales 2015–2025 en dólares corrientes, sin deflactar; los años con trimestres faltantes se omiten.
+    - Evolución por aeropuerto de entrada o salida.
+    - Mercados de residencia o destinos del viaje, frente al mismo período del año anterior, y su evolución anual. Las agrupaciones de la ETI difieren entre sentidos y pasos y no se cruzan.
+    - Motivos en participación por paso. Para Córdoba, la ETI no publica estimación de «Negocios, congresos y conferencias».
+    - Estadía media y gasto por turista por paso.
+    - Participación del aeropuerto de Córdoba entre los tres pasos aéreos relevados. No es participación nacional: la ETI releva también pasos terrestres y fluviales que no están en esta base.
 - **Turismo interno:** Córdoba, Argentina y las ocho regiones de destino de la EVyTH. Quintiles únicamente nacionales y gasto en pesos corrientes.
 - **Calidad turística:** distinciones históricas por provincia y programa. No se presentan como certificaciones vigentes ni como empresas del clúster.
 - **Fuentes y metodología:** enlaces a los 28 archivos originales, cobertura, fecha de incorporación, huella SHA-256 y criterios de cálculo.
@@ -108,7 +125,7 @@ node tests/test_hotel.cjs
 npm ci && npm test
 ```
 
-`npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre los filtros y tarjetas de Demanda hotelera, Conectividad aérea y Estacionalidad. También comprueba que las demás secciones carguen sin errores.
+`npm test` corre `tests/test_model.cjs`, `tests/test_hotel.cjs` y `tests/smoke.cjs`, que carga la interfaz en jsdom y recorre los filtros y tarjetas de Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales. También comprueba que las demás secciones carguen sin errores.
 
 El actualizador descarga 28 archivos, procesa la base aérea en streaming y conserva todas las rutas mensuales. Esa descarga ronda los 270 MB y se realiza en el servidor de actualización, no en el navegador. Los archivos agregados se generan en `site/data/`. Un error detiene el proceso; publicar únicamente después de completar todos los controles.
 
@@ -151,6 +168,7 @@ La implementación actual puede alojarse como sitio estático. Para integrarla c
 - **Pasajeros** no equivale a turistas ni personas únicas. Se mantienen las magnitudes publicadas por Yvera, sin aplicar otra división. Al sumar llegadas y salidas, un tramo de cabotaje participa en sus dos extremos argentinos.
 - **Faltantes** no se completan con cero. Los rankings estacionales exigen todos los meses de la temporada y los porcentajes mensuales exigen doce meses completos. Verano = diciembre del año anterior + enero y febrero del año elegido.
 - **Promedios:** ocupación aérea = pasajeros/asientos; estadía = noches/viajeros o turistas; promedios nacionales EVyTH ponderados por turistas. Las tasas hoteleras son las oficiales para cada categoría.
+- **ETI y pasos:** el paso Córdoba no identifica la residencia provincial de quien viaja. Turistas, pernoctes y gasto total se suman; estadía media = suma de pernoctes ÷ suma de turistas; gasto por turista = suma de gasto total ÷ suma de turistas; gasto diario = suma de gasto total ÷ suma de pernoctes. Nunca se promedian promedios trimestrales, y si falta un trimestre del período el agregado queda sin dato (no se imputa).
 - **ETI emisiva:** residentes en Argentina que viajan al exterior por el paso Córdoba; no solo cordobeses. ETI receptiva mide su viaje por Argentina, sin atribuir todas las noches o gastos a Córdoba. Mercados geográficos no idénticos entre pasos se conservan separados.
 - **Territorio:** EOH región Córdoba corresponde a la provincia. Cuyo comprende Mendoza, San Juan, San Luis y La Rioja. Las localidades no se suman para reconstruir provincias. En Demanda hotelera se comparan solo ámbitos de la misma escala; las referencias nacional y provincial frente a una localidad se grafican únicamente en índice o variación.
 

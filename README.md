@@ -36,6 +36,7 @@ Para publicar esta carga no hacen falta una base de datos, variables de entorno 
 - Cambiar Territorio, agregar y quitar comparadores en Comparar con y cambiar el Período; comprobar que se actualicen los indicadores y gráficos.
 - En Eventos, pulsar «Analizar este mes» en una tarjeta: la página baja a «Datos del mes» de ese evento.
 - En Conectividad aérea, agregar aeropuertos en Comparar con (o «Principales aeropuertos del país») y cambiar el Período del análisis; comprobar que cambien indicadores, ranking, rutas, rutas regulares ganadas y perdidas, conectividad internacional, aerolíneas y estacionalidad aérea. Con lectura en índice, agregar «Argentina · total nacional (referencia)» y ver la comparación de Córdoba con el país.
+- En Mercados internacionales, tener presente que el aeropuerto de Córdoba es un **paso**: receptivo son residentes en el exterior que entraron al país por él, vayan a donde vayan; emisivo, residentes en Argentina de cualquier provincia que salieron por él. Cambiar Sentido, comparadores y Período del análisis. La balanza (ingreso de divisas, gasto en el exterior, saldo) no depende del sentido elegido. Turistas, pernoctes y gasto total se suman; estadía media = suma de pernoctes ÷ suma de turistas; gasto por turista = suma de gasto total ÷ suma de turistas; gasto diario = suma de gasto total ÷ suma de pernoctes. Nunca se promedian promedios trimestrales, y si falta un trimestre del período el agregado queda sin dato (no se imputa).
 - En Estacionalidad, cambiar Territorio, comparadores y Año de análisis. El índice de estacionalidad es la participación de los 3 meses con más pernoctaciones en el total anual, en %. Va de 25 % (los 12 meses iguales: sin estacionalidad) a 100 % (toda la actividad en 3 meses). Con un año incompleto, los indicadores dicen «Año incompleto».
 - En tipologías municipales, comprobar que esté disponible el segundo trimestre de 2026 y las categorías de una a cinco estrellas, apart hoteles y hostels.
 - Abrir una tabla y descargar un CSV con la selección actual.
@@ -50,7 +51,7 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 | `site/` | Sitio publicable: HTML, estilos, JavaScript, datos JSON/JS y CSV, ECharts y su licencia |
 | `config/` | Enlaces a las fuentes, transcripciones municipales verificadas y calendario de eventos |
 | `scripts/` | Actualización, compilación de datos hoteleros y creación del HTML autónomo |
-| `tests/` | Comprobaciones de integridad y cálculos, y smoke de la interfaz (Demanda hotelera, Conectividad aérea y Estacionalidad) con jsdom (`tests/smoke.cjs`) |
+| `tests/` | Comprobaciones de integridad y cálculos, y smoke de la interfaz (Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales) con jsdom (`tests/smoke.cjs`) |
 | `package.json`, `package-lock.json` | jsdom (versión exacta) como dependencia de desarrollo; `npm test` corre las tres pruebas de JavaScript |
 | `.github/workflows/actualizar-datos.yml` | Actualizador de datos para GitHub Actions; en esta copia se ejecuta solo a pedido |
 | `offline/Tablero_turismo_Cordoba_completo.html` | Copia autónoma para abrir sin conexión, regenerada con esta versión |

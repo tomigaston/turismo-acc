@@ -4,8 +4,14 @@ import csv
 import json
 import math
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT=Path(__file__).resolve().parents[1]
+SOURCE_DOMAINS={'cordobaturismo.gov.ar','cordoba.gob.ar','turismo.cordoba.gob.ar','cba.gov.ar','prensa.cba.gov.ar',
+    'argentina.gob.ar','www.argentina.gob.ar','unc.edu.ar','ucc.edu.ar','upc.edu.ar','conicet.gov.ar','cordobadeportes.gob.ar'}
+CATEGORIES={'Música y festivales','Deportes','Congresos','Ferias y exposiciones','Feriados y fines de semana largos'}
+PENDING='pendiente de verificación'
+STATUSES={'fecha oficial publicada','realización documentada','fecha publicada por el organizador',PENDING}
 
 def compile_data():
     obs=json.loads((ROOT/'config/hotel_observatory.json').read_text())
@@ -29,7 +35,13 @@ def compile_data():
     assert len({e['id'] for e in events['events']})==len(events['events'])
     for event in events['events']:
         assert event['start_date']<=event['end_date']
-        assert event['source_url'].startswith('https://cordobaturismo.gov.ar/')
+        assert event['status'] in STATUSES, event['id']
+        assert event['category'] in CATEGORIES, event['id']
+        if event['status']==PENDING:
+            assert event['source_url'] is None, event['id']
+        else:
+            assert event['source_url'].startswith('https://'), event['id']
+            assert urlparse(event['source_url']).hostname in SOURCE_DOMAINS, event['id']
         assert event['scopes'] and all(s in ['Córdoba','localidad:Córdoba'] for s in event['scopes'])
     return {'schema_version':1,'observatory':obs,'calendar':events}
 
@@ -45,6 +57,7 @@ def main():
     rows=[{'periodo':r['period'],'fuente':r['source_url'],**c} for r in data['observatory']['reports'] for c in r['categories']]
     with (directory/'hotel-capital-categorias.csv').open('w',encoding='utf-8-sig',newline='') as f:
         w=csv.DictWriter(f,fieldnames=list(rows[0]),delimiter=';');w.writeheader();w.writerows(rows)
-    print('Hotel: 6 reportes, 18 meses, 42 tasas por categoría y 4 eventos verificados.')
+    events=data['calendar']['events'];pending=sum(e['status']==PENDING for e in events)
+    print(f'Hotel: 6 reportes, 18 meses, 42 tasas por categoría y {len(events)} eventos ({len(events)-pending} verificados, {pending} pendientes de verificación).')
 
 if __name__=='__main__':main()

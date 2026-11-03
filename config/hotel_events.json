@@ -1,9 +1,113 @@
 {
   "schema_version": 1,
-  "checked_at": "2026-10-30T14:43:03+00:00",
-  "coverage_note": "Selección inicial de cuatro eventos de 2024 verificados; no es un calendario exhaustivo. La ausencia de una marca no implica que no haya habido eventos.",
+  "checked_at": "2026-11-03T12:10:44+00:00",
+  "coverage_note": "Calendario de trabajo con 70 eventos: 28 de 2024 y 42 de 2025. 4 están verificados con fuente oficial y 66 están pendientes de verificación (fechas tomadas de una lista de trabajo, sin fuente oficial confirmada). No es un calendario exhaustivo: la ausencia de una marca no implica que no haya habido eventos.",
   "interpretation": "Las marcas permiten contrastar el calendario con las series mensuales. Una coincidencia temporal no identifica causalidad ni impacto atribuible.",
   "events": [
+    {
+      "id": "finde-largo-ano-nuevo-2024",
+      "name": "Fin de semana largo · Año Nuevo 2024",
+      "start_date": "2023-12-30",
+      "end_date": "2024-01-01",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del lunes 1 de enero. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "festival-jesus-maria-2024",
+      "name": "Festival Nacional de Doma y Folklore de Jesús María (58ª edición)",
+      "start_date": "2024-01-04",
+      "end_date": "2024-01-15",
+      "locality": "Jesús María",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Doce jornadas. Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en el mes con: Fin de semana largo · Año Nuevo 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "talleres-boca-amistoso-2024",
+      "name": "Amistoso Talleres–Boca Juniors",
+      "start_date": "2024-01-20",
+      "end_date": "2024-01-20",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Partido amistoso. Coincide en fechas con: Festival Nacional de Folklore de Cosquín (64ª edición). Coincide en el mes con: Fin de semana largo · Año Nuevo 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "cosquin-folklore-2024",
+      "name": "Festival Nacional de Folklore de Cosquín (64ª edición)",
+      "start_date": "2024-01-20",
+      "end_date": "2024-01-28",
+      "locality": "Cosquín",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en fechas con: Amistoso Talleres–Boca Juniors. Coincide en el mes con: Fin de semana largo · Año Nuevo 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "cordoba-open-2024",
+      "name": "Córdoba Open 2024 (ATP 250)",
+      "start_date": "2024-02-03",
+      "end_date": "2024-02-11",
+      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Última edición del torneo ATP 250 según la lista. La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en fechas con: Cosquín Rock 2024; Festival de Peñas de Villa María (56ª edición). Coincide en el mes con: Fin de semana largo · Carnaval 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "penas-villa-maria-2024",
+      "name": "Festival de Peñas de Villa María (56ª edición)",
+      "start_date": "2024-02-09",
+      "end_date": "2024-02-13",
+      "locality": "Villa María",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en fechas con: Cosquín Rock 2024; Córdoba Open 2024 (ATP 250). Coincide en el mes con: Fin de semana largo · Carnaval 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
     {
       "id": "cosquin-rock-2024",
       "name": "Cosquín Rock 2024",
@@ -20,6 +124,308 @@
       "published_at": "2024-02-07",
       "status": "fecha oficial publicada",
       "notes": "Evento de Punilla. Su ubicación no se asigna a Córdoba capital ni a Villa Carlos Paz. Coincide con el fin de semana de Carnaval; no aisla un efecto del festival."
+    },
+    {
+      "id": "finde-largo-carnaval-2024",
+      "name": "Fin de semana largo · Carnaval 2024",
+      "start_date": "2024-02-10",
+      "end_date": "2024-02-13",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriados del lunes 12 y martes 13 de febrero. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "luis-miguel-2024",
+      "name": "Luis Miguel en Córdoba",
+      "start_date": "2024-03-14",
+      "end_date": "2024-03-14",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Estadio del Club Instituto",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Semana Santa y Malvinas 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-semana-santa-2024",
+      "name": "Fin de semana largo · Semana Santa y Malvinas 2024",
+      "start_date": "2024-03-28",
+      "end_date": "2024-04-02",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Seis días: jueves santo, viernes santo, día puente del lunes 1 de abril y feriado del martes 2 de abril. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "masa-vienesa-2024",
+      "name": "Fiesta Nacional de la Masa Vienesa (53ª edición)",
+      "start_date": "2024-03-29",
+      "end_date": "2024-04-01",
+      "locality": "Villa General Belgrano",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en el mes con: Fin de semana largo · Semana Santa y Malvinas 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "emilia-mernes-2024",
+      "name": "Emilia Mernes · gira .MP3",
+      "start_date": "2024-04-27",
+      "end_date": "2024-04-27",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Quality Arena",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Semana Santa y Malvinas 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "mona-jimenez-kempes-2024",
+      "name": "La Mona Jiménez en el Kempes",
+      "start_date": "2024-05-04",
+      "end_date": "2024-05-04",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "belgrano-delfin-sudamericana-2024",
+      "name": "Copa Sudamericana · Belgrano–Delfín",
+      "start_date": "2024-05-09",
+      "end_date": "2024-05-09",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "belgrano-real-tomayapo-sudamericana-2024",
+      "name": "Copa Sudamericana · Belgrano–Real Tomayapo",
+      "start_date": "2024-05-15",
+      "end_date": "2024-05-15",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-guemes-2024",
+      "name": "Fin de semana largo · Paso a la Inmortalidad de Güemes 2024",
+      "start_date": "2024-06-15",
+      "end_date": "2024-06-17",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado trasladado al lunes 17 de junio. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-belgrano-2024",
+      "name": "Fin de semana largo · Paso a la Inmortalidad de Belgrano 2024",
+      "start_date": "2024-06-20",
+      "end_date": "2024-06-23",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del jueves 20 y día puente del viernes 21 de junio. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "la-renga-kempes-2024",
+      "name": "La Renga en el Kempes",
+      "start_date": "2024-06-22",
+      "end_date": "2024-06-22",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Paso a la Inmortalidad de Güemes 2024; Fin de semana largo · Paso a la Inmortalidad de Belgrano 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "expo-mercosur-2024",
+      "name": "Expo Mercosur 2024",
+      "start_date": "2024-08-07",
+      "end_date": "2024-08-08",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Ferias y exposiciones",
+      "venue": "Centro de Convenciones del Quorum",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "reunion-argentina-ornitologia-2024",
+      "name": "Reunión Argentina de Ornitología",
+      "start_date": "2024-09-24",
+      "end_date": "2024-09-27",
+      "locality": "Miramar de Ansenuza",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "oktoberfest-2024-fin-de-semana-1",
+      "name": "Oktoberfest de Villa General Belgrano (61ª edición) · primer fin de semana",
+      "start_date": "2024-10-04",
+      "end_date": "2024-10-06",
+      "locality": "Villa General Belgrano",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Primer tramo de una edición en dos fines de semana. Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en el mes con: Fin de semana largo · Día del Respeto a la Diversidad Cultural 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "feria-del-libro-cordoba-2024",
+      "name": "Feria del Libro Córdoba (38ª edición)",
+      "start_date": "2024-10-08",
+      "end_date": "2024-10-20",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Ferias y exposiciones",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en fechas con: Oktoberfest de Villa General Belgrano (61ª edición) · segundo fin de semana. Coincide en el mes con: Fin de semana largo · Día del Respeto a la Diversidad Cultural 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-diversidad-cultural-2024",
+      "name": "Fin de semana largo · Día del Respeto a la Diversidad Cultural 2024",
+      "start_date": "2024-10-11",
+      "end_date": "2024-10-13",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Día puente del viernes 11 y feriado del sábado 12 de octubre. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "oktoberfest-2024-fin-de-semana-2",
+      "name": "Oktoberfest de Villa General Belgrano (61ª edición) · segundo fin de semana",
+      "start_date": "2024-10-11",
+      "end_date": "2024-10-14",
+      "locality": "Villa General Belgrano",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Segundo tramo de una edición en dos fines de semana. Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en fechas con: Feria del Libro Córdoba (38ª edición). Coincide en el mes con: Fin de semana largo · Día del Respeto a la Diversidad Cultural 2024. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
     },
     {
       "id": "mccartney-2024",
@@ -58,6 +464,24 @@
       "notes": "XII Congreso de la Sociedad Latinoamericana de Tumores Musculoesqueléticos. La fuente confirma fecha y ciudad; no atribuye pernoctaciones de EOH al evento."
     },
     {
+      "id": "finde-largo-soberania-2024",
+      "name": "Fin de semana largo · Día de la Soberanía Nacional 2024",
+      "start_date": "2024-11-16",
+      "end_date": "2024-11-18",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del 20 de noviembre trasladado al lunes 18. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
       "id": "copa-argentina-2024",
       "name": "Copa Argentina · semifinal Boca–Vélez",
       "start_date": "2024-11-27",
@@ -74,6 +498,748 @@
       "published_at": "2024-11-29",
       "status": "realización documentada",
       "notes": "La fuente oficial posterior al partido confirma fecha y ciudad. Coincide en el mismo mes con el congreso registrado: no se pueden separar efectos con datos mensuales."
+    },
+    {
+      "id": "festival-jesus-maria-2025",
+      "name": "Festival Nacional de Doma y Folklore de Jesús María (59ª edición)",
+      "start_date": "2025-01-09",
+      "end_date": "2025-01-20",
+      "locality": "Jesús María",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Anfiteatro José Hernández",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Los Andes; La Voz (arcpublishing)",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en fechas con: Festival Bum Bum (6ª edición). Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "bum-bum-2025",
+      "name": "Festival Bum Bum (6ª edición)",
+      "start_date": "2025-01-11",
+      "end_date": "2025-01-11",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Time Out",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Primera edición en el Kempes. Coincide en fechas con: Festival Nacional de Doma y Folklore de Jesús María (59ª edición). Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "cosquin-folklore-2025",
+      "name": "Festival Nacional de Folklore de Cosquín (65ª edición)",
+      "start_date": "2025-01-25",
+      "end_date": "2025-02-02",
+      "locality": "Cosquín",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Plaza Próspero Molina",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: La Voz de San Justo",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Nueve noches. Fuera de Córdoba capital: no se marca en la serie de la ciudad. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "penas-villa-maria-2025",
+      "name": "Festival de Peñas de Villa María (57ª edición)",
+      "start_date": "2025-02-07",
+      "end_date": "2025-02-11",
+      "locality": "Villa María",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Anfiteatro de Villa María",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Cadena 3",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "cosquin-rock-2025",
+      "name": "Cosquín Rock 2025 (25 años)",
+      "start_date": "2025-02-15",
+      "end_date": "2025-02-16",
+      "locality": "Santa María de Punilla",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Rolling Stone; La Voz de San Justo",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "La lista no indica la sede; se toma la localidad de la edición 2024 ya registrada. Fuera de Córdoba capital: no se marca en la serie de la ciudad. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "mxgp-argentina-2025",
+      "name": "Mundial de Motocross (MXGP) · fecha inaugural",
+      "start_date": "2025-03-01",
+      "end_date": "2025-03-02",
+      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": "Infinito Race Track",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: La Voz de San Justo; InfoNegocios",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Primera vez que el campeonato abrió su temporada en Córdoba. La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en el mes con: Fin de semana largo · Carnaval 2025; Fin de semana largo · Día de la Memoria 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-carnaval-2025",
+      "name": "Fin de semana largo · Carnaval 2025",
+      "start_date": "2025-03-01",
+      "end_date": "2025-03-04",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: turismo.cordoba.gob.ar (reporte estadístico 1° trimestre 2025); Hoy Día",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriados del lunes 3 y martes 4 de marzo. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-memoria-2025",
+      "name": "Fin de semana largo · Día de la Memoria 2025",
+      "start_date": "2025-03-22",
+      "end_date": "2025-03-24",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: turismo.cordoba.gob.ar (reporte estadístico 1° trimestre 2025)",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del lunes 24 de marzo. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "talleres-sao-paulo-2025",
+      "name": "Copa Libertadores · Talleres–São Paulo",
+      "start_date": "2025-04-02",
+      "end_date": "2025-04-02",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Extra",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Debut de Talleres en la Copa Libertadores 2025. Coincide en el mes con: Fin de semana largo · Semana Santa 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "rally-cordoba-2025",
+      "name": "Rally de Córdoba · Rally Argentino",
+      "start_date": "2025-04-11",
+      "end_date": "2025-04-13",
+      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: El Ancasti",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fecha del Rally Argentino. La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en el mes con: Fin de semana largo · Semana Santa 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-semana-santa-2025",
+      "name": "Fin de semana largo · Semana Santa 2025",
+      "start_date": "2025-04-17",
+      "end_date": "2025-04-20",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: turismo.cordoba.gob.ar (reporte estadístico 2° trimestre 2025)",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Jueves y viernes santo. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-trabajador-2025",
+      "name": "Fin de semana largo · Día del Trabajador 2025",
+      "start_date": "2025-05-01",
+      "end_date": "2025-05-04",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: turismo.cordoba.gob.ar (reporte estadístico 2° trimestre 2025)",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del jueves 1 y día no laborable del viernes 2 de mayo. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "los-piojos-kempes-2025",
+      "name": "Los Piojos en el Kempes",
+      "start_date": "2025-05-10",
+      "end_date": "2025-05-10",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Playón del Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Hoy Día",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Día del Trabajador 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "maci-2025",
+      "name": "X Congreso de Matemática Aplicada, Computacional e Industrial (MACI)",
+      "start_date": "2025-05-12",
+      "end_date": "2025-05-15",
+      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: CONICET (IMAL)",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en el mes con: Fin de semana largo · Día del Trabajador 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-guemes-2025",
+      "name": "Fin de semana largo · Paso a la Inmortalidad de Güemes 2025",
+      "start_date": "2025-06-14",
+      "end_date": "2025-06-16",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: turismo.cordoba.gob.ar (reporte estadístico 2° trimestre 2025)",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del lunes 16 de junio. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-belgrano-2025",
+      "name": "Fin de semana largo · Paso a la Inmortalidad de Belgrano 2025",
+      "start_date": "2025-06-20",
+      "end_date": "2025-06-22",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: turismo.cordoba.gob.ar (reporte estadístico 2° trimestre 2025)",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del viernes 20 de junio. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "maraton-ciudad-cordoba-2025",
+      "name": "Maratón Ciudad de Córdoba 2025",
+      "start_date": "2025-07-06",
+      "end_date": "2025-07-06",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Hoy Día",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Realizada en el 452° aniversario de la ciudad. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "premios-sur-2025",
+      "name": "Premios Sur 2025",
+      "start_date": "2025-07-23",
+      "end_date": "2025-07-23",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Teatro del Libertador San Martín",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Hoy Día",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Primera entrega fuera de Buenos Aires en 19 años. Premiación cinematográfica: se clasifica en la categoría más cercana. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "cuarteto-de-nos-2025",
+      "name": "Cuarteto de Nos en Córdoba",
+      "start_date": "2025-08-09",
+      "end_date": "2025-08-09",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Espacio Quality",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Wegow",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Paso a la Inmortalidad de San Martín 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "congreso-cooperativas-mutuales-2025",
+      "name": "Primer Congreso Internacional de Cooperativas y Mutuales",
+      "start_date": "2025-08-11",
+      "end_date": "2025-08-12",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": "Centro de Convenciones Córdoba",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Hoy Día",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Paso a la Inmortalidad de San Martín 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "congreso-forrajes-2025",
+      "name": "Congreso Argentino de Forrajes",
+      "start_date": "2025-08-13",
+      "end_date": "2025-08-15",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": "Centro de Convenciones Córdoba",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Boletín UNC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Paso a la Inmortalidad de San Martín 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-san-martin-2025",
+      "name": "Fin de semana largo · Paso a la Inmortalidad de San Martín 2025",
+      "start_date": "2025-08-15",
+      "end_date": "2025-08-17",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Día no laborable del viernes 15; el feriado del 17 cayó domingo. Fin de semana largo solo para quienes tuvieron el viernes libre. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "pumas-all-blacks-2025",
+      "name": "Rugby Championship · Los Pumas–All Blacks",
+      "start_date": "2025-08-16",
+      "end_date": "2025-08-16",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Perfil",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Primera fecha del Rugby Championship 2025. Coincide en el mes con: Fin de semana largo · Paso a la Inmortalidad de San Martín 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "expo-parques-industriales-2025",
+      "name": "Expo Parques Industriales (2ª edición)",
+      "start_date": "2025-08-27",
+      "end_date": "2025-08-28",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Ferias y exposiciones",
+      "venue": "Centro de Convenciones Córdoba",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: InfoNegocios",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Paso a la Inmortalidad de San Martín 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "expo-rural-jesus-maria-2025",
+      "name": "78ª Expo Rural de Jesús María",
+      "start_date": "2025-09-05",
+      "end_date": "2025-09-07",
+      "locality": "Jesús María",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Ferias y exposiciones",
+      "venue": "Predio Malabrigo",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Derecha Diario; InfoNegocios",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "jornadas-poblacion-2025",
+      "name": "Jornadas de Estudios de Población y Congreso Internacional de Población del Cono Sur",
+      "start_date": "2025-09-23",
+      "end_date": "2025-09-26",
+      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: aacademica.org",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en fechas con: Dyango en Córdoba. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "dyango-2025",
+      "name": "Dyango en Córdoba",
+      "start_date": "2025-09-25",
+      "end_date": "2025-09-25",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Espacio Quality",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Cadena 3",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en fechas con: Jornadas de Estudios de Población y Congreso Internacional de Población del Cono Sur. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "congreso-biotecnologia-ucc-2025",
+      "name": "1° Congreso Internacional de Biotecnología",
+      "start_date": "2025-10-02",
+      "end_date": "2025-10-03",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": "Campus de la Universidad Católica de Córdoba",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: CONICET Córdoba",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "feria-del-libro-cordoba-2025",
+      "name": "Feria del Libro Córdoba (39ª edición)",
+      "start_date": "2025-10-04",
+      "end_date": "2025-10-19",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Ferias y exposiciones",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Cadena 3",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en fechas con: Feria de empleo de la UNC; 6° Congreso Internacional «Entre Educación y Salud» (UPC); Oftalmo Córdoba 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "feria-empleo-unc-2025",
+      "name": "Feria de empleo de la UNC",
+      "start_date": "2025-10-06",
+      "end_date": "2025-10-07",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Ferias y exposiciones",
+      "venue": "Universidad Nacional de Córdoba",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en fechas con: Feria del Libro Córdoba (39ª edición); 6° Congreso Internacional «Entre Educación y Salud» (UPC). Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "congreso-educacion-salud-upc-2025",
+      "name": "6° Congreso Internacional «Entre Educación y Salud» (UPC)",
+      "start_date": "2025-10-07",
+      "end_date": "2025-10-10",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": "Universidad Provincial de Córdoba",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: HCDN",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en fechas con: Feria del Libro Córdoba (39ª edición); Feria de empleo de la UNC; Oftalmo Córdoba 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "oftalmo-cordoba-2025",
+      "name": "Oftalmo Córdoba 2025",
+      "start_date": "2025-10-08",
+      "end_date": "2025-10-10",
+      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Congresos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: IntraMed",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en fechas con: Feria del Libro Córdoba (39ª edición); 6° Congreso Internacional «Entre Educación y Salud» (UPC). Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "rally-argentino-special-edition-2025",
+      "name": "Rally Argentino Special Edition",
+      "start_date": "2025-11-01",
+      "end_date": "2025-11-02",
+      "locality": "Provincia de Córdoba (localidad sin precisar)",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: El Ancasti",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "La lista no indica la localidad: se asigna solo al ámbito provincial, no a Córdoba capital. Coincide en el mes con: Fin de semana largo · Día de la Soberanía Nacional 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "efen-2025",
+      "name": "Expo Internacional de Eficiencia Energética (EFEN)",
+      "start_date": "2025-11-11",
+      "end_date": "2025-11-13",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Ferias y exposiciones",
+      "venue": "Centro de Convenciones Córdoba",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: CONICET Córdoba",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Día de la Soberanía Nacional 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "oktoberfest-2025-fin-de-semana-1",
+      "name": "Oktoberfest de Villa General Belgrano 2025 · primer fin de semana",
+      "start_date": "2025-11-14",
+      "end_date": "2025-11-16",
+      "locality": "Villa General Belgrano",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Vía País; Perfil",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Edición trasladada a noviembre, en dos fines de semana. Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en el mes con: Fin de semana largo · Día de la Soberanía Nacional 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-soberania-2025",
+      "name": "Fin de semana largo · Día de la Soberanía Nacional 2025",
+      "start_date": "2025-11-21",
+      "end_date": "2025-11-24",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Día no laborable del viernes 21 y feriado trasladado al lunes 24 de noviembre. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "oktoberfest-2025-fin-de-semana-2",
+      "name": "Oktoberfest de Villa General Belgrano 2025 · segundo fin de semana",
+      "start_date": "2025-11-21",
+      "end_date": "2025-11-24",
+      "locality": "Villa General Belgrano",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Vía País; Perfil",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Edición trasladada a noviembre, en dos fines de semana. Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en el mes con: Fin de semana largo · Día de la Soberanía Nacional 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "airbag-kempes-2025",
+      "name": "Airbag en el Kempes",
+      "start_date": "2025-11-29",
+      "end_date": "2025-11-29",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Playón del Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Canal 26",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Coincide en el mes con: Fin de semana largo · Día de la Soberanía Nacional 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "gp-mina-clavero-2025",
+      "name": "Gran Premio de Mina Clavero · cierre del Rally Argentino",
+      "start_date": "2025-12-05",
+      "end_date": "2025-12-07",
+      "locality": "Mina Clavero",
+      "scopes": [
+        "Córdoba"
+      ],
+      "category": "Deportes",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: El Ancasti",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Fuera de Córdoba capital: no se marca en la serie de la ciudad. Coincide en el mes con: Fin de semana largo · Inmaculada Concepción 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "finde-largo-inmaculada-2025",
+      "name": "Fin de semana largo · Inmaculada Concepción 2025",
+      "start_date": "2025-12-06",
+      "end_date": "2025-12-08",
+      "locality": "Argentina",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Feriados y fines de semana largos",
+      "venue": null,
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Feriado del lunes 8 de diciembre. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "shakira-kempes-2025",
+      "name": "Shakira · gira «Las mujeres ya no lloran»",
+      "start_date": "2025-12-14",
+      "end_date": "2025-12-14",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: Crónica",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Se carga solo la fecha del 14; la lista menciona una fecha adicional sin día. Coincide en el mes con: Fin de semana largo · Inmaculada Concepción 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
+    },
+    {
+      "id": "pity-alvarez-kempes-2025",
+      "name": "Pity Álvarez en el Kempes",
+      "start_date": "2025-12-20",
+      "end_date": "2025-12-20",
+      "locality": "Córdoba capital",
+      "scopes": [
+        "Córdoba",
+        "localidad:Córdoba"
+      ],
+      "category": "Música y festivales",
+      "venue": "Estadio Mario Alberto Kempes",
+      "source_url": null,
+      "source_title": "Referencia sin verificar: lista de trabajo ACC",
+      "published_at": null,
+      "status": "pendiente de verificación",
+      "notes": "Regreso tras siete años sin tocar. Coincide en el mes con: Fin de semana largo · Inmaculada Concepción 2025. Pendiente de verificación en fuente oficial; fechas tomadas de la lista de trabajo."
     }
   ]
 }

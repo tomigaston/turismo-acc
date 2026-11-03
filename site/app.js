@@ -448,6 +448,12 @@ function seasonHeat(focus,scopes,level,year,name){
 const usd=x=>valid(x)?(Math.abs(x)>=1e6?'USD '+fmt(x/1e6,1)+' M':'USD '+fmt(x,0)):'Sin dato';
 const INTL_MARKET_METHOD='Agrupaciones de países publicadas por la ETI para este paso; difieren entre receptivo y emisivo y entre pasos: no se cruzan ni se unifican. Estimaciones muestrales: en un paso chico los trimestres sueltos son ruidosos; preferí el año completo.';
 const quarterCaption=ps=>ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),true):label(ps[0],true);
+// 7. Participación del aeropuerto de Córdoba entre los tres pasos aéreos con serie, por trimestre y sentido.
+function intlShare(){
+ const gates=['Aep. Córdoba',...INTL_PEERS],known=intlQuarters(),qs=months(known[0],known.at(-1),3);
+ const rows=flow=>qs.map(p=>{const t=gates.map(g=>at(model.international(g,flow,'turistas'),p).value);return {period:p,value:ratio(t[0],sum(t),100)};});
+ return lineCard({id:'intl-share',title:'Participación del aeropuerto de Córdoba entre los tres pasos aéreos relevados',subtitle:'Turistas del aeropuerto de Córdoba ÷ suma de Córdoba, Mendoza y Ezeiza y Aeroparque · '+label(qs[0],true)+' – '+label(qs.at(-1),true)+' · receptivo y emisivo',series:[{name:'Receptivo · entraron por el paso',rows:rows('receptivo')},{name:'Emisivo · salieron por el paso',rows:rows('emisivo')}],periods:qs,metric:'ocupacion',view:'levels',quarter:true,seasonBands:false,method:'No es participación nacional: la ETI releva también pasos terrestres y fluviales que no están en esta base. Un trimestre sin dato en alguno de los tres pasos queda vacío.'});
+}
 // 6. Estadía media y gasto por turista por paso, en el período (razones de sumas; Córdoba destacada).
 function intlStayAndSpend(ps,caption,scopes){
  const inbound=state.flow==='receptivo',agg=Object.fromEntries(scopes.map(g=>[g,model.internationalPeriod(g,state.flow,ps)])),who='turistas '+(inbound?'entrados':'salidos')+' por cada aeropuerto';
@@ -526,6 +532,7 @@ function renderInternational(){
  html+='<div class="grid equal">'+intlMarkets(ps,caption)+intlMarketTrend()+'</div>';
  html+=intlMotives(ps,caption,scopes);
  html+='<div class="grid equal">'+intlStayAndSpend(ps,caption,scopes)+'</div>';
+ html+=intlShare();
  $('dashboard').innerHTML=html;
 }
 function renderInternal(){

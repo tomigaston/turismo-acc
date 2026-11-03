@@ -1,4 +1,4 @@
-// Smoke test de Demanda hotelera, Conectividad aérea y Estacionalidad con jsdom: carga site/index.html con un stub de ECharts.
+// Smoke test de Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales con jsdom: carga site/index.html con un stub de ECharts.
 // Uso: node tests/smoke.cjs [ruta a site/]   (por defecto, la carpeta site del repositorio)
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM,VirtualConsole}=require('jsdom');
@@ -348,5 +348,71 @@ ok('25 · hash viejo de Estacionalidad → esquema nuevo',()=>{
   assert.deepEqual(p.errors,[]);
 });
 
-console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera, Conectividad aérea y Estacionalidad sin errores.');
+// ---- Mercados internacionales ----
+const intl=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({tab:'international',...extra})));
+const INTL_CARDS=['intl-balance','intl-trend','intl-markets','intl-market-trend','intl-motives','intl-stay','intl-spend','intl-share'];
+const kpiValues=p=>p.$$('.kpi').map(k=>k.querySelector('.kpi-value').textContent);
+
+// 26 · La sección renderiza con el período por defecto (año completo, último año con 4 trimestres).
+ok('26 · Mercados internacionales con el período por defecto',()=>{
+  const p=intl();
+  assert.equal(p.errorBox(),'');assert.equal(p.$('select[data-key="intlPreset"]').value,'year');assert.equal(p.$('select[data-key="flow"]').value,'receptivo');
+  for(const k of INTL_CARDS)assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  assert.ok(!p.$('select[data-key="cutoff"]')&&!p.$('select[data-key="intlCompare1"]'),'sin dateFields ni dos comparadores');
+  assert.deepEqual(p.$$('[data-chip-toggle]').map(b=>b.getAttribute('aria-pressed')),['true','true'],'comparadores activos por defecto');
+  assert.ok(!p.$('select[data-compare-add="intlCompare"]'),'sin selector de agregar');
+  assert.match(p.$('.intl-concept').textContent,/ETI \(Encuesta de Turismo Internacional, INDEC\)/);
+  console.log('     ','año',p.$('select[data-key="intlYear"]').value,'·',p.$$('.panel').length,'tarjetas');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 27 · Los 4 KPI de balanza tienen valor con el último año completo.
+ok('27 · KPI de balanza con valor',()=>{
+  const p=intl(),labels=p.$$('.kpi-label').map(k=>k.textContent),values=kpiValues(p);console.log('     ',values.join(' | '));
+  assert.deepEqual(labels,['Ingreso de divisas · receptivo','Gasto en el exterior · emisivo','Saldo','Relación emisivo / receptivo']);
+  assert.ok(values.every(v=>v&&v!=='Sin dato'),'sin "Sin dato"');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 28 · Emisivo no cambia la balanza pero sí la evolución y los mercados.
+ok('28 · emisivo: balanza igual, evolución y mercados distintos',()=>{
+  const p=intl(),kpis=kpiValues(p),trend=JSON.stringify(p.options.get('chart-intl-trend').series.map(s=>s.data)),marketTitle=title(p,'intl-markets'),markets=Array.from(p.options.get('chart-intl-markets').yAxis.data,String);
+  p.change(p.$('select[data-key="flow"]'),'emisivo');
+  assert.deepEqual(kpiValues(p),kpis,'KPI de balanza');
+  assert.notEqual(JSON.stringify(p.options.get('chart-intl-trend').series.map(s=>s.data)),trend,'evolución');
+  assert.notEqual(title(p,'intl-markets'),marketTitle);assert.notDeepEqual(Array.from(p.options.get('chart-intl-markets').yAxis.data,String),markets);
+  console.log('     ',title(p,'intl-trend'),'·',title(p,'intl-markets'));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 29 · "Último trimestre" muestra 16 trimestres en la evolución.
+ok('29 · último trimestre → 16 trimestres en la evolución',()=>{
+  const p=intl();p.change(p.$('select[data-key="intlPreset"]'),'latest');
+  const x=Array.from(p.options.get('chart-intl-trend').xAxis.data,String);console.log('     ',x[0],'→',x.at(-1),'·',x.length,'trimestres');
+  assert.equal(x.length,16);assert.match(subtitle(p,'intl-trend'),/16 trimestres hasta/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 30 · Motivos: la participación suma 100 % por paso (±0,1), en ambos sentidos.
+ok('30 · motivos suma 100 % por paso',()=>{
+  for(const flow of ['receptivo','emisivo']){
+    const p=intl({flow}),o=p.options.get('chart-intl-motives');
+    for(const sr of o.series){const t=Array.from(sr.data,d=>d.value).filter(v=>typeof v==='number').reduce((a,b)=>a+b,0);assert.ok(Math.abs(t-100)<=0.1,flow+' '+sr.name+': '+t);}
+    console.log('     ',flow,'·',p.$('.intl-note').textContent);
+    assert.deepEqual(p.errors,[]);
+  }
+});
+
+// 31 · Hash viejo con intlCompare1/cutoff carga sin error.
+ok('31 · hash viejo de Mercados internacionales → esquema nuevo',()=>{
+  const p=intl({intlCompare1:'Aep. Mendoza',intlCompare2:'',cutoff:'2024-07',flow:'emisivo'});
+  assert.equal(p.errorBox(),'');
+  assert.deepEqual(p.$$('[data-chip-toggle]').map(b=>b.getAttribute('aria-pressed')),['true','false']);
+  assert.equal(p.$('select[data-key="intlYear"]').value,'2024');
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
+  assert.ok(!('intlCompare1' in saved));assert.equal(saved.intlCompare,'Aep. Mendoza');
+  assert.deepEqual(p.errors,[]);
+});
+
+console.log(failures?`\n${failures} fallas`:'\nOK: smoke de Demanda hotelera, Conectividad aérea, Estacionalidad y Mercados internacionales sin errores.');
 process.exit(failures?1:0);

@@ -153,7 +153,7 @@ ok('9 · Conectividad aérea y demás secciones sin errores',()=>{
   p.click(p.$('[data-tab="season"]'));p.change(p.$('select[data-key="seasonData"]'),'air');
   assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-compare-add="airCompare"]'),'comparador aéreo en Estacionalidad');
   p.click(p.$('[data-tab="air"]'));
-  for(const k of ['airport-ranking','routes','air-route-changes','air-mix','carriers'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  for(const k of ['airport-ranking','routes','air-route-changes','air-mix','carrier-share','carrier-trend'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
   assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);
   assert.deepEqual(p.errors,[]);
 });

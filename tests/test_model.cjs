@@ -40,6 +40,15 @@ for(const ap of ['SACO','SAEZ','SAME'])for(const dir of ['salidas','llegadas'])f
  const byRoute=m.routeRegularity(ap,ps,dir,'Internacional').reduce((s,r)=>s+r.pasajeros,0),monthly=M.aggregate(m.air(dir,'Internacional')[ap]||[],ps,'pasajeros');
  near(byRoute,monthly);
 }
+// EVyTH: mismas reglas de agregación que la ETI (sumas, razones de sumas, nulo si falta un trimestre).
+{
+ const rows=[{period:'2023-01',turistas:100,pernoctes:500,gasto_total_ars:1000},{period:'2023-04',turistas:300,pernoctes:300,gasto_total_ars:9000}];
+ const a=M.evythAggregate(rows,['2023-01','2023-04']);
+ assert.equal(a.turistas,400);assert.equal(a.pernoctes,800);assert.equal(a.gasto_total_ars,10000);
+ near(a.estadia_media,2,'800 ÷ 400, no el promedio de 5 y 1 (3)');near(a.gasto_promedio_ars,25,'10000 ÷ 400, no el promedio de 10 y 30 (20)');
+ const b=M.evythAggregate(rows,['2023-01','2023-04','2023-07']);assert.equal(b.turistas,null);assert.equal(b.estadia_media,null);assert.equal(b.gasto_promedio_ars,null);
+ assert.equal(a.gasto_total_ars_const,null,'sin campos constantes, el agregado constante es nulo');
+}
 // ETI: sumas y razones de sumas por período; un trimestre faltante anula el agregado.
 {
  const series=[{period:'2024-01',turistas:100,pernoctes:1000},{period:'2024-04',turistas:300,pernoctes:600}],spending=[{period:'2024-01',gasto_total_usd:10000},{period:'2024-04',gasto_total_usd:30000}];

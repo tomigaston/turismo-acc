@@ -42,6 +42,13 @@
     const turistas=sum(s.map(r=>r.turistas)),pernoctes=sum(s.map(r=>r.pernoctes)),gasto=sum(g.map(r=>r.gasto_total_usd));
     return {turistas,pernoctes,gasto_total_usd:gasto,estadia_media:ratio(pernoctes,turistas),gasto_por_turista_usd:ratio(gasto,turistas),gasto_diario_usd:ratio(gasto,pernoctes)};
   }
+  // EVyTH: agregado de un período de trimestres con las mismas reglas que la ETI: turistas, pernoctes y gasto se
+  // suman; estadía y gasto medio son razones de las sumas; un trimestre faltante deja el agregado nulo.
+  function evythAggregate(rows,ps){
+    const rs=ps.map(p=>at(rows,p)),count=k=>sum(rs.map(r=>r[k]));
+    const turistas=count('turistas'),pernoctes=count('pernoctes'),gasto=count('gasto_total_ars'),gastoConst=count('gasto_total_ars_const');
+    return {turistas,pernoctes,gasto_total_ars:gasto,estadia_media:ratio(pernoctes,turistas),gasto_promedio_ars:ratio(gasto,turistas),gasto_total_ars_const:gastoConst,gasto_promedio_ars_const:ratio(gastoConst,turistas)};
+  }
   // Estacionalidad: participación de los 3 meses de mayor valor en la suma anual (%).
   // 25 = sin estacionalidad; 100 = toda la actividad en 3 meses. Requiere 12 valores válidos.
   const complete12=v=>Array.isArray(v)&&v.length===12&&v.every(valid);
@@ -165,6 +172,6 @@
     }
     return {eoh,air,routes,routeRegularity,carrierMonthly,international,internationalPeriod,internationalMarkets,profile,crossProfile};
   }
-  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,etiAggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
+  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,etiAggregate,evythAggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

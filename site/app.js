@@ -14,10 +14,10 @@ const specs={viajeros:['Viajeros hospedados','viajeros',0],pernoctes:['Pernoctac
 const navs={demand:['Demanda hotelera','ACTIVIDAD Y POSICIONAMIENTO','Viajeros, pernoctaciones, ocupación y categorías de alojamiento.','M3 20V10h4v10M10 20V4h4v16M17 20V7h4v13'],air:['Conectividad aérea','CÓRDOBA COMO ORIGEN Y DESTINO','La posición del aeropuerto, sus conexiones y la evolución del cabotaje y el tráfico internacional.','M3 13l7 1 4 7 2-1-2-7 6-6c2-2 0-4-2-2l-6 6-7-2-1 2 7 4'],season:['Estacionalidad','EL RITMO DE LA ACTIVIDAD','Cuándo viaja la gente a Córdoba y cuánto se concentra la actividad en pocos meses','M4 5h16v15H4zM4 9h16M8 3v4M16 3v4M8 13h2M14 13h2M8 17h2'],international:['Mercados internacionales','VIAJES A TRAVÉS DEL AEROPUERTO','Turismo receptivo y emisivo por el paso Córdoba, comparado con otros pasos aeroportuarios relevados.','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18'],internal:['Turismo interno','DEMANDA DENTRO DEL PAÍS','Córdoba como destino de viajes internos. Estadías, gasto y contexto nacional.','M3 11l9-8 9 8M6 10v11h12V10M10 21v-7h4v7'],quality:['Calidad turística','CAPACIDADES Y DISTINCIONES','Una referencia histórica de las distinciones registradas en Córdoba y el país.','M12 3l7 3v6c0 5-7 9-7 9s-7-4-7-9V6zM8 12l3 3 5-6'],sources:['Fuentes y metodología','DATOS CON TRAZABILIDAD','Cobertura, fechas, recursos oficiales y criterios para interpretar las comparaciones.','M5 4h14v17H5zM8 8h8M8 12h8M8 16h5']};
 const hotelLatest=D.eoh.scopes['Córdoba'].at(-1).period;
 const hotelFullYear=String(+hotelLatest.slice(0,4)-(hotelLatest.slice(5)<='11'?1:0));
-const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airCompare:'SAME',airPreset:'latest',airYear:D.air.periods.filter(p=>p.endsWith('-12')).at(-1)?.slice(0,4)||'',airFrom:'',airTo:'',routeSort:'metric',airCarrierView:'levels',airIntlMetric:'destinos',airSeasonView:'share',rankLimit:'10',minFlights:'30',routeSearch:'',seasonTerritory:'Córdoba',seasonCompare:'Argentina,Cuyo',seasonYear:'',flow:'receptivo',intlMetric:'turistas',intlCompare:'Aep. Mendoza,Ezeiza y Aeroparque',intlPreset:'year',intlYear:'',intlBalance:'usd',intlMarketView:'share',internalMetric:'turistas',internalCompare1:'Argentina',internalCompare2:'Cuyo',qualityCompare:'Argentina'};
+const defaults={hotelTab:'overview',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'municipal',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'habitaciones',direction:'salidas',kind:'all',carrier:'all',airMetric:'pasajeros',airCompare:'SAME',airPreset:'latest',airYear:D.air.periods.filter(p=>p.endsWith('-12')).at(-1)?.slice(0,4)||'',airFrom:'',airTo:'',routeSort:'metric',airCarrierView:'levels',airIntlMetric:'destinos',airSeasonView:'share',rankLimit:'10',minFlights:'30',routeSearch:'',seasonTerritory:'Córdoba',seasonCompare:'Argentina,Cuyo',seasonYear:'',flow:'receptivo',intlMetric:'turistas',intlCompare:'Aep. Mendoza,Ezeiza y Aeroparque',intlPreset:'year',intlYear:'',intlBalance:'usd',intlMarketView:'share',internalMetric:'turistas',internalCompare:'Argentina,Cuyo',internalPreset:'latest',internalYear:'',internalRankMetric:'turistas',qualityCompare:'Argentina'};
 const unique=xs=>[...new Set(xs.filter(Boolean))];
 // Límite por clave en enlaces compartidos; la lista de comparadores admite más texto.
-const maxLength=k=>k==='compare'||k==='airCompare'||k==='seasonCompare'?600:200;
+const maxLength=k=>k==='compare'||k==='airCompare'||k==='seasonCompare'||k==='internalCompare'?600:200;
 function readSaved(saved){
  const s={...defaults},str=k=>typeof saved[k]==='string'&&saved[k].length<200?saved[k]:null;
  for(const k of Object.keys(defaults))if(typeof saved[k]==='string'&&saved[k].length<maxLength(k))s[k]=saved[k];
@@ -33,6 +33,12 @@ function readSaved(saved){
   const region=str('seasonLevel')==='region',city=str('seasonCity');
   s.seasonTerritory=region?'Córdoba':(D.eoh.scope_meta[city]?.cordoba?city:'localidad:Córdoba');
   if(typeof saved.seasonCompare!=='string')s.seasonCompare=unique([str('seasonCompare1')??'localidad:Mendoza',str('seasonCompare2')??'localidad:Bariloche']).filter(k=>D.eoh.scope_meta[k]).join(',');
+ }
+ // Turismo interno: dos comparadores pasan a una lista; un mes de referencia de un año completo, a 'Año completo'.
+ if(typeof saved.internalCompare!=='string'&&['internalCompare1','internalCompare2'].some(k=>k in saved))s.internalCompare=unique([str('internalCompare1')??'Argentina',str('internalCompare2')??'Cuyo']).filter(k=>k!=='Córdoba'&&D.internal.scopes[k]).join(',');
+ if(typeof saved.internalPreset!=='string'&&saved.tab==='internal'&&str('cutoff')){
+  const y=str('cutoff').slice(0,4),qs=new Set((D.internal.scopes['Córdoba']||[]).filter(r=>typeof r.turistas==='number').map(r=>r.period));
+  if(['01','04','07','10'].every(m=>qs.has(y+'-'+m))){s.internalPreset='year';s.internalYear=y;}
  }
  // Mercados internacionales: dos comparadores pasan a una lista; un mes de referencia de un año completo, a 'Año completo'.
  if(typeof saved.intlCompare!=='string'&&['intlCompare1','intlCompare2'].some(k=>k in saved))s.intlCompare=unique([str('intlCompare1')??'Aep. Mendoza',str('intlCompare2')??'Ezeiza y Aeroparque']).filter(k=>k==='Aep. Mendoza'||k==='Ezeiza y Aeroparque').join(',');
@@ -153,7 +159,28 @@ function intlPeriod(){
  if(state.intlPreset==='4q')return quarterSpan(last,4);
  const ys=intlYears(),y=ys.includes(state.intlYear)?state.intlYear:ys[0];return months(y+'-01',y+'-10',3);
 }
-const internalScopes=()=>unique(['Córdoba',state.internalCompare1,state.internalCompare2]);
+// Turismo interno (EVyTH): Córdoba como región de destino y las otras siete regiones; Argentina, solo como referencia.
+const INTERNAL_REGIONS=()=>Object.keys(D.internal.scopes).filter(k=>k!=='Córdoba'&&k!=='Argentina');
+const INTERNAL_REFERENCE_LABEL='Argentina · total nacional (referencia)';
+const internalAllKeys=()=>unique(String(state.internalCompare||'').split(',').map(k=>k.trim())).filter(k=>k==='Argentina'||INTERNAL_REGIONS().includes(k));
+const internalRelative=()=>['index','yoy'].includes(state.view);
+const internalScopes=()=>['Córdoba',...internalAllKeys().filter(k=>k!=='Argentina'||internalRelative())];
+const internalName=k=>k==='Argentina'?INTERNAL_REFERENCE_LABEL:k;
+function setInternalCompare(keys){
+ const list=unique(keys).filter(k=>k==='Argentina'||INTERNAL_REGIONS().includes(k));
+ if(list.length+1>MAX_SERIES){toast('Hasta '+MAX_SERIES+' series por gráfico, incluido Córdoba. Quitá un comparador para agregar otro.');return;}
+ state.internalCompare=list.join(',');render();
+}
+// Trimestres con turistas de Córdoba y años con sus 4 trimestres.
+const internalQuarters=()=>unique((D.internal.scopes['Córdoba']||[]).filter(r=>valid(r.turistas)).map(r=>r.period)).sort();
+const internalYears=()=>{const qs=new Set(internalQuarters());return unique([...qs].map(p=>p.slice(0,4))).filter(y=>['01','04','07','10'].every(m=>qs.has(y+'-'+m))).sort().reverse();};
+// Período del análisis: último trimestre (por defecto), últimos 4 trimestres o año completo.
+function internalPeriod(){
+ const last=internalQuarters().at(-1);
+ if(state.internalPreset==='4q')return months(month(ordinal(last)-9),last,3);
+ if(state.internalPreset==='year'){const ys=internalYears(),y=ys.includes(state.internalYear)?state.internalYear:ys[0];return months(y+'-01',y+'-10',3);}
+ return [last];
+}
 const scopeOptions=level=>Object.entries(D.eoh.scope_meta).filter(([,m])=>m.level===level||m.level==='pais').map(([k,m])=>[k,m.label+(m.level==='pais'?' · total nacional':'')]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
 const airportOptions=()=>[['Argentina','Argentina · total aeroportuario'],...Object.entries(D.air.airports).filter(([,a])=>a.domestic).map(([k])=>[k,airportLabel(k)]).sort((a,b)=>a[1].localeCompare(b[1],'es'))];
 function field(key,title,options,{empty=false,wide=false}={}){
@@ -538,15 +565,22 @@ function renderInternational(){
  $('dashboard').innerHTML=html;
 }
 function renderInternal(){
- current={family:'evyth',quarter:true};
- let controls=compareFields('internalCompare',Object.keys(D.internal.scopes).map(k=>[k,k]),'Córdoba');
+ const ps=internalPeriod(),last=internalQuarters().at(-1),caption=ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),true):label(ps[0],true),regions=INTERNAL_REGIONS();
+ current={family:'evyth',quarter:true,period:ps.at(-1),latest:last};
+ // 1. Franja: comparadores (regiones de destino; Argentina como referencia) y período del análisis.
+ let controls=chipCompare('internalCompare',regions.map(k=>[k,k]),internalAllKeys(),internalName,[['Todas las regiones',internalAllKeys().includes('Argentina')?[...regions,'Argentina']:regions]],[['Argentina',INTERNAL_REFERENCE_LABEL,internalRelative()]]);
+ controls+=field('internalPreset','Período del análisis',[['latest','Último trimestre'],['4q','Últimos 4 trimestres'],['year','Año completo']]);
+ if(state.internalPreset==='year')controls+=field('internalYear','Año',internalYears());
+ $('filters').innerHTML=controls;
+ const scopes=internalScopes(),agg=(k,q=ps)=>M.evythAggregate(D.internal.scopes[k]||[],q),metric=state.internalMetric,c=agg('Córdoba'),a=agg('Argentina'),peer=internalAllKeys().find(k=>k!=='Argentina');
  const local=field('internalMetric','Indicador',metricOptions(['turistas','pernoctes','estadia_media','gasto_promedio_ars','gasto_total_ars']))+field('view','Lectura de la evolución',[['index','Índice base 100'],['levels','Valores observados'],['yoy','Variación interanual (%)']]);
- const get=k=>(D.internal.scopes[k]||[]).map(r=>({...r,value:r[state.internalMetric]})),ps=selectPeriod(get('Córdoba')),p=current.period,scopes=internalScopes();$('filters').innerHTML=controls+dateFields(ps);
- const c=at(D.internal.scopes['Córdoba'],p),a=at(D.internal.scopes.Argentina,p),peer=scopes[1];
- let html=warnHistorical('evyth')+'<div class="kpis">'+kpi(specs[state.internalMetric][0]+' · destino Córdoba',value(c[state.internalMetric],state.internalMetric),peer?peer+': '+value(at(get(peer),p).value,state.internalMetric):'Sin comparador',label(p,true),true)+kpi('Participación en turistas',value(ratio(c.turistas,a.turistas,100),'ocupacion'),'Sobre el total de destinos nacionales','Universo de la EVyTH')+kpi('Estadía media en Córdoba',value(c.estadia_media,'estadia_media'),'Argentina: '+value(a.estadia_media,'estadia_media'),'Incluye distintos tipos de alojamiento')+kpi('Gasto medio por turista',value(c.gasto_promedio_ars,'gasto_promedio_ars'),'Argentina: '+value(a.gasto_promedio_ars,'gasto_promedio_ars'),'Pesos corrientes del trimestre')+'</div><div class="inline-controls">'+local+'</div>';
- const rank=Object.keys(D.internal.scopes).filter(k=>k!=='Argentina').map(k=>({code:k,value:at(get(k),p).value})).filter(r=>valid(r.value)).sort((a,b)=>b.value-a.value);
- html+='<div class="grid">'+lineCard({id:'internal-trend',title:specs[state.internalMetric][0]+' del turismo interno · evolución por destino',subtitle:scopes.join(' / '),series:scopes.map(k=>({name:k,rows:get(k)})),metric:state.internalMetric,quarter:true,seasonBands:false,method:'Residentes de los grandes aglomerados urbanos relevados, en viajes dentro de Argentina.'})+barCard({id:'internal-ranking',title:specs[state.internalMetric][0]+' por región de destino',subtitle:label(p,true)+' · Córdoba destacada',items:rank.map(r=>({name:r.code,values:[r.value],highlight:r.code==='Córdoba'})),seriesNames:[specs[state.internalMetric][0]],metric:state.internalMetric,unit:specs[state.internalMetric][1],limit:10,method:'Ocho regiones de destino mutuamente excluyentes. Los promedios nacionales se calculan ponderando por turistas; no se promedian las tasas regionales.'})+'</div>';
- html+=barCard({id:'quintiles',title:'Turistas según quintil de ingresos del hogar · Argentina',subtitle:'Total nacional · '+label(p,true),items:D.internal.quintiles.filter(r=>r.period===p).map(r=>({name:r.group,values:[r.turistas]})),seriesNames:['Turistas'],metric:'turistas',method:'Este recurso solo tiene apertura nacional. Los comparadores territoriales no se aplican; no identifica el perfil de visitantes de Córdoba ni el mercado premium.'});
+ const get=k=>(D.internal.scopes[k]||[]).map(r=>({...r,value:r[metric]}));
+ let html=warnHistorical('evyth')+'<div class="kpis">'+kpi(specs[metric][0]+' · destino Córdoba',value(c[metric],metric),peer?peer+': '+value(agg(peer)[metric],metric):'Sin comparador',caption,true)+kpi('Participación en turistas',value(ratio(c.turistas,a.turistas,100),'ocupacion'),'Sobre el total de destinos nacionales','Universo de la EVyTH')+kpi('Estadía media en Córdoba',value(c.estadia_media,'estadia_media'),'Argentina: '+value(a.estadia_media,'estadia_media'),'Incluye distintos tipos de alojamiento')+kpi('Gasto medio por turista',value(c.gasto_promedio_ars,'gasto_promedio_ars'),'Argentina: '+value(a.gasto_promedio_ars,'gasto_promedio_ars'),'Pesos corrientes del período')+'</div><div class="inline-controls">'+local+'</div>';
+ if(internalAllKeys().includes('Argentina')&&!internalRelative())html+=notice('Las referencias nacionales/provinciales solo se comparan en índice o variación, por diferencia de escala');
+ const rank=regions.concat('Córdoba').map(k=>({code:k,value:agg(k)[metric]})).filter(r=>valid(r.value)).sort((x,y)=>y.value-x.value);
+ const trendPs=ps.length===1?months(month(ordinal(ps[0])-45),ps[0],3):ps;
+ html+='<div class="grid">'+lineCard({id:'internal-trend',title:specs[metric][0]+' del turismo interno · evolución por destino',subtitle:scopes.map(internalName).join(' / '),series:scopes.map(k=>({name:internalName(k),rows:get(k)})),periods:trendPs,metric,quarter:true,seasonBands:false,method:'Residentes de los grandes aglomerados urbanos relevados, en viajes dentro de Argentina.'})+barCard({id:'internal-ranking',title:specs[metric][0]+' por región de destino',subtitle:caption+' · Córdoba destacada',items:rank.map(r=>({name:r.code,values:[r.value],highlight:r.code==='Córdoba'})),seriesNames:[specs[metric][0]],metric,unit:specs[metric][1],limit:10,method:'Ocho regiones de destino mutuamente excluyentes. Los promedios nacionales se calculan ponderando por turistas; no se promedian las tasas regionales.'})+'</div>';
+ html+=barCard({id:'quintiles',title:'Turistas según quintil de ingresos del hogar · Argentina',subtitle:'Total nacional · '+label(ps.at(-1),true),items:D.internal.quintiles.filter(r=>r.period===ps.at(-1)).map(r=>({name:r.group,values:[r.turistas]})),seriesNames:['Turistas'],metric:'turistas',method:'Este recurso solo tiene apertura nacional. Los comparadores territoriales no se aplican; no identifica el perfil de visitantes de Córdoba ni el mercado premium.'});
  $('dashboard').innerHTML=html;
 }
 function renderQuality(){
@@ -582,7 +616,7 @@ function context(){
  if(state.tab==='air')return ['Aeropuerto de Córdoba · SACO',{salidas:'Salidas',llegadas:'Llegadas',ambos:'Llegadas + salidas'}[state.direction],state.kind==='all'?'Cabotaje + internacional':state.kind,rangeCaption(airPeriod()),state.carrier==='all'?'Todas las aerolíneas':D.air.carriers[+state.carrier]];
  if(state.tab==='season')return [state.seasonTerritory==='Córdoba'?'Córdoba · provincia (región EOH)':scopeLabel(state.seasonTerritory),state.seasonYear,'Pernoctaciones EOH · todas las residencias',seasonScope.compare().length?'Comparadores: '+seasonScope.compare().map(seasonScope.name).join(' / '):'Sin comparadores'];
  if(state.tab==='international')return ['Paso: aeropuerto de Córdoba','Turismo '+state.flow,(p=>p.length>1?label(p[0],true)+' – '+label(p.at(-1),true):label(p[0],true))(intlPeriod()),intlCompareKeys().length?'Comparadores: '+intlCompareKeys().map(gateLabel).join(' / '):'Sin comparadores'];
- if(state.tab==='internal')return ['Córdoba como destino','Universo EVyTH',label(current.period,true)];
+ if(state.tab==='internal')return ['Córdoba como destino',(p=>p.length>1?label(p[0],true)+' – '+label(p.at(-1),true):label(p[0],true))(internalPeriod()),internalAllKeys().length?'Comparadores: '+internalAllKeys().map(internalName).join(' / '):'Sin comparadores'];
  if(state.tab==='quality')return ['Registro histórico SACT','Última fecha: '+D.quality.latest_date];
  return [D.sources.length+' recursos','Incorporación: '+loaded+' (Córdoba)'];
 }
@@ -634,7 +668,7 @@ async function share(){
  catch(_){const el=document.createElement('input');el.className='share-input';el.value=location.href;el.readOnly=true;el.setAttribute('aria-label','Enlace de la vista para copiar');$('filters').appendChild(el);el.select();toast('Seleccioná y copiá el enlace mostrado junto a los filtros.');}
 }
 // Comparadores con fichas, por clave de estado.
-const compareRegistry=()=>({compare:hotelScope,seasonCompare:seasonScope,airCompare:{add:addAirCompare,set:setAirCompare,all:airAllKeys},intlCompare:{add:k=>setIntlCompare([...intlCompareKeys(),k]),set:setIntlCompare,all:intlCompareKeys}});
+const compareRegistry=()=>({compare:hotelScope,seasonCompare:seasonScope,airCompare:{add:addAirCompare,set:setAirCompare,all:airAllKeys},intlCompare:{add:k=>setIntlCompare([...intlCompareKeys(),k]),set:setIntlCompare,all:intlCompareKeys},internalCompare:{add:k=>setInternalCompare([...internalAllKeys(),k]),set:setInternalCompare,all:internalAllKeys}});
 document.addEventListener('change',e=>{if('compareAdd' in e.target.dataset){compareRegistry()[e.target.dataset.compareAdd||'compare']?.add(e.target.value);return;}const key=e.target.dataset.key;if(key)changeState(key,e.target.value);});
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;

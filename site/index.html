@@ -2,7 +2,7 @@
 <html lang="es-AR">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102c41">
-<title>Inteligencia turística · Córdoba</title><meta name="description" content="Información turística oficial para comparar Córdoba, explorar su conectividad y analizar la estacionalidad. Agencia Competitividad Córdoba.">
+<title>Inteligencia turística · Córdoba</title><meta name="description" content="Información turística oficial para conocer la oferta y la demanda de alojamiento de Córdoba, su conectividad y su estacionalidad. Agencia Competitividad Córdoba.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,11 +14,11 @@
   <div class="rail-bottom"><span class="status-dot"></span> Datos de fuentes oficiales<p>Una perspectiva comparada<br>para las decisiones del sector.</p><button id="method-shortcut" class="rail-link">Fuentes y metodología ↗</button></div>
 </aside>
 <div class="workspace">
-  <header class="masthead"><div><span class="crumb">Observatorio sectorial</span><span class="slash">/</span><strong id="breadcrumb">Demanda hotelera</strong></div><div class="mast-actions"><button class="button subtle" id="reset" title="Restablecer los filtros de esta sección">↺ Restablecer</button><button class="button" id="share">↗ Copiar vista</button></div></header>
+  <header class="masthead"><div><span class="crumb">Observatorio sectorial</span><span class="slash">/</span><strong id="breadcrumb">Hotelería</strong></div><div class="mast-actions"><button class="button subtle" id="reset" title="Restablecer los filtros de esta sección">↺ Restablecer</button><button class="button" id="share">↗ Copiar vista</button></div></header>
   <main id="content" tabindex="-1">
-    <div class="page-heading"><div><p class="eyebrow" id="eyebrow">ACTIVIDAD Y POSICIONAMIENTO</p><h1 id="page-title">Demanda hotelera</h1><p class="lede" id="page-description"></p></div><div class="freshness-badge"><span>DATOS DISPONIBLES HASTA</span><strong id="available-through">Cargando…</strong><small id="loaded-at"></small></div></div>
+    <div class="page-heading"><div><p class="eyebrow" id="eyebrow">OFERTA, DEMANDA Y OCUPACIÓN</p><h1 id="page-title">Hotelería</h1><p class="lede" id="page-description"></p></div><div class="freshness-badge"><span>DATOS DISPONIBLES HASTA</span><strong id="available-through">Cargando…</strong><small id="loaded-at"></small></div></div>
     <div id="filters" class="filters" aria-label="Filtros del análisis"></div>
-    <div class="context-line"><div id="active-filters" aria-live="polite"></div></div>
+    <div class="context-line" aria-label="Filtros activos de la sección"><span class="context-label">Filtros activos</span><div id="active-filters" aria-live="polite"></div><span class="context-hint">«Filtro propio» = el gráfico usa otro período, tráfico o aerolínea</span></div>
     <div id="error" class="notice error" role="alert" hidden></div>
     <div id="dashboard"></div>
   </main>
@@ -26,5 +26,5 @@
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
 <noscript>Este tablero requiere JavaScript. Los archivos CSV están disponibles en la carpeta data del paquete.</noscript>
-<script src="vendor/echarts-6.0.0.min.js"></script><script src="data/dashboard.js"></script><script src="model.js"></script><script src="data/hotel.js"></script><script src="hotel-model.js"></script><script src="hotel.js"></script><script src="app.js" defer></script>
+<script src="vendor/echarts-6.0.0.min.js"></script><script src="data/dashboard.js"></script><script src="model.js"></script><script src="data/hotel.js"></script><script src="hotel-model.js"></script><script src="data/puna.js"></script><script src="puna-model.js"></script><script src="hotel.js"></script><script src="app.js" defer></script>
 </body></html>

@@ -118,4 +118,12 @@ assert.equal(M.isRegular([4]),true);assert.equal(M.isRegular([3]),false);
  // Las llegadas a AAAA no cuentan como salidas.
  assert.equal(s.routeRegularity('AAAA',year(2024),'llegadas').map(r=>r.code).join(),'EEEE');
 }
+// Estacionalidad simple: mes pico ÷ mes valle; sin medición con año incompleto o con un mes en cero.
+{
+ const v=[10,8,6,5,2,4,6,5,6,7,6,8],r=M.peakValley(v);
+ assert.equal(r.ratio,5);assert.equal(r.peak,0);assert.equal(r.valley,4);assert.equal(r.share3,M.seasonalityIndex(v));
+ assert.equal(M.peakValley(v.slice(0,11)),null);assert.equal(M.peakValley([0,...v.slice(1)]),null);assert.equal(M.peakValley(Array(12).fill(7)).ratio,1);
+ const rows=[...v.map((value,i)=>({period:'2023-'+String(i+1).padStart(2,'0'),value})),{period:'2024-01',value:9}];
+ assert.deepEqual(M.peakValleySeries(rows).map(x=>[x.year,x.value]),[['2023',5]]);
+}
 console.log('OK: faltantes, ponderación, índice común, temporadas, conciliación de rutas, aeropuertos, sentidos y aerolíneas, y rutas regulares.');

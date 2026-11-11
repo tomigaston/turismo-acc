@@ -1,0 +1,102 @@
+{
+ "schema_version": 1,
+ "checked_at": "2026-11-11T20:00:00+00:00",
+ "source": {
+  "name": "Padrón Único Nacional de Alojamiento (PUNA) · Dirección de Mercados y Estadística, Turismo de la Nación",
+  "dataset_url": "https://datos.yvera.gob.ar/dataset/padron-unico-nacional-alojamiento",
+  "official_download_url": "https://datos.yvera.gob.ar/dataset/c9dc110e-2a09-4b51-ac0a-a2db2ca76fbb/resource/01d23e57-ba58-48ed-a1c9-e1604ae78a1d/download/puna_base_agregada.csv",
+  "obtained_from": "https://github.com/dnme-minturdep/blog/blob/403313fc7ea9f81317ad8b3c9f742dc557a5e62a/_posts/2023-03-11-clasificacion-localidades/salidas/serie_puna_clasificacion.xlsx",
+  "obtained_file_sha256": "f11c04aa3e848fa720eaedad12326c55c6932555e01363747357daad87fc6220",
+  "license": "Creative Commons Attribution 4.0"
+ },
+ "availability_note": "Es el último padrón de oferta que se pudo obtener: el portal oficial de datos de turismo hoy no permite descargar el archivo vigente, y esta copia fue publicada por la misma Dirección de estadística en su repositorio abierto. Sirve para dimensionar la oferta y compararla entre territorios; no corresponde al período elegido en las otras solapas. Cuando el portal vuelva a estar disponible, alcanza con reemplazar el archivo para actualizar la sección.",
+ "notes": [
+  "Padrón anual de alojamiento colectivo: hoteleros, parahoteleros y otros colectivos. No incluye alquiler temporario de viviendas.",
+  "Las regiones se rearman con la definición de la EOH (La Rioja integra Cuyo) para compararlas con la demanda; por eso Cuyo y Norte difieren de los informes del PUNA.",
+  "El universo es más amplio que el de la EOH, que releva hoteles y parahoteles en un conjunto de localidades. La oferta no se divide por la demanda para calcular tasas: la ocupación oficial sale de la EOH.",
+  "Los campings informan unidades (parcelas) y no plazas."
+ ],
+ "eoh_regions": {
+  "Buenos Aires": "Buenos Aires",
+  "CABA": "CABA",
+  "Cordoba": "Córdoba",
+  "Mendoza": "Cuyo",
+  "San Juan": "Cuyo",
+  "San Luis": "Cuyo",
+  "La Rioja": "Cuyo",
+  "Chaco": "Litoral",
+  "Corrientes": "Litoral",
+  "Entre Rios": "Litoral",
+  "Formosa": "Litoral",
+  "Misiones": "Litoral",
+  "Santa Fe": "Litoral",
+  "Catamarca": "Norte",
+  "Jujuy": "Norte",
+  "Salta": "Norte",
+  "Santiago del Estero": "Norte",
+  "Tucuman": "Norte",
+  "Chubut": "Patagonia",
+  "La Pampa": "Patagonia",
+  "Neuquen": "Patagonia",
+  "Rio Negro": "Patagonia",
+  "Santa Cruz": "Patagonia",
+  "Tierra del Fuego": "Patagonia"
+ },
+ "eoh_localities": {
+  "localidad:Córdoba": "Cordoba",
+  "localidad:Carlos Paz": "Villa Carlos Paz",
+  "localidad:La Falda": "La Falda",
+  "localidad:Mar Chiquita": "Miramar",
+  "localidad:Mina Clavero": "Mina Clavero",
+  "localidad:Río Cuarto": "Rio Cuarto",
+  "localidad:Villa General Belgrano": "Villa General Belgrano"
+ },
+ "display": {
+  "provinces": {
+   "CABA": "Ciudad de Buenos Aires",
+   "Cordoba": "Córdoba",
+   "Entre Rios": "Entre Ríos",
+   "Neuquen": "Neuquén",
+   "Rio Negro": "Río Negro",
+   "Tucuman": "Tucumán"
+  },
+  "classes": {
+   "Albergue / b&b / hostel": "Albergue / B&B / hostel",
+   "Hosteria": "Hostería",
+   "Pension": "Pensión",
+   "Complejo turistico": "Complejo turístico",
+   "Conjunto de unidades turisticas": "Conjunto de unidades turísticas"
+  },
+  "localities": {
+   "Cordoba": "Córdoba capital",
+   "Cosquin": "Cosquín",
+   "Rio Cuarto": "Río Cuarto",
+   "Villa Maria": "Villa María",
+   "Rio Ceballos": "Río Ceballos",
+   "Cordoba|Miramar": "Miramar (Mar Chiquita)",
+   "Bialet Masse": "Bialet Massé",
+   "Dean Funes": "Deán Funes",
+   "Villa Ciudad de America": "Villa Ciudad de América",
+   "Ciudad Autonoma de Buenos Aires": "Ciudad de Buenos Aires",
+   "Termas de Rio Hondo": "Termas de Río Hondo",
+   "Puerto Iguazu": "Puerto Iguazú",
+   "Colon": "Colón",
+   "San Clemente del Tuyu": "San Clemente del Tuyú",
+   "Mar de Ajo": "Mar de Ajó",
+   "San Martin de Los Andes": "San Martín de los Andes",
+   "Carilo": "Cariló",
+   "Rio Tercero": "Río Tercero",
+   "Jesus Maria": "Jesús María",
+   "Unquillo": "Unquillo",
+   "Paraná": "Paraná",
+   "Parana": "Paraná",
+   "Gualeguaychu": "Gualeguaychú",
+   "Tucuman": "Tucumán",
+   "San Miguel de Tucuman": "San Miguel de Tucumán",
+   "Neuquen": "Neuquén",
+   "Federacion": "Federación",
+   "Villa La Angostura": "Villa La Angostura",
+   "Posadas": "Posadas"
+  }
+ }
+}

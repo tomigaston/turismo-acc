@@ -63,6 +63,18 @@
     const years=[...new Set(rows.map(r=>r.period.slice(0,4)))].sort();
     return years.flatMap(y=>{const v=months(y+'-01',y+'-12').map(p=>at(rows,p).value??null),value=seasonalityIndex(v);return value===null?[]:[{year:y,value,top:topMonths(v)}];});
   }
+  // Lectura simple de la estacionalidad: cuántas veces más actividad tiene el mes pico que el mes valle.
+  // 1 = todos los meses iguales. Requiere 12 valores válidos y un mes valle mayor que cero.
+  function peakValley(values12){
+    if(!complete12(values12))return null;
+    const max=Math.max(...values12),min=Math.min(...values12);if(!(min>0))return null;
+    return {ratio:max/min,peak:values12.indexOf(max),valley:values12.indexOf(min),share3:seasonalityIndex(values12)};
+  }
+  // Relación pico/valle por año, solo para los años con 12 meses observados y sin meses en cero.
+  function peakValleySeries(rows){
+    const years=[...new Set(rows.map(r=>r.period.slice(0,4)))].sort();
+    return years.flatMap(y=>{const r=peakValley(months(y+'-01',y+'-12').map(p=>at(rows,p).value??null));return r?[{year:y,value:r.ratio,peak:r.peak,valley:r.valley,share3:r.share3}]:[];});
+  }
   // Meses valle: diferencia porcentual de cada mes respecto del promedio mensual del año.
   function valleyMonths(values12){
     if(!complete12(values12))return null;
@@ -172,6 +184,6 @@
     }
     return {eoh,air,routes,routeRegularity,carrierMonthly,international,internationalPeriod,internationalMarkets,profile,crossProfile};
   }
-  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,etiAggregate,evythAggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
+  const api={valid,sum,ratio,change,at,previous,ordinal,month,months,seasonMonths,windowMonths,aggregate,etiAggregate,evythAggregate,monthlyProfile,seasonalityIndex,seasonalitySeries,peakValley,peakValleySeries,valleyMonths,topMonths,daysInPeriod,weeklyFlights,regularThreshold,isRegular,classifyRoutes,transform,create};
   root.TourismModel=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

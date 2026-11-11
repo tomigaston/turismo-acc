@@ -1,8 +1,21 @@
 # Inteligencia turística · Córdoba y Argentina
 
-Tablero de la Agencia Competitividad Córdoba con **28 archivos estadísticos oficiales, seis informes municipales y un calendario de 70 eventos (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada)**, gráficos Apache ECharts 6.0.0 y comparaciones integradas en cada sección.
+Tablero de la Agencia Competitividad Córdoba con **28 archivos estadísticos oficiales, el padrón de alojamiento (PUNA) 2021, seis informes municipales y un calendario de 70 eventos (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada)**, gráficos Apache ECharts 6.0.0 y comparaciones integradas en cada sección.
 
-El menú tiene **seis secciones**: Demanda hotelera, Conectividad aérea, Estacionalidad, Mercados internacionales, Turismo interno (que cierra con la calidad turística del SACT) y Fuentes y metodología.
+El menú tiene **cinco secciones**: Hotelería (oferta, demanda, ocupación, estacionalidad y eventos), Conectividad aérea, Mercados internacionales, Turismo interno (que cierra con la calidad turística del SACT) y Fuentes y metodología.
+
+## Reorganización por relato (11 de noviembre de 2026)
+
+Cada vista sigue el mismo orden de preguntas: **cuánto hay** (tarjetas de stock) → **es mucho o poco** (rankings y participación) → **cuándo** (evolución y estacionalidad) → **cómo se compone** (tipo, categoría, aerolínea, destino). Los bloques llevan esas preguntas como título.
+
+- **Hotelería** reemplaza a «Demanda hotelera» y abre en **Oferta**. Solapas: Oferta → Demanda → Ocupación → Estacionalidad → Eventos.
+  - **Oferta (nueva):** establecimientos, plazas y habitaciones del Padrón Único Nacional de Alojamiento (PUNA), foto 2021. Tarjetas de stock, ranking de regiones y provincias (o de localidades de Córdoba y del país, si el territorio es una localidad), composición por tipo de alojamiento y distribución por localidad. Ver «Oferta de alojamiento (PUNA)».
+  - **Ocupación:** queda una sola tasa, la **ocupación de plazas** (pernoctaciones ÷ plazas disponibles), coherente con pernoctaciones y plazas. Se retiró el selector de habitaciones. La fuente inicial es la EOH (provincia y regiones); el Observatorio municipal sigue disponible para Córdoba capital.
+  - **Estacionalidad:** la sección homónima del menú se integró a esta solapa y usa el territorio y los comparadores de Hotelería. La concentración se resume en **mes pico ÷ mes valle** («3,4 veces»): cuántas veces más pernoctaciones tiene el mes más fuerte que el más flojo del mismo año. El peso de los tres meses más fuertes queda como dato complementario en la tarjeta. La relación requiere 12 meses observados y ninguno en cero; es sensible a un mes atípico.
+  - **Eventos:** empieza por el stock: cantidad de eventos, meses con eventos, mes con más eventos y cuántos tienen fuente oficial; eventos por tipo y por mes. El calendario no registra asistencia: no se puede ordenar los eventos por convocatoria hasta cargar asistentes estimados y su fuente.
+- **Conectividad aérea:** seis tarjetas de stock del período (pasajeros, vuelos, asientos ofrecidos, factor de ocupación, destinos regulares y aerolíneas), cada una con su variación interanual; las tres primeras, con participación nacional y posición. Después, cuatro bloques: por aeropuerto, por aerolínea (ahora un **ranking de aerolíneas** con su peso en el total), por cabotaje e internacional y por destino. Valores iniciales: **Llegadas + salidas**, todo el tráfico, todas las aerolíneas y **últimos 12 meses**.
+- **Filtros a la vista:** la franja «Filtros activos» queda fija al desplazarse. Los gráficos que usan otro período, tráfico o aerolínea llevan la marca **«Filtro propio»** con la aclaración de cuál.
+- **Enlaces guardados:** los enlaces de «Copiar vista» anteriores conservan los valores iniciales de entonces (solapa Demanda, salidas, último mes); los de la sección Estacionalidad abren la solapa homónima con su territorio, comparadores y año.
 
 ## Cómo utilizarlo
 
@@ -12,9 +25,9 @@ El menú tiene **seis secciones**: Demanda hotelera, Conectividad aérea, Estaci
 4. Usar la leyenda para ocultar series y el control inferior para ampliar un período. En demanda hotelera, el selector inferior del gráfico cambia el intervalo y recalcula indicadores, rankings, tablas y CSV. En otras secciones, el zoom sigue siendo visual.
 5. Abrir **Tabla**, ordenar columnas o descargar **CSV / PNG** con fuente, período y criterios. **Copiar vista** conserva la selección en el enlace. **Restablecer** vuelve a los valores iniciales.
 
-### Filtros de Demanda hotelera
+### Filtros de Hotelería
 
-La franja de la sección tiene tres controles:
+En las solapas Demanda, Ocupación, Estacionalidad y Eventos la franja tiene tres controles (Oferta usa solo el territorio y el indicador, porque es una foto anual):
 
 - **Territorio:** Córdoba · provincia (región EOH) o uno de los siete destinos de Córdoba relevados por la EOH (Córdoba capital, Villa Carlos Paz, La Falda, Mar Chiquita, Mina Clavero, Río Cuarto y Villa General Belgrano). La escala (región o localidad) se deriva del territorio.
 - **Comparar con:** el selector «Agregar comparador…» suma ámbitos, que se muestran como fichas con × para quitarlos. Hay atajos «Todas las regiones» (en escala región: las otras seis regiones y Argentina) o «Todos los destinos de Córdoba» (en escala localidad), y «Quitar todos». **Escalas comparables:** una región se compara solo con regiones y Argentina; una localidad, solo con localidades. En escala localidad, Argentina y Córdoba provincia pueden agregarse como referencias, pero solo se grafican en «Índice base 100» o «Variación interanual»; en «Valores observados» quedan excluidas de las series y se muestra un aviso. **Tope:** 9 series por gráfico, incluido el territorio.
@@ -104,6 +117,7 @@ Las vistas analíticas muestran datos, comparaciones, unidades, fuentes y fechas
 | ETI / INDEC | 10 | Cuarto trimestre de 2025 | Receptivo y emisivo por tres pasos aeroportuarios |
 | EVyTH | 6 | Segundo trimestre de 2024 | Turismo interno; contexto histórico |
 | SACT | 1 | Diciembre de 2023 | Registro histórico de distinciones |
+| PUNA / Turismo de la Nación | 1 | Padrón 2021 | Establecimientos, unidades, habitaciones y plazas por provincia, localidad y tipo |
 | Observatorio municipal | 6 informes PDF | Segundo trimestre de 2026 | Córdoba capital; estrellas individuales y demanda |
 | Agencia Córdoba Turismo | 2 artículos / 4 eventos | Eventos de 2024 | Fechas y localidades, sin impactos imputados |
 | Calendario de trabajo ACC | 66 eventos | Eventos de 2024 y 2025 | Fechas tomadas de una lista de trabajo, sin fuente oficial confirmada |
@@ -175,6 +189,20 @@ node tests/test_hotel.cjs
 
 El actualizador general también valida y compila este suplemento. No lo sustituye por las series EOH. El compilador genera JSON/JS y dos CSV auditables de demanda municipal y categorías. Publicar `site/` completo, incluyendo `hotel.js`, `hotel-model.js` y `data/hotel.js`. El archivo `vercel.json` de esta entrega configura esa carpeta como salida estática.
 
+## Oferta de alojamiento (PUNA)
+
+`config/puna_base_agregada.csv` es la base agrupada del Padrón Único Nacional de Alojamiento: una fila por año, provincia, departamento, localidad y clasificación, con establecimientos, unidades, habitaciones y plazas. `config/puna.json` registra la fuente, la huella del archivo de origen, la leyenda de disponibilidad que se muestra en pantalla y las equivalencias con la EOH.
+
+- **Por qué 2021:** el portal oficial (datos.yvera.gob.ar) redirige a un sitio con verificación humana y no permitió descargar el archivo vigente. Se usa la copia que la misma Dirección de Mercados y Estadística publicó en su repositorio abierto de GitHub (`dnme-minturdep/blog`), que contiene el padrón 2021 completo: 19.945 establecimientos y 783.687 plazas en el país; 2.786 y 91.167 en Córdoba.
+- **Cómo actualizarlo:** descargar con el navegador el recurso «Base agrupada» del conjunto [Padrón Único Nacional de Alojamiento](https://datos.yvera.gob.ar/dataset/padron-unico-nacional-alojamiento), guardarlo como `config/puna_base_agregada.csv`, actualizar la leyenda y la fecha en `config/puna.json` y ejecutar los comandos de abajo. El compilador acepta los nombres de columna del archivo oficial y, si trae varios años, la solapa muestra el más reciente.
+- **Criterios:** las regiones se rearman con la definición de la EOH (La Rioja integra Cuyo), por lo que Cuyo y Norte difieren de los informes del PUNA. El padrón cubre todo el alojamiento colectivo (hoteleros, parahoteleros y otros colectivos) y todas las localidades; la EOH releva hoteles y parahoteles de un conjunto de localidades. Por eso **la oferta no se divide por la demanda**: la ocupación es siempre la tasa oficial de la EOH. Los campings informan unidades y no plazas. «Mar Chiquita» de la EOH corresponde a Miramar en el padrón.
+
+```bash
+python scripts/build_puna_data.py
+python -m unittest tests/test_puna.py
+node tests/test_puna.cjs
+```
+
 ## Verificación automática (GitHub Actions)
 
 El flujo `.github/workflows/actualizar-datos.yml` se llama **«Verificación del tablero»** y corre en cada push y pull request, en cualquier rama. Solo verifica los datos ya commiteados: pruebas de Python, `node --check` de los archivos JavaScript y `npm ci && npm test` (Node 22). No descarga fuentes ni publica cambios, y tiene permiso de solo lectura sobre el repositorio. La actualización de datos es manual (sección «Actualización de datos»).
@@ -228,7 +256,7 @@ Los enlaces a los archivos específicos, identificación y licencias están en `
 - [SACT](https://datos.yvera.gob.ar/dataset/organizaciones-distinguidas-sistema-argentino-calidad-turistica-sact)
 - [IPC nacional · nivel general](https://datos.gob.ar/dataset/sspm_145)
 
-PUNA y observatorios provincial/municipal quedan pendientes de validar recursos estructurados estables. La información propia de empresas asociadas continúa reservada para una etapa posterior. También queda pendiente conectar la actualización al alojamiento institucional.
+El PUNA está incorporado como foto 2021; queda pendiente obtener el archivo vigente del portal oficial. Los observatorios provincial/municipal quedan pendientes de validar recursos estructurados estables. La información propia de empresas asociadas continúa reservada para una etapa posterior. También queda pendiente conectar la actualización al alojamiento institucional.
 
 ## Verificación de esta entrega
 

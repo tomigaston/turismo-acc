@@ -1,10 +1,10 @@
-// Smoke test de las seis secciones del tablero con jsdom: carga site/index.html con un stub de ECharts.
+// Smoke test de las cinco secciones del tablero con jsdom: carga site/index.html con un stub de ECharts.
 // Uso: node tests/smoke.cjs [ruta a site/]   (por defecto, la carpeta site del repositorio)
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const {JSDOM,VirtualConsole}=require('jsdom');
 const SITE=path.resolve(process.argv[2]||path.join(__dirname,'..','site'));
 const html=fs.readFileSync(path.join(SITE,'index.html'),'utf8').replace(/<script\b[^>]*><\/script>/g,'');
-const scripts=['data/dashboard.js','model.js','data/hotel.js','hotel-model.js','hotel.js','app.js'].map(f=>fs.readFileSync(path.join(SITE,f),'utf8'));
+const scripts=['data/dashboard.js','model.js','data/hotel.js','hotel-model.js','data/puna.js','puna-model.js','hotel.js','app.js'].map(f=>fs.readFileSync(path.join(SITE,f),'utf8'));
 let failures=0;
 const ok=(name,fn)=>{try{fn();console.log('PASS',name);}catch(e){failures++;console.log('FAIL',name,'\n  ',e.message);}};
 
@@ -30,27 +30,32 @@ function open(hash='',prepare){
   return {w,$,$$,click,change,series,errors,scrolled,errorBox,options};
 }
 
-// 1 · Las cuatro solapas de Demanda hotelera, sin errores en consola.
-ok('1 · recorre las 4 solapas sin errores',()=>{
+// Hotelería abre en Oferta; las pruebas de demanda parten de la solapa Demanda con un enlace del esquema vigente.
+const demand=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({hotelTab:'overview',v:'2',...extra})));
+
+// 1 · Las cinco solapas de Hotelería, sin errores en consola.
+ok('1 · recorre las 5 solapas sin errores',()=>{
   const p=open();
   const tabs=p.$$('[data-set="hotelTab"]').map(b=>[b.dataset.value,b.textContent]);
-  assert.deepEqual(tabs.map(t=>t[1]),['Demanda y posición','Estacionalidad','Ocupación por categoría','Eventos']);
+  assert.deepEqual(tabs.map(t=>t[1]),['Oferta','Demanda','Ocupación','Estacionalidad','Eventos']);
   for(const [id,title] of tabs){
     p.click(p.$(`[data-set="hotelTab"][data-value="${id}"]`));
     assert.equal(p.$('[data-set="hotelTab"].active').dataset.value,id);
     assert.equal(p.errorBox(),'',title+': '+p.errorBox());
     console.log('     ',title,'·',p.$$('.panel').length,'tarjetas');
   }
-  // En Ocupación por categoría, también la fuente EOH.
-  p.click(p.$('[data-set="hotelTab"][data-value="typology"]'));p.change(p.$('select[data-key="hotelSource"]'),'eoh');
-  assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-key="territory"]').disabled,'territorio deshabilitado en categorías');
+  // En Ocupación, la fuente inicial es la EOH (territorio fijo en Córdoba) y hay una sola tasa: la de plazas.
+  p.click(p.$('[data-set="hotelTab"][data-value="typology"]'));
+  assert.equal(p.$('select[data-key="hotelSource"]').value,'eoh');assert.ok(p.$('select[data-key="territory"]').disabled,'territorio deshabilitado en categorías');
   assert.match(p.$('.field-note').textContent,/Las categorías EOH se publican por región, no por localidad/);
+  assert.ok(!p.$('select[data-key="occupancy"]'),'sin selector de habitaciones / plazas');assert.match(p.$('#panel-hotel-occupancy h2').textContent,/^Ocupación de plazas/);
+  p.change(p.$('select[data-key="hotelSource"]'),'municipal');assert.equal(p.errorBox(),'');
   assert.deepEqual(p.errors,[]);
 });
 
 // 2 · Escala región: "Todas las regiones" lleva el gráfico principal a 8 series.
 ok('2 · región + "Todas las regiones" → 8 series',()=>{
-  const p=open();
+  const p=demand();
   const btn=p.$$('.compare-shortcuts button').find(b=>b.textContent==='Todas las regiones');assert.ok(btn,'atajo presente');
   p.click(btn);
   const s=p.series('hotel-trend');console.log('     ',s.join(' / '));
@@ -62,7 +67,7 @@ const AVISO='Las referencias nacionales/provinciales solo se comparan en índice
 const REF='Argentina · total nacional (referencia)';
 let local;
 ok('3 · localidad + valores observados + Argentina → excluida con aviso',()=>{
-  local=open();const p=local;
+  local=demand();const p=local;
   p.change(p.$('select[data-key="territory"]'),'localidad:Carlos Paz');
   assert.equal(p.$('select[data-key="hotelView"]').value,'levels');
   p.change(p.$('select[data-compare-add]'),'Argentina');
@@ -96,7 +101,7 @@ ok('5 · hash anterior → territory Carlos Paz, compare Ciudad de Mendoza',()=>
 
 // 6 · Tope de 9 series.
 ok('6 · tope de 9 series con aviso',()=>{
-  const p=open();p.change(p.$('select[data-key="territory"]'),'localidad:Córdoba');
+  const p=demand();p.change(p.$('select[data-key="territory"]'),'localidad:Córdoba');
   for(const k of ['localidad:Rosario','localidad:Salta','localidad:Mar del Plata','localidad:Ushuaia','localidad:Tandil','localidad:Merlo','localidad:Posadas'])p.change(p.$('select[data-compare-add]'),k);
   assert.equal(p.series('hotel-trend').length,9);
   p.change(p.$('select[data-compare-add]'),'localidad:Neuquén');
@@ -146,15 +151,16 @@ const subtitle=(p,id)=>p.$('#panel-'+id+' .panel-subtitle').textContent,title=(p
 // 9 · La sección y las demás que comparten app.js renderizan sin errores.
 ok('9 · Conectividad aérea y demás secciones sin errores',()=>{
   const p=open();
-  for(const tab of ['air','season','international','internal','sources','demand']){
+  for(const tab of ['air','international','internal','sources','demand']){
     p.click(p.$(`[data-tab="${tab}"]`));assert.equal(p.errorBox(),'',tab+': '+p.errorBox());
     console.log('     ',tab,'·',p.$$('.panel').length,'tarjetas');
   }
-  // Estacionalidad usa el comparador EOH por territorio (ya no tiene modo aéreo).
-  p.click(p.$('[data-tab="season"]'));
-  assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-compare-add="seasonCompare"]'),'comparador EOH en Estacionalidad');assert.ok(!p.$('select[data-key="seasonData"]'),'sin interruptor de fuente');
+  // Estacionalidad ya no es una sección: es una solapa de Hotelería y usa su territorio y sus comparadores.
+  assert.ok(!p.$('[data-tab="season"]'),'sin sección Estacionalidad');
+  p.click(p.$('[data-set="hotelTab"][data-value="seasonality"]'));
+  assert.equal(p.errorBox(),'');assert.ok(p.$('select[data-compare-add="compare"]'),'comparador de Hotelería en Estacionalidad');assert.ok(p.$('#panel-season-index'),'medición de estacionalidad en la solapa');
   p.click(p.$('[data-tab="air"]'));
-  for(const k of ['airport-ranking','routes','air-route-changes','air-mix','carrier-share','carrier-trend'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  for(const k of ['airport-ranking','routes','air-route-changes','air-mix','carrier-ranking','carrier-trend'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
   assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);
   assert.deepEqual(p.errors,[]);
 });
@@ -185,7 +191,8 @@ ok('12 · factor de ocupación → título del ranking y mínimo de vuelos',()=>
   const after=title(p,'airport-ranking');console.log('     ',before,'→',after);
   assert.equal(after,'Aeropuertos según factor de ocupación');
   assert.equal(p.$('select[data-key="minFlights"]').value,'100');
-  assert.ok(p.$$('.kpi-label').some(k=>k.textContent==='Brecha de factor de ocupación'));
+  assert.deepEqual(p.$$('.kpi-label').map(k=>k.textContent),['Pasajeros','Vuelos','Asientos ofrecidos','Factor de ocupación','Destinos regulares','Aerolíneas']);
+  assert.equal(p.$('.kpi.primary .kpi-label').textContent,'Factor de ocupación','la variable elegida queda destacada');
   assert.deepEqual(p.errors,[]);
 });
 
@@ -215,14 +222,17 @@ ok('14 · hash viejo de Conectividad aérea → esquema nuevo',()=>{
 const near100=(xs,msg)=>{const t=xs.filter(v=>typeof v==='number').reduce((a,b)=>a+b,0);assert.ok(Math.abs(t-100)<1e-6,msg+': '+t);};
 const values=(p,id,i=0)=>Array.from(p.options.get('chart-'+id).series[i].data,d=>typeof d==='object'&&d!==null?d.value:d);
 
-// 15 · Participación de las aerolíneas: renderiza, agrupa en Otras y la participación actual suma 100 %.
-ok('15 · participación de las aerolíneas suma 100 %',()=>{
+// 15 · Ranking de aerolíneas: ordenado de mayor a menor, agrupa en Otras y los pesos suman 100 %.
+ok('15 · ranking de aerolíneas: ordenado y con pesos que suman 100 %',()=>{
   for(const extra of [{},{airPreset:'12'},{airPreset:'year',airYear:'2025',airMetric:'vuelos'}]){
-    const p=air(extra),o=p.options.get('chart-carrier-share');assert.ok(o,'gráfico');
-    const names=Array.from(o.yAxis.data,String),now=values(p,'carrier-share',0);
+    const p=air(extra),o=p.options.get('chart-carrier-ranking');assert.ok(o,'gráfico');
+    const names=Array.from(o.yAxis.data,String),now=values(p,'carrier-ranking',0);
     assert.ok(names.length<=9,'8 principales + Otras');
-    if(names.length===9)assert.equal(names.at(-1),'Otras');
-    near100(now,'participación actual '+JSON.stringify(extra));
+    const others=names.at(-1).startsWith('Otras'),ranked=others?now.slice(0,-1):now;
+    if(names.length===9)assert.ok(others,'la última fila agrupa Otras');
+    ranked.forEach((v,i)=>{if(i)assert.ok(ranked[i-1]>=v,'orden descendente');assert.ok(names[i].startsWith((i+1)+'. '),'posición en el nombre');});
+    const weights=names.map(n=>+n.split(' · ').at(-1).replace(' %','').replace(',','.'));
+    assert.ok(Math.abs(weights.reduce((a,b)=>a+b,0)-100)<0.5,'pesos '+JSON.stringify(extra));
     console.log('     ',JSON.stringify(extra),'·',names.length,'filas ·',names.slice(0,3).join(', '),'…');
     assert.deepEqual(p.errors,[]);
   }
@@ -288,7 +298,8 @@ ok('19 · Argentina como referencia del gráfico de evolución',()=>{
 
 // ---- Estacionalidad ----
 const season=(extra={})=>open('#vista='+encodeURIComponent(JSON.stringify({tab:'season',...extra})));
-const SEASON_CARDS=['season-index','season-index-trend','season-hotel-air','season-valleys','season-heat'];
+// Los enlaces viejos de la sección Estacionalidad abren la solapa homónima de Hotelería.
+const SEASON_CARDS=['season-index','season-index-trend','season-hotel-air','season-valleys','hotel-profile','hotel-calendar'];
 
 // 20 · La sección renderiza sin errores con el año por defecto (último año completo).
 ok('20 · Estacionalidad con el año por defecto',()=>{
@@ -299,17 +310,17 @@ ok('20 · Estacionalidad con el año por defecto',()=>{
   for(const k of ['season-profile','season-ranking'])assert.ok(!p.$('#panel-'+k),'ya no existe '+k);
   assert.ok(!p.$('select[data-key="seasonData"]')&&!p.$('select[data-key="seasonMetric"]'),'sin interruptor de fuente ni selector de indicador');
   const kpis=p.$$('.kpi-label').map(k=>k.textContent);console.log('     ',kpis.join(' | '));
-  assert.deepEqual(kpis,['Índice de estacionalidad · Córdoba','Mes pico','Mes valle','Temporada baja']);
-  assert.match(p.$('.kpi-value').textContent,/%$/);
-  assert.match(p.$('.hotel-range').textContent,/EOH \(Encuesta de Ocupación Hotelera, INDEC\)/);assert.match(p.$('.hotel-range').textContent,/ANAC \(Administración Nacional de Aviación Civil\)/);
+  assert.deepEqual(kpis,['Pico frente a valle · Córdoba','Mes pico','Mes valle','Temporada baja']);
+  assert.match(p.$('.kpi-value').textContent,/^\d+,\d veces$/);assert.equal(p.$('[data-set="hotelTab"].active').dataset.value,'seasonality');
+  assert.match(p.$('.hotel-range').textContent,/EOH \(Encuesta de Ocupación Hotelera, INDEC\)/);
   assert.deepEqual(p.errors,[]);
 });
 
-// 21 · Con 2025 (incompleto) los cuatro KPI dicen "Año incompleto".
-ok('21 · 2025 → KPI "Año incompleto"',()=>{
+// 21 · Con 2025 (incompleto) los cuatro KPI dicen "Sin medición".
+ok('21 · 2025 → KPI "Sin medición"',()=>{
   const p=season();p.change(p.$('select[data-key="seasonYear"]'),'2025');
   const values=p.$$('.kpi-value').map(k=>k.textContent);console.log('     ',values.join(' | '));
-  assert.deepEqual(values,Array(4).fill('Año incompleto'));
+  assert.deepEqual(values,Array(4).fill('Sin medición'));
   assert.equal(p.errorBox(),'');assert.deepEqual(p.errors,[]);
 });
 
@@ -341,7 +352,7 @@ ok('24 · meses valle: 12 barras',()=>{
 ok('25 · hash viejo de Estacionalidad → esquema nuevo',()=>{
   const p=season({seasonLevel:'localidad',seasonCity:'localidad:Carlos Paz',seasonCompare1:'localidad:Mendoza',seasonData:'air',seasonView:'levels',seasonPeriod:'verano'});
   assert.equal(p.errorBox(),'');
-  assert.equal(p.$('select[data-key="seasonTerritory"]').value,'localidad:Carlos Paz');
+  assert.equal(p.$('select[data-key="territory"]').value,'localidad:Carlos Paz');assert.equal(p.$('[data-set="hotelTab"].active').dataset.value,'seasonality');
   const chips=p.$$('.chip').map(c=>c.textContent.replace('×','').trim());console.log('      fichas:',chips.join(', '));
   assert.ok(chips.includes('Ciudad de Mendoza'));
   const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));console.log('      hash reescrito:',JSON.stringify(saved));
@@ -418,10 +429,10 @@ ok('31 · hash viejo de Mercados internacionales → esquema nuevo',()=>{
 // ---- Navegación, Turismo interno y Fuentes y metodología ----
 const view=(v,prepare)=>open('#vista='+encodeURIComponent(JSON.stringify(v)),prepare);
 
-// 32 · La navegación tiene 6 secciones.
-ok('32 · navegación con 6 secciones',()=>{
+// 32 · La navegación tiene 5 secciones.
+ok('32 · navegación con 5 secciones',()=>{
   const p=open(),tabs=p.$$('#navigation .nav-item').map(b=>b.dataset.tab);console.log('     ',tabs.join(' / '));
-  assert.deepEqual(tabs,['demand','air','season','international','internal','sources']);
+  assert.deepEqual(tabs,['demand','air','international','internal','sources']);assert.equal(p.$('#page-title').textContent,'Hotelería');
   assert.deepEqual(p.errors,[]);
 });
 
@@ -456,9 +467,82 @@ ok('35 · tarjeta de calidad turística',()=>{
 ok('36 · Fuentes y metodología sin trazabilidad técnica en pantalla',()=>{
   const p=view({tab:'sources'}),text=p.$('#dashboard').textContent+p.$('#filters').textContent;
   for(const w of ['SHA-256','clúster','pendientes de incorporación'])assert.ok(!text.includes(w),'contiene '+w);
-  assert.equal(p.$$('.reading-guide li').length,5);assert.equal(p.$('#footer-version').textContent,'Fuentes oficiales · Apache ECharts');
+  assert.equal(p.$$('.reading-guide li').length,8);assert.equal(p.$('#footer-version').textContent,'Fuentes oficiales · Apache ECharts');
   console.log('     ',p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]).join(' / '));
-  assert.deepEqual(p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]),['EOH','Conectividad aérea','ETI','EVyTH','SACT','IPC','Observatorio Turístico']);
+  assert.deepEqual(p.$$('.source-card h3').map(h=>h.textContent.split(' · ')[0]),['EOH','Conectividad aérea','ETI','EVyTH','SACT','IPC','Observatorio Turístico','PUNA']);
+  assert.deepEqual(p.errors,[]);
+});
+
+// ---- Relato: oferta, valores iniciales, filtros visibles y stock de eventos ----
+// 39 · Hotelería abre en Oferta (padrón PUNA): tarjetas de stock, rankings y leyenda de disponibilidad.
+ok('39 · Oferta por defecto: stock, rankings y leyenda del padrón',()=>{
+  const p=open(),year=p.w.PUNA_DATA.year;
+  assert.equal(p.$('[data-set="hotelTab"].active').dataset.value,'supply');assert.equal(p.errorBox(),'');
+  assert.deepEqual(p.$$('.kpi-label').map(k=>k.textContent),['Plazas · Córdoba','Establecimientos','Habitaciones','Plazas por establecimiento']);
+  const last=p.w.PUNA_DATA.rows.filter(r=>r[0]===p.w.PUNA_DATA.years.length-1&&p.w.PUNA_DATA.provinces[p.w.PUNA_DATA.localities[r[1]][0]].region==='Córdoba');
+  assert.equal(p.$('.kpi-value').textContent,last.reduce((s,r)=>s+r[6],0).toLocaleString('es-AR'),'plazas de Córdoba = suma del padrón');
+  assert.equal(p.$('#available-through').textContent,'Foto '+year);
+  assert.match(p.$('.story-note').textContent,/último padrón de oferta disponible/);
+  for(const k of ['supply-rank-regions','supply-rank-provinces','supply-classes','supply-types','supply-localities'])assert.ok(p.$('#panel-'+k),'tarjeta '+k);
+  assert.deepEqual(p.$$('#active-filters .filter-tag').map(t=>t.textContent),['Córdoba · provincia (región EOH)','Oferta · foto '+year,'Indicador: plazas']);
+  assert.equal(values(p,'supply-rank-regions').length,7,'siete regiones EOH');
+  assert.deepEqual(p.$$('#dashboard .section-title h2').map(h=>h.textContent),['¿Cuánta oferta de alojamiento hay?','¿Es mucho o poco?','¿De qué tipo es la oferta?','¿Dónde está la oferta dentro de Córdoba?']);
+  p.change(p.$('select[data-key="supplyMetric"]'),'establecimientos');assert.equal(title(p,'supply-rank-provinces'),'Ranking de provincias por establecimientos');
+  console.log('     ',p.$$('.kpi').map(k=>k.querySelector('.kpi-label').textContent+': '+k.querySelector('.kpi-value').textContent).join(' | '));
+  assert.deepEqual(p.errors,[]);
+});
+
+// 40 · Oferta de una localidad: rankings provincial y nacional, con la localidad visible.
+ok('40 · Oferta en escala localidad',()=>{
+  const p=open();p.change(p.$('select[data-key="territory"]'),'localidad:Río Cuarto');
+  assert.equal(p.errorBox(),'');assert.ok(!p.$('#panel-supply-localities')&&!p.$('#panel-supply-rank-regions'));
+  for(const k of ['supply-rank-cordoba','supply-rank-country']){
+    const names=Array.from(p.options.get('chart-'+k).yAxis.data,String);assert.ok(names.some(n=>n.includes('Río Cuarto')),'Río Cuarto visible en '+k);
+    assert.match(subtitle(p,k),/^Posición de Río Cuarto/);
+  }
+  assert.equal(p.series('supply-types').length,3,'localidad, provincia y país');
+  assert.deepEqual(p.errors,[]);
+});
+
+// 41 · Conectividad aérea: por defecto, todos los sentidos y últimos 12 meses; seis tarjetas de stock y bloques por corte.
+ok('41 · aéreo: valores iniciales y relato por aeropuerto, aerolínea, tráfico y destino',()=>{
+  const p=view({tab:'air',v:'2'});
+  assert.equal(p.$('select[data-key="direction"]').value,'ambos');assert.equal(p.$('select[data-key="kind"]').value,'all');assert.equal(p.$('select[data-key="carrier"]').value,'all');assert.equal(p.$('select[data-key="airPreset"]').value,'12');
+  assert.equal(p.$$('.kpis.six .kpi').length,6);assert.equal(p.$('.kpi.primary .kpi-label').textContent,'Pasajeros');
+  const heads=p.$$('#dashboard .section-title h2').map(h=>h.textContent);console.log('     ',heads.join(' | '));
+  assert.deepEqual(heads.map(h=>h.split(' · ')[0]),['¿Cuánto mueve el aeropuerto de Córdoba?','Por aeropuerto','Por aerolínea','Por cabotaje e internacional','Por destino']);
+  assert.match(title(p,'carrier-ranking'),/^Ranking de aerolíneas por pasajeros/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 42 · Filtros activos siempre a la vista y marca de «Filtro propio» solo donde corresponde.
+ok('42 · franja de filtros activos y marca de filtro propio',()=>{
+  const p=view({tab:'air',v:'2'});
+  assert.ok(p.$('.context-line .context-label'),'rótulo de la franja');assert.equal(p.$$('#active-filters .filter-tag').length,5);
+  for(const k of ['air-mix','air-intl','carrier-ranking','carrier-trend'])assert.ok(p.$('#panel-'+k+' .panel-fixed'),'marca en '+k);
+  for(const k of ['air-trend','airport-ranking','routes','air-route-changes'])assert.ok(!p.$('#panel-'+k+' .panel-fixed'),'sin marca en '+k);
+  // Con un año completo, la estacionalidad aérea sigue el período y pierde la marca.
+  assert.ok(p.$('#panel-air-season .panel-fixed'));p.change(p.$('select[data-key="airPreset"]'),'year');assert.ok(!p.$('#panel-air-season .panel-fixed'));
+  assert.match(fs.readFileSync(path.join(SITE,'styles.css'),'utf8'),/\.context-line\{position:sticky;top:0/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 43 · Eventos: primero el stock (cuántos y de qué tipo) y la aclaración sobre la asistencia.
+ok('43 · Eventos: stock por tipo y por mes',()=>{
+  const p=demand({hotelTab:'events'});
+  assert.equal(p.errorBox(),'');assert.equal(p.$('.kpi-label').textContent,'Eventos registrados');
+  const total=+p.$('.kpi-value').textContent,byType=values(p,'hotel-event-types').reduce((a,b)=>a+b,0);
+  assert.ok(total>0);assert.equal(byType,total,'los tipos suman el total');
+  assert.equal(p.options.get('chart-hotel-event-months').series.length,5,'una serie por tipo');
+  assert.match(p.$('.story-note').textContent,/no se puede ordenar los eventos por convocatoria/);
+  assert.deepEqual(p.errors,[]);
+});
+
+// 44 · Los enlaces guardados antes de la reorganización conservan su vista (Demanda, salidas, último mes).
+ok('44 · enlaces anteriores conservan los valores iniciales de entonces',()=>{
+  let p=view({territory:'localidad:Carlos Paz'});assert.equal(p.$('[data-set="hotelTab"].active').dataset.value,'overview');
+  p=view({tab:'air'});assert.equal(p.$('select[data-key="direction"]').value,'salidas');assert.equal(p.$('select[data-key="airPreset"]').value,'latest');
+  const saved=JSON.parse(new p.w.URLSearchParams(p.w.location.hash.slice(1)).get('vista'));assert.equal(saved.v,'2','el enlace se reescribe con la marca vigente');
   assert.deepEqual(p.errors,[]);
 });
 
@@ -490,5 +574,5 @@ ok('38 · gasto a pesos constantes sin IPC → aviso',()=>{
   assert.deepEqual(p.errors,[]);
 });
 
-console.log(failures?`\n${failures} fallas`:'\nOK: smoke de las seis secciones sin errores.');
+console.log(failures?`\n${failures} fallas`:'\nOK: smoke de las cinco secciones sin errores.');
 process.exit(failures?1:0);

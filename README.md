@@ -1,6 +1,6 @@
 # Turismo Córdoba · Paquete para GitHub y Vercel
 
-Versión del 3 de noviembre de 2026: 28 recursos estadísticos oficiales, seis informes municipales y 70 eventos en el calendario (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada). Seis secciones: Demanda hotelera, Conectividad aérea, Estacionalidad, Mercados internacionales, Turismo interno (con la calidad turística del SACT al cierre) y Fuentes y metodología. Incluye Apache ECharts 6.0.0 y los filtros, tablas y exportaciones del tablero. Los bloques de notas interpretativas ya están retirados. La copia autónoma de `offline/` está regenerada con esta versión.
+Versión del 11 de noviembre de 2026: 28 recursos estadísticos oficiales, el padrón de alojamiento (PUNA, foto 2021), seis informes municipales y 70 eventos en el calendario (4 con fuente oficial y 66 tomados del calendario de trabajo, sin fuente confirmada). Cinco secciones: Hotelería (oferta, demanda, ocupación, estacionalidad y eventos), Conectividad aérea, Mercados internacionales, Turismo interno (con la calidad turística del SACT al cierre) y Fuentes y metodología. Cada vista sigue el mismo relato: cuánto hay, si es mucho o poco, cuándo y cómo se compone; los filtros activos quedan a la vista al desplazarse. Incluye Apache ECharts 6.0.0 y los filtros, tablas y exportaciones del tablero. Los bloques de notas interpretativas ya están retirados. La copia autónoma de `offline/` está regenerada con esta versión.
 
 ## 1. Subir al GitHub existente
 
@@ -51,10 +51,10 @@ Si aparece la versión anterior, revisar el commit del despliegue y la salida `s
 | Ruta | Uso |
 |---|---|
 | `site/` | Sitio publicable: HTML, estilos, JavaScript, datos JSON/JS y CSV, ECharts y su licencia |
-| `config/` | Enlaces a las fuentes, transcripciones municipales verificadas y calendario de eventos |
-| `scripts/` | Actualización, compilación de datos hoteleros y creación del HTML autónomo |
-| `tests/` | Comprobaciones de integridad y cálculos, y smoke de las seis secciones de la interfaz con jsdom (`tests/smoke.cjs`) |
-| `package.json`, `package-lock.json` | jsdom (versión exacta) como dependencia de desarrollo; `npm test` corre las tres pruebas de JavaScript |
+| `config/` | Enlaces a las fuentes, transcripciones municipales verificadas, calendario de eventos y base del padrón de alojamiento (PUNA) |
+| `scripts/` | Actualización, compilación de datos hoteleros y del padrón de alojamiento (`build_puna_data.py`) y creación del HTML autónomo |
+| `tests/` | Comprobaciones de integridad y cálculos, y smoke de las cinco secciones de la interfaz con jsdom (`tests/smoke.cjs`) |
+| `package.json`, `package-lock.json` | jsdom (versión exacta) como dependencia de desarrollo; `npm test` corre las cuatro pruebas de JavaScript |
 | `.github/workflows/actualizar-datos.yml` | «Verificación del tablero»: pruebas, `node --check` y smoke en cada push y pull request; no descarga ni publica datos |
 | `offline/Tablero_turismo_Cordoba_completo.html` | Copia autónoma para abrir sin conexión, regenerada con esta versión |
 | `DOCUMENTACION.md` | Cobertura, metodología, funcionamiento y actualización de fuentes |

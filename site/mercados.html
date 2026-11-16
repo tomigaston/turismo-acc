@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mercados internacionales de Córdoba</title>
+<meta name="description" content="Turistas extranjeros que entran y residentes que salen por el aeropuerto de Córdoba: mercados, motivos, estadía, gasto y balanza turística.">
+<script>try{if(window.parent!==window)document.documentElement.classList.add('embed');}catch(_){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="panorama.css">
+<style>
+.seg{display:inline-flex;gap:2px;background:var(--plane);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;color:var(--ink-2)}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--amber-soft);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;color:#4a3a14}
+.pill button{border:0;background:#fff;border-radius:999px;width:22px;height:22px;line-height:20px;color:var(--ink-2);font-size:14px}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+ <nav class="crumbs" aria-label="Ruta"><a href="index.html">Inteligencia turística</a> / <a href="index.html">Mercados internacionales</a> / Panorama</nav>
+ <div class="hero">
+  <div><p class="eyebrow">Mercados internacionales</p><h1>Quién entra y quién sale del país por Córdoba, por qué viaja y cuánto gasta</h1>
+  <p class="hero-sub">Encuesta de Turismo Internacional (INDEC) en el aeropuerto de Córdoba, comparado con Mendoza y con Ezeiza y Aeroparque. Elegí el sentido del viaje y un año, o tocá un mercado: el resto se acomoda.</p></div>
+  <div class="years"><span>Año analizado</span><div class="ychips" id="years" role="group" aria-label="Año analizado"></div></div>
+ </div>
+</div></header>
+
+<div class="bar"><div class="in"><p class="intro">Turistas extranjeros que entran (receptivo) y residentes en Argentina que salen (emisivo) por el aeropuerto de Córdoba. Elegí sentido y año, o tocá un mercado: el resto se acomoda.</p></div><div class="in" id="ctl" role="group" aria-label="Selección"></div></div>
+
+<main class="in">
+ <section aria-labelledby="t-k" style="margin-bottom:18px"><h2 id="t-k" class="sr"></h2><div class="kpis" id="kpis"></div><div class="focus" id="focus" hidden></div></section>
+ <section class="card" aria-labelledby="t-find" style="margin-bottom:18px"><p class="q">Radiografía</p><h2 id="t-find"></h2><ol class="find" id="find"></ol></section>
+
+ <div class="grid g2">
+  <section class="card" id="s-flow" aria-labelledby="t-flow"><p class="q">¿Entran o salen?</p><h2 id="t-flow">Turistas que entran y que salen por Córdoba</h2><p class="desc" id="d-flow"></p>
+   <p class="how">Turistas por año · tocá un año para analizarlo</p><div class="chart" id="c-flow" role="img"></div></section>
+  <section class="card" id="s-bal" aria-labelledby="t-bal"><p class="q">¿Cuánto deja y cuánto se va?</p><h2 id="t-bal">Balanza turística del paso Córdoba</h2><p class="desc" id="d-bal"></p>
+   <p class="how">Dólares que gastan los extranjeros en Argentina (arriba) y los residentes en el exterior (abajo) · tocá un año para analizarlo</p><div class="chart" id="c-bal" role="img"></div></section>
+ </div>
+
+ <div class="grid g21">
+  <section class="card" id="s-mk" aria-labelledby="t-mk"><p class="q">¿De dónde? ¿A dónde?</p><h2 id="t-mk"></h2><p class="desc" id="d-mk"></p>
+   <p class="how">Tocá un mercado para ver su evolución</p><div class="chart" id="c-mk" role="img"></div></section>
+  <section class="card" id="s-mkt" aria-labelledby="t-mkt"><p class="q">Su evolución</p><h2 id="t-mkt"></h2><p class="desc" id="d-mkt"></p>
+   <div class="chart" id="c-mkt" role="img"></div></section>
+ </div>
+
+ <div class="grid g2">
+  <section class="card" id="s-mot" aria-labelledby="t-mot"><p class="q">¿Por qué viajan?</p><h2 id="t-mot"></h2><p class="desc" id="d-mot"></p>
+   <p class="how">Motivo principal del viaje, en % de los turistas de cada paso</p><div class="chart s" id="c-mot" role="img"></div></section>
+  <section class="card" id="s-sp" aria-labelledby="t-sp"><p class="q">¿Cuánto se quedan y cuánto gastan?</p><h2 id="t-sp"></h2><p class="desc" id="d-sp"></p>
+   <p class="how">Cada punto es un paso en un año; la línea une los años de Córdoba</p><div class="chart s" id="c-sp" role="img"></div></section>
+ </div>
+
+ <section class="card" id="s-q" aria-labelledby="t-q" style="margin-bottom:18px"><p class="q">¿Cuándo?</p><h2 id="t-q"></h2><p class="desc" id="d-q"></p>
+  <p class="how">Turistas por trimestre · tocá una fila para elegir ese año</p><div class="chart s" id="c-q" role="img"></div>
+  <div class="foot"><span>INDEC · Encuesta de Turismo Internacional (ETI), trimestral</span><span>Los pasos comparados no son el total nacional; el paso Córdoba no identifica la provincia de residencia de quien sale</span><span>2020-2021: aeropuerto cerrado o sin relevamiento</span></div></section>
+</main>
+<footer class="in">Fuente: INDEC · ETI. Receptivo: residentes en el exterior que entran por el paso; noches y gasto de todo su viaje por Argentina. Emisivo: residentes en Argentina que salen por el paso; noches y gasto en el exterior. Estimaciones muestrales: en un paso chico los trimestres sueltos son ruidosos. <span class="back">· <a href="index.html">Volver al tablero completo</a></span></footer>
+
+<script src="vendor/echarts-6.0.0.min.js"></script>
+<script>(function(){var p=null;try{if(window.parent!==window&&window.parent.DASHBOARD_DATA)p=window.parent;}catch(_){}
+if(p){window.DASHBOARD_DATA=p.DASHBOARD_DATA;}else document.write('<script src="data/dashboard.js"><\/script>');})();</script>
+<script>
+(function(){
+'use strict';
+const D=window.DASHBOARD_DATA,I=D.international;
+const $=id=>document.getElementById(id);
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EMBED=document.documentElement.classList.contains('embed');
+const post=msg=>{try{window.parent.postMessage({src:'mercados',...msg},'*');}catch(_){}};
+function go(el){if(!el)return;if(EMBED)post({type:'scroll',top:el.getBoundingClientRect().top+window.scrollY});else el.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});}
+const ok=v=>typeof v==='number'&&isFinite(v);
+const nf=(x,d=0)=>ok(x)?x.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d}):'sin dato';
+const big=x=>!ok(x)?'sin dato':Math.abs(x)>=1e6?nf(x/1e6,Math.abs(x)>=1e8?0:1)+' M':Math.abs(x)>=1e4?nf(x/1e3,0)+' mil':nf(x,0);
+const usd=x=>ok(x)?(x<0?'−':'')+'USD '+big(Math.abs(x)):'sin dato';
+const pct=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' %':'sin dato';
+const pp=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' pp':'sin dato';
+const cls=x=>ok(x)?(x<0?'neg':'pos'):'';
+const chg=(a,b)=>ok(a)&&ok(b)&&b!==0?(a/b-1)*100:null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CBA='Aep. Córdoba',MZA='Aep. Mendoza',EZE='Ezeiza y Aeroparque';
+const GW=[[CBA,'Córdoba','#00897b'],[MZA,'Mendoza','#6250d6'],[EZE,'Ezeiza y Aeroparque','#2a78d6']];
+const gwName=g=>GW.find(x=>x[0]===g)?.[1]||g,gwColor=g=>GW.find(x=>x[0]===g)?.[2]||'#9fb3bf';
+const REC='#eb6834',EMI='#2a78d6';
+const FLOWN={receptivo:'Receptivo · extranjeros que entran',emisivo:'Emisivo · residentes que salen'};
+
+// ---------- agregados anuales: se suman trimestres; si falta uno, el año queda sin dato (no se imputa)
+const Q=['01','04','07','10'];
+function yearSum(arr,flow,gw,y,field,extra=()=>true){let t=0;for(const q of Q){const xs=arr.filter(r=>r.flow===flow&&r.gateway===gw&&r.period===y+'-'+q&&extra(r));if(!xs.length)return null;for(const r of xs){if(!ok(r[field]))return null;t+=r[field];}}return t;}
+const IDX={};for(const r of I.series)IDX[r.flow+'|'+r.gateway+'|'+r.period]=r;
+function serY(flow,gw,y,f){let t=0;for(const q of Q){const r=IDX[flow+'|'+gw+'|'+y+'-'+q];if(!r||!ok(r[f]))return null;t+=r[f];}return t;}
+function spY(flow,gw,y){let t=0;for(const q of Q){const r=I.spending.find(x=>x.flow===flow&&x.gateway===gw&&x.period===y+'-'+q);if(!r||!ok(r.gasto_total_usd))return null;t+=r.gasto_total_usd;}return t;}
+function stats(flow,gw,y){const t=serY(flow,gw,y,'turistas'),n=serY(flow,gw,y,'pernoctes'),g=spY(flow,gw,y);return {t,n,g,stay:ok(t)&&t>0&&ok(n)?n/t:null,perT:ok(g)&&ok(t)&&t>0?g/t:null,daily:ok(g)&&ok(n)&&n>0?g/n:null};}
+function markets(flow,gw,y){const o={};for(const r of I.markets){if(r.flow!==flow||r.gateway!==gw||!r.period.startsWith(y+'-')||!ok(r.turistas))continue;o[r.market]=(o[r.market]||0)+r.turistas;}const qs=new Set(I.markets.filter(r=>r.flow===flow&&r.gateway===gw&&r.period.startsWith(y+'-')).map(r=>r.period));return qs.size===4?o:null;}
+function motives(flow,gw,y){const o={};for(const r of I.motives){if(r.flow!==flow||r.gateway!==gw||!r.period.startsWith(y+'-'))continue;o[r.motive]=(o[r.motive]||0)+(ok(r.turistas)?r.turistas:0);}const qs=new Set(I.motives.filter(r=>r.flow===flow&&r.gateway===gw&&r.period.startsWith(y+'-')).map(r=>r.period));return qs.size===4?o:null;}
+const ALLY=[...new Set(I.series.map(r=>+r.period.slice(0,4)))].sort();
+const YEARS=ALLY.filter(y=>ok(serY('receptivo',CBA,y,'turistas'))&&ok(serY('emisivo',CBA,y,'turistas')));
+const MOT=['Vacaciones/ocio/recreación','Visita flia/amigos','Negocios/congreso/conferencia','Otros'];
+const MOTN={'Vacaciones/ocio/recreación':'Vacaciones y ocio','Visita flia/amigos':'Visitar familia o amigos','Negocios/congreso/conferencia':'Negocios y congresos','Otros':'Otros'};
+const MOTC=['#00897b','#eb6834','#6250d6','#cfdbe2'];
+
+// ---------- estado
+let S={y:YEARS.at(-1),flow:'receptivo',m:null};
+try{const raw=EMBED?(window.frameElement?.dataset?.state||''):decodeURIComponent(location.hash.slice(1));S={...S,...JSON.parse(raw||'{}')};}catch(_){}
+S.y=+S.y;if(!YEARS.includes(S.y))S.y=YEARS.at(-1);if(!FLOWN[S.flow])S.flow='receptivo';
+let firstSave=true;
+const save=()=>{if(EMBED){if(firstSave){firstSave=false;return;}post({type:'state',state:JSON.stringify(S)});return;}try{history.replaceState(null,'','#'+encodeURIComponent(JSON.stringify(S)));}catch(_){}};
+const set=p=>{Object.assign(S,p);render();};
+
+const charts={};
+const chart=id=>{if(!charts[id]||charts[id].getDom()!==$(id))charts[id]=echarts.init($(id),null,{renderer:'canvas'});return charts[id];};
+const once=(c,ev,fn)=>{c.off(ev);c.on(ev,fn);};
+const T={confine:true,backgroundColor:'#fff',borderColor:'#e1e8ed',padding:[8,12],textStyle:{color:'#14293a',fontSize:12},extraCssText:'box-shadow:0 6px 20px rgba(16,44,65,.12);border-radius:10px'};
+const AX={axisLine:{lineStyle:{color:'#d5dee4'}},axisTick:{show:false},axisLabel:{color:'#6f8592',fontSize:11},splitLine:{lineStyle:{color:'#eef2f5'}}};
+const base={animation:!REDUCED,animationDuration:300,textStyle:{fontFamily:'Inter, system-ui, sans-serif'}};
+const showY=ALLY.filter(y=>y>=2014&&y<=YEARS.at(-1));
+function yearClick(c,ys){c.getZr().off('click');c.getZr().on('click',e=>{const pt=[e.offsetX,e.offsetY];if(!c.containPixel('grid',pt))return;const y=ys[Math.round(c.convertFromPixel({xAxisIndex:0},pt[0]))];if(YEARS.includes(y)&&y!==S.y)set({y});});}
+
+function render(){
+ save();
+ const yc=YEARS.slice(-7).map(y=>`<button class="ychip" data-y="${y}" aria-pressed="${y===S.y}">${y}</button>`).join('');
+ $('years').innerHTML=yc;
+ $('ctl').innerHTML=`<span class="bar-l">Sentido</span><div class="seg" role="group" aria-label="Sentido del viaje">${[['receptivo','Extranjeros que entran'],['emisivo','Residentes que salen']].map(([v,l])=>`<button data-flow="${v}" aria-pressed="${S.flow===v}">${l}</button>`).join('')}</div>${S.m?`<span class="pill">Mercado: ${esc(S.m)}<button data-clear="m" aria-label="Quitar mercado">×</button></span>`:''}<span class="hint">Los mercados y los años también se eligen tocando los gráficos</span>`+(EMBED?`<div class="ychips" role="group" aria-label="Año analizado">${yc}</div>`:'');
+ kpis();findings();flowChart();balChart();mkChart();mktChart();motChart();spChart();qChart();
+}
+
+function kpis(){
+ const y=S.y,r=stats('receptivo',CBA,y),r0=stats('receptivo',CBA,y-1),e=stats('emisivo',CBA,y),e0=stats('emisivo',CBA,y-1);
+ const bal=ok(r.g)&&ok(e.g)?r.g-e.g:null,bal0=ok(r0.g)&&ok(e0.g)?r0.g-e0.g:null;
+ $('t-k').textContent='Indicadores '+y;
+ const K=[['Extranjeros que entran',big(r.t),`<span class="${cls(chg(r.t,r0.t))}">${pct(chg(r.t,r0.t))}</span> interanual · ${nf(r.stay,1)} noches de estadía`,REC],
+  ['Residentes que salen',big(e.t),`<span class="${cls(chg(e.t,e0.t))}">${pct(chg(e.t,e0.t))}</span> interanual · ${nf(e.t/r.t,1)} por cada extranjero`,EMI],
+  ['Gasto de los extranjeros',usd(r.g),`USD ${nf(r.perT,0)} por turista · USD ${nf(r.daily,0)} por día`,REC],
+  ['Saldo de la balanza',ok(bal)?(bal>0?'+':'')+usd(bal):'sin dato',`${ok(bal)&&ok(bal0)?(Math.abs(bal)>Math.abs(bal0)?'déficit más grande':'déficit más chico')+' que en '+(y-1)+` (${usd(bal0)})`:''}`,'#b3261e']];
+ $('kpis').innerHTML=K.map(([l,v,s,c])=>`<div class="kpi" style="--kc:${c}"><span>${l}</span><strong>${v}</strong><small>${s}</small></div>`).join('');
+ const f=$('focus');
+ if(S.m){f.hidden=false;f.innerHTML=`<b>Mercado: ${esc(S.m)}.</b> Se resalta en el gráfico de mercados y su evolución se muestra al lado. Las agrupaciones de países difieren entre receptivo y emisivo, por eso el mercado elegido se limpia al cambiar el sentido.`;}else f.hidden=true;
+}
+
+// ---------- Radiografía
+function findings(){
+ const y=S.y,F=[],r=stats('receptivo',CBA,y),r0=stats('receptivo',CBA,y-1),r19=stats('receptivo',CBA,2019),e=stats('emisivo',CBA,y),e0=stats('emisivo',CBA,y-1),e19=stats('emisivo',CBA,2019);
+ const ratio=e.t/r.t,ratio19=e19.t/r19.t;
+ F.push({h:`Por cada extranjero que entra por Córdoba salen ${nf(ratio,1)} residentes`,p:`En ${y} entraron <b>${big(r.t)}</b> turistas extranjeros (${pct(chg(r.t,r0.t))}; ${pct(chg(r.t,r19.t))} frente a 2019) y salieron <b>${big(e.t)}</b> residentes (<b class="${cls(chg(e.t,e0.t))}">${pct(chg(e.t,e0.t))}</b>; ${pct(chg(e.t,e19.t))} frente a 2019). En 2019 la relación era de ${nf(ratio19,1)}.`,a:'s-flow'});
+ const bal=r.g-e.g,bal19=r19.g-e19.g;
+ if(ok(bal))F.push({h:bal<0?`El paso Córdoba deja un déficit de ${usd(Math.abs(bal))}`:`El paso Córdoba deja un superávit de ${usd(bal)}`,p:`Los extranjeros gastaron <b>${usd(r.g)}</b> en su viaje por Argentina y los residentes que salieron, <b>${usd(e.g)}</b> en el exterior. ${ok(bal19)?`En 2019 el saldo fue de ${usd(bal19)}: el déficit ${Math.abs(bal)>Math.abs(bal19)?'se amplió':'se achicó'} ${nf(Math.abs(bal)/Math.abs(bal19),1)} veces.`:''}`,a:'s-bal'});
+ const mo=motives('receptivo',CBA,y),mm=motives('receptivo',MZA,y),me=motives('receptivo',EZE,y);
+ if(mo){const tt=Object.values(mo).reduce((a,b)=>a+b,0),vf=mo['Visita flia/amigos']/tt*100,va=mo['Vacaciones/ocio/recreación']/tt*100,vm=mm?mm['Vacaciones/ocio/recreación']/Object.values(mm).reduce((a,b)=>a+b,0)*100:null;
+  F.push({h:vf>va?'El extranjero que llega a Córdoba viene sobre todo a visitar a su familia':'El extranjero que llega a Córdoba viene sobre todo de vacaciones',p:`<b>${nf(vf,0)} %</b> viaja para visitar familia o amigos y <b>${nf(va,0)} %</b> por vacaciones${ok(vm)?`; en Mendoza, las vacaciones son el ${nf(vm,0)} %`:''}. ${vf>va?'Es un turismo de vínculos (familias de inmigrantes y estudiantes): convierte poco en hotelería y paquetes, y responde más a la conectividad que a la promoción.':''}`,a:'s-mot'});}
+ const m=stats('receptivo',MZA,y),z=stats('receptivo',EZE,y);
+ if(ok(r.stay)&&ok(m.stay))F.push({h:'Estadías largas, gasto diario bajo',p:`El extranjero que entra por Córdoba se queda <b>${nf(r.stay,1)} noches</b> y gasta <b>USD ${nf(r.daily,0)} por día</b>; el de Mendoza, ${nf(m.stay,1)} noches y USD ${nf(m.daily,0)}; el de Ezeiza y Aeroparque, ${nf(z.stay,1)} noches y USD ${nf(z.daily,0)}. Por turista, Córdoba deja USD ${nf(r.perT,0)} (Mendoza: ${nf(m.perT,0)}).`,a:'s-sp'});
+ const mk=markets('receptivo',CBA,y),mk0=markets('receptivo',CBA,y-1),mk19=markets('receptivo',CBA,2019);
+ if(mk){const rows=Object.entries(mk).map(([k,v])=>({k,v,c0:chg(v,mk0?.[k]),c19:chg(v,mk19?.[k])})).sort((a,b)=>b.v-a.v),tt=rows.reduce((a,b)=>a+b.v,0),up19=rows.filter(x=>ok(x.c19)&&x.c19>0),down19=rows.filter(x=>ok(x.c19)&&x.c19<-10);
+  F.push({h:`${rows[0].k} es el primer mercado (${nf(rows[0].v/tt*100,0)} %)`,p:`${up19.length?`Por encima de 2019: ${up19.map(x=>esc(x.k)+' ('+pct(x.c19,0)+')').join(', ')}. `:''}${down19.length?`Todavía por debajo: ${down19.map(x=>esc(x.k)+' ('+pct(x.c19,0)+')').join(', ')}. `:''}${(()=>{const b=rows.find(x=>x.k==='Brasil');return b&&ok(b.c0)?`Brasil ${b.c0>=0?'creció':'cayó'} ${pct(Math.abs(b.c0),0).replace(/^[+−]/,'')} en el último año.`:'';})()}`,a:'s-mk'});}
+ const em=markets('emisivo',CBA,y);
+ if(em){const rows=Object.entries(em).sort((a,b)=>b[1]-a[1]),tt=rows.reduce((a,b)=>a+b[1],0);
+  F.push({h:`Quienes salen por Córdoba van sobre todo a ${rows[0][0]}${rows[1]?' y '+rows[1][0]:''}`,p:`${esc(rows[0][0])} concentra <b>${nf(rows[0][1]/tt*100,0)} %</b> de los residentes que salen por Córdoba${rows[1]?` y ${esc(rows[1][0])}, ${nf(rows[1][1]/tt*100,0)} %`:''}. Gastan USD ${nf(e.perT,0)} por viaje y se quedan ${nf(e.stay,1)} noches. Son residentes en Argentina de cualquier provincia: el paso no identifica dónde viven.`,a:'s-mk'});}
+ const share=r.t/(r.t+m.t+z.t)*100,share19=r19.t/(r19.t+stats('receptivo',MZA,2019).t+stats('receptivo',EZE,2019).t)*100;
+ if(ok(share))F.push({h:`Córdoba recibe ${nf(share,1)} % de los extranjeros de los tres aeropuertos medidos`,p:`Mendoza recibe ${big(m.t)} (${pct(chg(m.t,stats('receptivo',MZA,2019).t))} frente a 2019) y Ezeiza y Aeroparque ${big(z.t)}. En 2019 la participación de Córdoba era ${nf(share19,1)} %: ${share>share19?'ganó':'perdió'} peso como puerta de entrada.`,a:'s-flow'});
+ $('t-find').textContent=`Lo que dicen los datos de ${y}`;
+ $('find').innerHTML=F.map(f=>`<li><div><h3>${f.h}</h3><p>${f.p} <a href="#${f.a}">Ver gráfico ↓</a></p></div></li>`).join('');
+}
+
+function flowChart(){
+ const rec=showY.map(y=>serY('receptivo',CBA,y,'turistas')),emi=showY.map(y=>serY('emisivo',CBA,y,'turistas'));
+ const i=showY.indexOf(S.y),mx=emi.reduce((a,v,j)=>ok(v)&&v>(emi[a]||0)?j:a,0);
+ $('d-flow').innerHTML=`En ${S.y} salieron <b>${big(emi[i])}</b> residentes y entraron <b>${big(rec[i])}</b> extranjeros. ${mx===i?'Es el máximo de salidas de la serie.':`El máximo de salidas fue en ${showY[mx]} (${big(emi[mx])}).`} Los extranjeros ${rec[i]>=Math.max(...rec.filter(ok))?'están en su máximo':'siguen debajo de su máximo ('+big(Math.max(...rec.filter(ok)))+')'}.`;
+ const c=chart('c-flow');c.clear();
+ const op=y=>y===S.y?1:.5;
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>`<b>${ps[0].axisValue}</b>`+ps.map(x=>`<br>${x.marker}${x.seriesName}: <b>${ok(x.value)?nf(x.value,0):'sin dato'}</b>`).join('')+(ok(ps[0].value)&&ok(ps[1]?.value)?`<br><span style="color:#6f8592">${nf(ps[1].value/ps[0].value,1)} residentes que salen por cada extranjero</span>`:'')},
+  xAxis:{type:'category',data:showY.map(String),...AX},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e3?nf(v/1e3,0)+' mil':v}},
+  series:[{name:'Extranjeros que entran',type:'bar',barGap:'10%',itemStyle:{color:REC},data:rec.map((v,j)=>({value:v,itemStyle:{color:REC,opacity:op(showY[j]),borderRadius:[3,3,0,0]}}))},{name:'Residentes que salen',type:'bar',itemStyle:{color:EMI},data:emi.map((v,j)=>({value:v,itemStyle:{color:EMI,opacity:op(showY[j]),borderRadius:[3,3,0,0]}}))}]});
+ yearClick(c,showY);
+}
+
+function balChart(){
+ const rec=showY.map(y=>spY('receptivo',CBA,y)),emi=showY.map(y=>spY('emisivo',CBA,y)),sal=rec.map((v,i)=>ok(v)&&ok(emi[i])?v-emi[i]:null),i=showY.indexOf(S.y);
+ const worst=sal.reduce((a,v,j)=>ok(v)&&v<(sal[a]??0)?j:a,0);
+ $('d-bal').innerHTML=ok(sal[i])?`En ${S.y}, por cada dólar que dejaron los extranjeros, los residentes gastaron <b>${nf(emi[i]/rec[i],1)} dólares</b> afuera. Saldo: <b class="neg">${usd(sal[i])}</b>${worst===i?', el mayor déficit de la serie':`; el mayor déficit fue en ${showY[worst]} (${usd(sal[worst])})`}. El gasto receptivo incluye todo el viaje por Argentina, no solo en Córdoba.`:'Sin datos de gasto completos para este año.';
+ const c=chart('c-bal');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>`<b>${ps[0].axisValue}</b>`+ps.map(x=>`<br>${x.marker}${x.seriesName}: <b>${ok(x.value)?usd(Math.abs(x.value)):'sin dato'}</b>`).join('')},
+  xAxis:{type:'category',data:showY.map(String),...AX},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>(v<0?'−':'')+nf(Math.abs(v)/1e6,0)+' M'}},
+  series:[{name:'Gasto de extranjeros',type:'bar',stack:'b',itemStyle:{color:REC},data:rec.map((v,j)=>({value:v,itemStyle:{color:REC,opacity:showY[j]===S.y?1:.5}}))},
+   {name:'Gasto de residentes afuera',type:'bar',stack:'b',itemStyle:{color:EMI},data:emi.map((v,j)=>({value:ok(v)?-v:null,itemStyle:{color:EMI,opacity:showY[j]===S.y?1:.5}}))},
+   {name:'Saldo',type:'line',data:sal,symbol:'circle',symbolSize:6,connectNulls:false,lineStyle:{color:'#14293a',width:2},itemStyle:{color:'#14293a'},markLine:{silent:true,symbol:'none',lineStyle:{color:'#14293a',opacity:.3},label:{show:false},data:[{yAxis:0}]}}]});
+ yearClick(c,showY);
+}
+
+function mkChart(){
+ const y=S.y,mk=markets(S.flow,CBA,y),m0=markets(S.flow,CBA,y-1),m19=markets(S.flow,CBA,2019);
+ $('t-mk').textContent=(S.flow==='receptivo'?'Mercados de origen de los extranjeros':'Destinos de los residentes que salen')+' · '+y;
+ if(!mk){$('d-mk').textContent='Sin datos completos de mercados para este año.';chart('c-mk').clear();return;}
+ const rows=Object.entries(mk).map(([k,v])=>({k,v,c0:chg(v,m0?.[k]),c19:chg(v,m19?.[k])})).sort((a,b)=>b.v-a.v),tt=rows.reduce((a,b)=>a+b.v,0);
+ const best=rows.filter(x=>ok(x.c0)).sort((a,b)=>b.c0-a.c0)[0];
+ $('d-mk').innerHTML=`${esc(rows[0].k)} lidera con <b>${nf(rows[0].v/tt*100,0)} %</b>${rows[1]?`, seguido por ${esc(rows[1].k)} (${nf(rows[1].v/tt*100,0)} %)`:''}. ${best?`El que más creció frente a ${y-1}: ${esc(best.k)} (${pct(best.c0,0)}).`:''} Las agrupaciones de países son las que publica la ETI para este paso y sentido.`;
+ const c=chart('c-mk');c.clear();
+ c.setOption({...base,grid:{left:8,right:110,top:6,bottom:6,containLabel:true},
+  tooltip:{...T,formatter:x=>{const r=rows[x.dataIndex];return `<b>${esc(r.k)}</b><br>${nf(r.v,0)} turistas (${nf(r.v/tt*100,1)} %)<br>${pct(r.c0)} frente a ${y-1}${ok(r.c19)?` · ${pct(r.c19)} frente a 2019`:''}<br><span style="color:#6f8592">Tocá para ver su evolución</span>`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:rows.map(r=>r.k),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,width:170,overflow:'truncate'}},
+  series:[{type:'bar',barWidth:'60%',cursor:'pointer',data:rows.map(r=>({value:r.v,itemStyle:{color:S.flow==='receptivo'?REC:EMI,opacity:S.m&&S.m!==r.k?.3:1,borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11,color:'#46606f',formatter:x=>{const r=rows[x.dataIndex];return big(r.v)+(ok(r.c0)?'  '+pct(r.c0,0):'');}}}]});
+ once(c,'click',e=>{const k=rows[e.dataIndex]?.k;if(k)set({m:S.m===k?null:k});});
+}
+
+function mktChart(){
+ const ys=showY.filter(y=>y>=2016);
+ const all=ys.map(y=>markets(S.flow,CBA,y));
+ const names=[...new Set(all.flatMap(o=>o?Object.keys(o):[]))];
+ const pick=S.m&&names.includes(S.m)?[S.m]:names.slice().sort((a,b)=>(all.at(-1)?.[b]||0)-(all.at(-1)?.[a]||0)).slice(0,5);
+ $('t-mkt').textContent=S.m?`${S.m} · turistas por año`:'Principales mercados · turistas por año';
+ if(S.m){const vs=ys.map((y,i)=>[y,all[i]?.[S.m]]).filter(r=>ok(r[1])),mx=vs.reduce((a,b)=>b[1]>a[1]?b:a,vs[0]),cur=all[ys.indexOf(S.y)]?.[S.m];
+  $('d-mkt').innerHTML=vs.length?`En ${S.y}: <b>${big(cur)}</b> turistas. Su mejor año fue ${mx[0]} (${big(mx[1])})${ok(cur)?`; hoy está ${pct(chg(cur,mx[1]))} de ese máximo`:''}.`:'Sin serie para este mercado.';}
+ else $('d-mkt').innerHTML='Los cinco mercados más grandes del último año. Tocá uno en el gráfico de la izquierda para verlo solo.';
+ const pal=['#eb6834','#2a78d6','#6250d6','#00897b','#eda100'];
+ const c=chart('c-mkt');c.clear();
+ c.setOption({...base,grid:{left:8,right:16,top:pick.length>1?48:16,bottom:6,containLabel:true},legend:{show:pick.length>1,top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:4,textStyle:{fontSize:11.5}},
+  tooltip:{...T,trigger:'axis',valueFormatter:v=>ok(v)?nf(v,0):'sin dato'},
+  xAxis:{type:'category',data:ys.map(String),boundaryGap:false,...AX,splitLine:{show:false}},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e3?nf(v/1e3,0)+' mil':v}},
+  series:pick.map((n,i)=>({name:n,type:'line',data:all.map(o=>o?.[n]??null),connectNulls:false,symbol:'circle',symbolSize:6,lineStyle:{width:2.2,color:S.m?(S.flow==='receptivo'?REC:EMI):pal[i]},itemStyle:{color:S.m?(S.flow==='receptivo'?REC:EMI):pal[i]},
+   markLine:i===0?{silent:true,symbol:'none',lineStyle:{color:'#14293a',opacity:.3},label:{show:false},data:[{xAxis:String(S.y)}]}:undefined}))});
+ yearClick(c,ys);
+}
+
+function motChart(){
+ const y=S.y,rows=GW.map(([g,n])=>{const o=motives(S.flow,g,y);const t=o?Object.values(o).reduce((a,b)=>a+b,0):0;return {g,n,o,t};}).filter(r=>r.o&&r.t>0);
+ $('t-mot').textContent=`Motivo del viaje · ${S.flow==='receptivo'?'extranjeros que entran':'residentes que salen'} · ${y}`;
+ const cb=rows.find(r=>r.g===CBA);
+ if(!cb){$('d-mot').textContent='Sin datos de motivos para este año.';chart('c-mot').clear();return;}
+ const sh=(r,m)=>r.o[m]/r.t*100,top=MOT.map(m=>[m,sh(cb,m)]).sort((a,b)=>b[1]-a[1])[0];
+ const neg=cb.o['Negocios/congreso/conferencia']===0;
+ $('d-mot').innerHTML=`En Córdoba el motivo principal es <b>${esc(MOTN[top[0]].toLowerCase())}</b> (${nf(top[1],0)} %). ${rows.filter(r=>r.g!==CBA).map(r=>`${r.n}: ${nf(sh(r,'Vacaciones/ocio/recreación'),0)} % vacaciones`).join(' · ')}.${neg?' Negocios figura en cero en Córdoba: la ETI no publica el dato cuando la muestra es chica.':''}`;
+ const c=chart('c-mot');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:11.5}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>nf(v,1)+' %'},
+  xAxis:{type:'value',max:100,...AX,axisLabel:{...AX.axisLabel,formatter:'{value} %'}},yAxis:{type:'category',inverse:true,data:rows.map(r=>r.n),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,fontWeight:600}},
+  series:MOT.map((m,i)=>({name:MOTN[m],type:'bar',stack:'m',barWidth:'56%',itemStyle:{color:MOTC[i],borderColor:'#fff',borderWidth:1},data:rows.map(r=>sh(r,m)),label:{show:true,fontSize:11,color:i===3?'#14293a':'#fff',formatter:p=>p.value>=8?nf(p.value,0)+' %':''}}))});
+}
+
+function spChart(){
+ const pts=[];for(const [g,n,col] of GW)for(const y of YEARS){const s=stats(S.flow,g,y);if(ok(s.stay)&&ok(s.daily))pts.push({g,n,col,y,stay:s.stay,daily:s.daily,t:s.t});}
+ const cur=pts.filter(p=>p.y===S.y),cb=cur.find(p=>p.g===CBA);
+ $('t-sp').textContent=`Estadía y gasto diario · ${S.flow==='receptivo'?'extranjeros':'residentes que salen'}`;
+ $('d-sp').innerHTML=cb?`En ${S.y}, Córdoba: <b>${nf(cb.stay,1)} noches</b> y <b>USD ${nf(cb.daily,0)} por día</b>. ${cur.filter(p=>p.g!==CBA).map(p=>`${p.n}: ${nf(p.stay,1)} noches y USD ${nf(p.daily,0)}`).join(' · ')}. Más a la derecha, estadías más largas; más arriba, más gasto por día.`:'Sin datos de gasto para este año.';
+ const c=chart('c-sp');c.clear();
+ c.setOption({...base,grid:{left:50,right:24,top:30,bottom:44},legend:{top:0,left:0,icon:'circle',itemWidth:10,itemHeight:10,textStyle:{fontSize:12},data:GW.map(g=>g[1])},
+  tooltip:{...T,formatter:x=>{const p=x.data.p;return p?`<b>${esc(p.n)} · ${p.y}</b><br>${nf(p.stay,1)} noches · USD ${nf(p.daily,0)} por día<br>${nf(p.t,0)} turistas`:'';}},
+  xAxis:{type:'value',name:'Noches por turista',nameLocation:'middle',nameGap:28,nameTextStyle:{color:'#46606f',fontSize:12},...AX,scale:true},
+  yAxis:{type:'value',name:'USD por día',nameTextStyle:{color:'#46606f',fontSize:12,align:'left'},...AX,axisLine:{show:false},scale:true},
+  series:[...GW.map(([g,n,col])=>({name:n,type:'scatter',data:pts.filter(p=>p.g===g).map(p=>({value:[p.stay,p.daily],p,symbolSize:p.y===S.y?16:8,itemStyle:{color:col,opacity:p.y===S.y?1:.35,borderColor:'#fff',borderWidth:p.y===S.y?2:1}})),
+   label:{show:true,position:'right',fontSize:11,color:'#14293a',formatter:x=>x.data.p.y===S.y?n:''}})),
+   {name:'Trayectoria de Córdoba',type:'line',silent:true,data:pts.filter(p=>p.g===CBA).map(p=>[p.stay,p.daily]),symbol:'none',lineStyle:{color:'#00897b',width:1,type:[3,3],opacity:.6}}]});
+ once(c,'click',e=>{const p=e.data?.p;if(p&&YEARS.includes(p.y))set({y:p.y});});
+}
+
+function qChart(){
+ const ys=showY.filter(y=>y>=2016),data=[];
+ ys.forEach((y,yi)=>Q.forEach((q,qi)=>{const r=IDX[S.flow+'|'+CBA+'|'+y+'-'+q];data.push({value:[qi,yi,ok(r?.turistas)?r.turistas:null],y});}));
+ const cur=Q.map(q=>IDX[S.flow+'|'+CBA+'|'+S.y+'-'+q]?.turistas),vals=data.map(d=>d.value[2]).filter(ok);
+ const hi=cur.indexOf(Math.max(...cur.filter(ok))),lo=cur.indexOf(Math.min(...cur.filter(ok)));
+ $('t-q').textContent=`Trimestres · ${S.flow==='receptivo'?'extranjeros que entran':'residentes que salen'}`;
+ $('d-q').innerHTML=cur.every(ok)?`En ${S.y}, el trimestre más fuerte fue el <b>${hi+1}º</b> (${big(cur[hi])}) y el más flojo, el ${lo+1}º (${big(cur[lo])}). Con muestras chicas, un trimestre aislado puede variar mucho: conviene leer el año completo.`:'';
+ const c=chart('c-q');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:6,bottom:44,containLabel:true},
+  tooltip:{...T,formatter:p=>`<b>${p.data.value[0]+1}º trimestre ${p.data.y}</b><br>${ok(p.data.value[2])?nf(p.data.value[2],0)+' turistas':'sin dato'}`},
+  xAxis:{type:'category',data:['1º trim. (ene–mar)','2º trim. (abr–jun)','3º trim. (jul–sep)','4º trim. (oct–dic)'],...AX,axisLine:{show:false}},
+  yAxis:{type:'category',data:ys.map(String),inverse:true,...AX,axisLine:{show:false},triggerEvent:true,axisLabel:{...AX.axisLabel,color:'#14293a',fontWeight:600,formatter:v=>+v===S.y?'{b|'+v+'}':v,rich:{b:{color:'#00695f',fontWeight:700}}}},
+  visualMap:{min:Math.min(...vals),max:Math.max(...vals),orient:'horizontal',left:'center',bottom:0,itemHeight:200,itemWidth:12,text:['más','menos'],textStyle:{fontSize:11,color:'#6f8592'},inRange:{color:S.flow==='receptivo'?['#fdf0e9','#f5b79a','#eb6834','#a8441c']:['#eef4fb','#b5d4f4','#5598e7','#1c5cab']},formatter:v=>big(v)},
+  series:[{type:'heatmap',data:data.map(d=>({...d,itemStyle:{borderColor:d.y===S.y?'#14293a':'#fff',borderWidth:d.y===S.y?1.2:2}})),label:{show:true,fontSize:10.5,formatter:p=>ok(p.data.value[2])?big(p.data.value[2]):''}}]});
+ once(c,'click',e=>{const y=e.componentType==='yAxis'?+e.value:e.data?.y;if(YEARS.includes(y))set({y});});
+}
+
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#s-"]');if(a){e.preventDefault();go($(a.getAttribute('href').slice(1)));return;}
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.y){set({y:+b.dataset.y});return;}
+ if(b.dataset.flow){set({flow:b.dataset.flow,m:null});return;}
+ if(b.dataset.clear){set({[b.dataset.clear]:null});return;}
+});
+window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
+if(EMBED){let last=0;const tell=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height)+4;if(Math.abs(h-last)>2){last=h;post({type:'height',h});}};
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(tell).observe(document.body);window.addEventListener('load',tell);setTimeout(tell,300);}
+if(!D||!window.echarts){$('find').innerHTML='<li><div><h3>Falta un archivo del tablero</h3><p>Abrí el paquete completo.</p></div></li>';}else render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alojamiento en Córdoba</title>
+<meta name="description" content="Oferta, ocupación y demanda hotelera de Córdoba por tipo de alojamiento, con lecturas que cruzan padrón, encuesta hotelera, vuelos y turismo interno.">
+<script>try{if(window.parent!==window)document.documentElement.classList.add('embed');}catch(_){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="panorama.css">
+</head>
+<body>
+<header class="top"><div class="in">
+ <nav class="crumbs" aria-label="Ruta"><a href="index.html">Inteligencia turística</a> / <a href="index.html">Hotelería</a> / Alojamiento por tipo</nav>
+ <div class="hero">
+  <div><p class="eyebrow">Alojamiento en Córdoba</p><h1>Qué tipo de alojamiento hay, cuál se llena y cuál depende del verano</h1>
+  <p class="hero-sub">Cruza el padrón de alojamiento (oferta), la Encuesta de Ocupación Hotelera (ocupación y demanda), los vuelos y el turismo interno. Elegí un tipo de alojamiento o tocá cualquier gráfico: el resto de la página se acomoda.</p></div>
+  <div class="years"><span>Año analizado</span><div class="ychips" id="years" role="group" aria-label="Año analizado"></div></div>
+ </div>
+</div></header>
+
+<div class="bar"><div class="in"><p class="intro">Cruza el padrón de alojamiento, la Encuesta de Ocupación Hotelera, los vuelos y el turismo interno. Elegí un tipo de alojamiento y un año, o tocá cualquier gráfico: el resto se acomoda.</p></div><div class="in" id="cats" role="group" aria-label="Tipo de alojamiento"></div></div>
+
+<main class="in">
+ <section aria-labelledby="t-k" style="margin-bottom:18px"><h2 id="t-k" class="sr"></h2><div class="kpis" id="kpis"></div><div class="focus" id="focus" hidden></div></section>
+ <section class="card" aria-labelledby="t-find" style="margin-bottom:18px"><p class="q">Radiografía</p><h2 id="t-find"></h2><ol class="find" id="find"></ol></section>
+
+ <section class="card" id="s-map" aria-labelledby="t-map" style="margin-bottom:18px">
+  <p class="q">Oferta × ocupación</p><h2 id="t-map">Mapa de categorías: cuánto pesa cada una y cuánto se llena</h2><p class="desc" id="d-map"></p>
+  <p class="how">Cada burbuja es una categoría: más a la derecha, más plazas; más arriba, más ocupada; más grande, más diferencia entre el mes pico y el valle. Las grises punteadas son Argentina. Tocá una para enfocar toda la página.</p>
+  <div class="chart l" id="c-map" role="img"></div>
+  <div class="foot"><span>Plazas: Padrón Único Nacional de Alojamiento (PUNA), foto 2021</span><span>Ocupación: EOH · INDEC, promedio de los 12 meses del año</span></div>
+ </section>
+
+ <div class="grid g21">
+  <section class="card" id="s-cal" aria-labelledby="t-cal"><p class="q">¿Cuándo?</p><h2 id="t-cal"></h2><p class="desc" id="d-cal"></p>
+   <p class="how">Tocá una fila para enfocar esa categoría</p><div class="chart" id="c-cal" role="img"></div></section>
+  <section class="card" id="s-gap" aria-labelledby="t-gap"><p class="q">¿Frente a quién?</p><h2 id="t-gap">Córdoba frente al país y frente a 2019</h2><p class="desc" id="d-gap"></p>
+   <p class="how">Puntos de ocupación de diferencia; a la izquierda, peor</p><div class="chart" id="c-gap" role="img"></div></section>
+ </div>
+
+ <div class="grid g2">
+  <section class="card" id="s-trend" aria-labelledby="t-trend"><p class="q">¿Cómo viene?</p><h2 id="t-trend"></h2><p class="desc" id="d-trend"></p>
+   <p class="how">Línea llena: Córdoba · punteada: Argentina · tocá un año para analizarlo</p><div class="chart" id="c-trend" role="img"></div></section>
+  <section class="card" id="s-reg" aria-labelledby="t-reg"><p class="q">¿Es mucho o poco?</p><h2 id="t-reg"></h2><p class="desc" id="d-reg"></p>
+   <p class="how">Misma categoría y año en las siete regiones de la encuesta</p><div class="chart" id="c-reg" role="img"></div></section>
+ </div>
+
+ <section class="card" id="s-loc" aria-labelledby="t-loc" style="margin-bottom:18px">
+  <p class="q">¿Dónde?</p><h2 id="t-loc">Qué tipo de alojamiento tiene cada destino de Córdoba</h2><p class="desc" id="d-loc"></p>
+  <p class="how">Tocá un destino relevado por la encuesta (marcado con ●) para ver su demanda abajo</p>
+  <div class="legend" id="lg-loc"></div>
+  <div class="chart l" id="c-loc" role="img"></div>
+  <div class="foot"><span>Padrón Único Nacional de Alojamiento (PUNA) · foto 2021 · los 16 destinos con más plazas</span></div>
+ </section>
+
+ <div class="grid g2">
+  <section class="card" id="s-dest" aria-labelledby="t-dest"><p class="q">La demanda del destino</p><h2 id="t-dest"></h2><p class="desc" id="d-dest"></p>
+   <p class="how">Noches por mes del año elegido (barras) y del anterior (línea)</p><div class="chart" id="c-dest" role="img"></div></section>
+  <section class="card" id="s-ctx" aria-labelledby="t-ctx"><p class="q">En contexto</p><h2 id="t-ctx">Hoteles, aviones y país, en una misma escala</h2><p class="desc" id="d-ctx"></p>
+   <p class="how">Índice: 2019 = 100 · tocá un año para analizarlo</p><div class="chart" id="c-ctx" role="img"></div></section>
+ </div>
+
+ <section class="card" id="s-air" aria-labelledby="t-air" style="margin-bottom:18px">
+  <p class="q">Aire y hotel</p><h2 id="t-air">Quién llega en avión y quién termina en un hotel</h2><p class="desc" id="d-air"></p>
+  <p class="how">Barras: pasajeros internacionales que aterrizan en Córdoba, separados entre turistas extranjeros (ETI) y el resto · línea: viajeros del exterior en hoteles de Córdoba (EOH) · tocá un trimestre para elegir su año</p>
+  <div class="chart" id="c-air" role="img"></div>
+  <div class="foot"><span>ANAC · llegadas internacionales al aeropuerto de Córdoba</span><span>INDEC · ETI: turistas no residentes que entran por el aeropuerto de Córdoba (receptivo)</span><span>INDEC · EOH: viajeros no residentes en hoteles y parahoteles de Córdoba</span></div>
+ </section>
+
+ <div class="grid g2">
+  <section class="card" id="s-airseas" aria-labelledby="t-airseas"><p class="q">Cabotaje y residentes</p><h2 id="t-airseas"></h2><p class="desc" id="d-airseas"></p>
+   <p class="how">Peso de cada mes en el total del año: compara la forma, no el volumen</p><div class="chart" id="c-airseas" role="img"></div></section>
+  <section class="card" id="s-airyoy" aria-labelledby="t-airyoy"><p class="q">¿Se mueven juntos?</p><h2 id="t-airyoy">Variación interanual, mes a mes</h2><p class="desc" id="d-airyoy"></p>
+   <p class="how">Mismo mes del año anterior = 0 · tocá un mes para elegir su año</p><div class="chart" id="c-airyoy" role="img"></div></section>
+ </div>
+
+ <section class="card" id="s-orig" aria-labelledby="t-orig" style="margin-bottom:18px">
+  <p class="q">¿De dónde vuelan?</p><h2 id="t-orig"></h2><p class="desc" id="d-orig"></p>
+  <div class="legend"><span><i style="background:#2a78d6"></i>Origen en Argentina (cabotaje)</span><span><i style="background:#eb6834"></i>Origen en el exterior (internacional)</span></div>
+  <div class="chart l" id="c-orig" role="img"></div>
+  <div class="foot"><span>ANAC · pasajeros en vuelos con destino al aeropuerto de Córdoba, por aeropuerto de origen</span><span>Origen del vuelo, no residencia del pasajero: quien vuela desde Buenos Aires puede vivir en cualquier provincia</span></div>
+ </section>
+
+ <div class="grid g2">
+  <section class="card" id="s-evy" aria-labelledby="t-evy"><p class="q">Más allá de la hotelería</p><h2 id="t-evy">Turistas que llegan y viajeros que se alojan en hoteles</h2><p class="desc" id="d-evy"></p>
+   <div class="chart s" id="c-evy" role="img"></div>
+   <p class="warn">Orden de magnitud, no una tasa: la EVyTH cuenta turistas residentes de los grandes aglomerados urbanos y la EOH cuenta viajeros registrados en hoteles y parahoteles. Un mismo turista puede registrarse en más de un hotel.</p></section>
+  <section class="card" id="s-cap" aria-labelledby="t-cap"><p class="q">Córdoba capital</p><h2 id="t-cap">Ocupación por estrellas en la ciudad</h2><p class="desc" id="d-cap"></p>
+   <div class="qchips" id="quarters" role="group" aria-label="Trimestre"></div><div class="chart s" id="c-cap" role="img"></div>
+   <div class="foot"><span>Observatorio Turístico · Municipalidad de Córdoba · reportes trimestrales</span></div></section>
+ </div>
+</main>
+<footer class="in">Fuentes: INDEC (EOH, EVyTH), Turismo de la Nación (PUNA), ANAC, Municipalidad de Córdoba. Los meses recientes son provisorios. Sin dato no es cero: los faltantes no se imputan. <span class="back">· <a href="index.html">Volver al tablero completo</a></span></footer>
+
+<script src="vendor/echarts-6.0.0.min.js"></script>
+<script>(function(){var p=null;try{if(window.parent!==window&&window.parent.DASHBOARD_DATA&&window.parent.PUNA_DATA)p=window.parent;}catch(_){}
+if(p){window.DASHBOARD_DATA=p.DASHBOARD_DATA;window.PUNA_DATA=p.PUNA_DATA;window.HOTEL_DATA=p.HOTEL_DATA;}
+else document.write('<script src="data/dashboard.js"><\/script><script src="data/puna.js"><\/script><script src="data/hotel.js"><\/script>');})();</script>
+<script>
+(function(){
+'use strict';
+const D=window.DASHBOARD_DATA,P=window.PUNA_DATA,OBS=window.HOTEL_DATA?.observatory;
+const $=id=>document.getElementById(id);
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EMBED=document.documentElement.classList.contains('embed');
+const post=msg=>{try{window.parent.postMessage({src:'aloj',...msg},'*');}catch(_){}};
+// Desplazamiento: dentro del tablero lo hace la página que lo contiene.
+function go(el){if(!el)return;if(EMBED)post({type:'scroll',top:el.getBoundingClientRect().top+window.scrollY});else el.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});}
+const MONTHS=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+// Categorías de la EOH y su equivalencia en clases del padrón (PUNA).
+const CATS=[
+ {id:'c12',eoh:'1 y 2 estrellas',name:'1 y 2 estrellas',short:'1 y 2 ★',color:'#2a78d6',puna:['Hotel 1 estrella','Hotel 2 estrellas']},
+ {id:'c3',eoh:'3 estrellas/boutiques/aparts',name:'3 estrellas, boutique y apart',short:'3 ★, boutique, apart',color:'#eb6834',puna:['Hotel 3 estrellas','Hotel boutique','Apart hotel']},
+ {id:'c45',eoh:'4 y 5 estrellas',name:'4 y 5 estrellas',short:'4 y 5 ★',color:'#6250d6',puna:['Hotel 4 estrellas','Hotel 5 estrellas']},
+ {id:'para',eoh:'Para Hoteles',name:'Parahoteles',short:'Parahoteles',color:'#00897b',puna:null}
+];
+const EXTRA=[{id:'sind',name:'Sindical, mutual y sin categoría',color:'#eda100'},{id:'otros',name:'Otros colectivos (conjuntos de unidades, campings…)',color:'#cfdbe2'}];
+const GROUPS=[...CATS,...EXTRA];
+const catOf=id=>CATS.find(c=>c.id===id);
+const ok=v=>typeof v==='number'&&isFinite(v);
+const nf=(x,d=0)=>ok(x)?x.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d}):'sin dato';
+const big=x=>!ok(x)?'sin dato':Math.abs(x)>=1e6?nf(x/1e6,2)+' M':Math.abs(x)>=1e4?nf(x/1e3,0)+' mil':nf(x,0);
+const pct=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' %':'sin dato';
+const pp=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' pp':'sin dato';
+const cls=x=>ok(x)?(x<0?'neg':'pos'):'';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const chg=(a,b)=>ok(a)&&ok(b)&&b!==0?(a/b-1)*100:null;
+const lc=s=>s.charAt(0).toLowerCase()+s.slice(1),cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+// ---------- Ocupación EOH por categoría (plazas)
+const OCC=new Map();for(const r of D.eoh.occupancy)if(r.metric==='plazas'&&ok(r.value))OCC.set(r.scope+'|'+r.category+'|'+r.period,r.value);
+const occM=(s,c,p)=>OCC.get(s+'|'+c+'|'+p)??null;
+const ym=(y,m)=>y+'-'+String(m+1).padStart(2,'0');
+// Promedio simple de los 12 meses publicados; si falta uno, el año queda sin dato.
+function occY(s,c,y){let t=0;for(let m=0;m<12;m++){const v=occM(s,c,ym(y,m));if(v===null)return null;t+=v;}return t/12;}
+function peakValley(s,c,y){const xs=[];for(let m=0;m<12;m++){const v=occM(s,c,ym(y,m));if(v===null)return null;xs.push([m,v]);}const hi=xs.reduce((a,b)=>b[1]>a[1]?b:a),lo=xs.reduce((a,b)=>b[1]<a[1]?b:a);return {hi,lo,ratio:lo[1]>0?hi[1]/lo[1]:null};}
+const REGIONS=['Buenos Aires','CABA','Cuyo','Córdoba','Litoral','Norte','Patagonia'];
+
+// ---------- Demanda EOH (sin categoría)
+const DEM={};for(const [k,rows] of Object.entries(D.eoh.scopes))DEM[k]=new Map(rows.map(r=>[r.period,r]));
+function demY(k,y,f){const m=DEM[k];if(!m)return null;let t=0;for(let i=0;i<12;i++){const r=m.get(ym(y,i));if(!r||!ok(r[f]))return null;t+=r[f];}return t;}
+const demM=(k,p,f)=>{const r=DEM[k]?.get(p);return r&&ok(r[f])?r[f]:null;};
+const LATEST=D.eoh.scopes['Córdoba'].at(-1).period;
+const YEARS=[];for(let y=2017;y<=+LATEST.slice(0,4);y++)if(occY('Córdoba','Total',y)!==null&&demY('Córdoba',y,'pernoctes')!==null)YEARS.push(y);
+
+// ---------- Vuelos y turismo interno
+const AIR={};for(const r of D.air.monthly)if(r.scope==='SACO'&&r.direction==='llegadas'&&ok(r.pasajeros))AIR[r.period]=(AIR[r.period]||0)+r.pasajeros;
+function airY(y){let t=0;for(let m=0;m<12;m++){const v=AIR[ym(y,m)];if(!ok(v))return null;t+=v;}return t;}
+const EVY=new Map((D.internal.scopes['Córdoba']||[]).map(r=>[r.period,r]));
+const AIRK={};for(const r of D.air.monthly)if(r.scope==='SACO'&&r.direction==='llegadas'&&ok(r.pasajeros)){(AIRK[r.period]=AIRK[r.period]||{})[r.kind]=r.pasajeros;}
+const airK=(p,k)=>AIRK[p]?.[k]??null;
+function airKY(y,k){let t=0;for(let m=0;m<12;m++){const v=airK(ym(y,m),k);if(!ok(v))return null;t+=v;}return t;}
+const ETI={};for(const r of D.international.series)if(r.gateway==='Aep. Córdoba')(ETI[r.flow]=ETI[r.flow]||{})[r.period]=r;
+const qMonths=p=>[0,1,2].map(i=>p.slice(0,4)+'-'+String(+p.slice(5,7)+i).padStart(2,'0'));
+function sumMonths(ms,f){let t=0;for(const m of ms){const v=f(m);if(!ok(v))return null;t+=v;}return t;}
+const RC=Object.fromEntries(D.air.route_columns.map((c,i)=>[c,i]));
+function origins(y){const o={};for(const r of D.air.route_rows){if(r[RC.destination]!=='SACO'||!String(r[RC.period]).startsWith(String(y)))continue;const a=D.air.airports[r[RC.origin]];if(!a)continue;const k=a.domestic?(a.city||r[RC.origin]):(a.country||a.city);const key=(a.domestic?'d|':'i|')+k;o[key]=(o[key]||0)+(r[RC.pasajeros]||0);}return Object.entries(o).map(([k,v])=>({dom:k.startsWith('d|'),name:k.slice(2),v})).sort((a,b)=>b.v-a.v);}
+
+// ---------- Padrón (PUNA): plazas por grupo y destino
+const ci=Object.fromEntries(P.columns.map((c,i)=>[c,i]));
+const CBA_PROV=P.provinces.findIndex(p=>p.name==='Córdoba');
+function groupOf(cls){const c=P.classes[cls];const g=CATS.find(x=>x.puna?.includes(c.name));if(g)return g.id;const t=P.types[c.type];if(t==='Parahoteleros')return 'para';if(t==='Hoteleros')return 'sind';return 'otros';}
+const SUP={cba:{},ar:{},byLoc:{},classes:{}};
+for(const r of P.rows){
+ const loc=P.localities[r[ci.locality]],g=groupOf(r[ci.class]),pl=r[ci.plazas]||0,es=r[ci.establecimientos]||0;
+ const add=(o,k)=>{o[k]=o[k]||{pl:0,es:0};o[k].pl+=pl;o[k].es+=es;};
+ add(SUP.ar,g);
+ if(loc[0]===CBA_PROV){add(SUP.cba,g);const L=SUP.byLoc[r[ci.locality]]=SUP.byLoc[r[ci.locality]]||{};add(L,g);add(SUP.classes,P.classes[r[ci.class]].name);}
+}
+const tot=o=>Object.values(o).reduce((a,b)=>a+b.pl,0);
+const EOH_LOC=Object.fromEntries(Object.entries(P.eoh_localities||{}).map(([k,v])=>[v,k]));
+const shareSup=(o,g)=>o[g]?o[g].pl/tot(o)*100:0;
+
+// ---------- estado (en la URL, para compartir la vista)
+const DEFY=YEARS.at(-1);
+let S={y:DEFY,cat:null,loc:'Córdoba',q:OBS?.reports?.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id};
+try{const raw=EMBED?(window.frameElement?.dataset?.state||''):decodeURIComponent(location.hash.slice(1));const h=JSON.parse(raw||'{}');S={...S,...h};}catch(_){}
+S.y=+S.y;if(!YEARS.includes(S.y))S.y=DEFY;if(S.cat&&!catOf(S.cat))S.cat=null;if(S.loc!=='Córdoba'&&!DEM[S.loc])S.loc='Córdoba';
+let firstSave=true;
+const save=()=>{if(EMBED){if(firstSave){firstSave=false;return;}post({type:'state',state:JSON.stringify(S)});return;}try{history.replaceState(null,'','#'+encodeURIComponent(JSON.stringify(S)));}catch(_){}};
+const set=p=>{Object.assign(S,p);render();};
+const C=()=>catOf(S.cat);
+const eohCat=()=>C()?.eoh||'Total';
+
+// ---------- gráficos
+const charts={};
+const chart=id=>charts[id]||(charts[id]=echarts.init($(id),null,{renderer:'canvas'}));
+const once=(c,ev,fn)=>{c.off(ev);c.on(ev,fn);};
+const T={confine:true,backgroundColor:'#fff',borderColor:'#e1e8ed',padding:[8,12],textStyle:{color:'#14293a',fontSize:12},extraCssText:'box-shadow:0 6px 20px rgba(16,44,65,.12);border-radius:10px'};
+const AX={axisLine:{lineStyle:{color:'#d5dee4'}},axisTick:{show:false},axisLabel:{color:'#6f8592',fontSize:11},splitLine:{lineStyle:{color:'#eef2f5'}}};
+const base={animation:!REDUCED,animationDuration:300,textStyle:{fontFamily:'Inter, system-ui, sans-serif'}};
+const dim=id=>S.cat&&S.cat!==id?.25:1;
+// Clic en el área de un gráfico de años: elige el año más cercano al cursor.
+function yearClick(c,ys){c.getZr().off('click');c.getZr().on('click',e=>{const pt=[e.offsetX,e.offsetY];if(!c.containPixel('grid',pt))return;const i=Math.round(c.convertFromPixel({xAxisIndex:0},pt[0]));const y=ys[i];if(YEARS.includes(y)&&y!==S.y)set({y});});}
+
+function render(){
+ save();
+ $('years').innerHTML=YEARS.slice(-6).map(y=>`<button class="ychip" data-y="${y}" aria-pressed="${y===S.y}">${y}</button>`).join('');
+ $('cats').innerHTML='<span class="bar-l">Tipo de alojamiento</span>'+`<button class="cat" data-cat="" aria-pressed="${!S.cat}">Todos</button>`+CATS.map(c=>`<button class="cat" data-cat="${c.id}" aria-pressed="${S.cat===c.id}"><i style="background:${c.color}"></i>${esc(c.name)}</button>`).join('')+'<span class="hint">Los tipos y los años también se eligen tocando los gráficos</span>'+(EMBED?`<div class="ychips" role="group" aria-label="Año analizado">${YEARS.slice(-6).map(y=>`<button class="ychip" data-y="${y}" aria-pressed="${y===S.y}">${y}</button>`).join('')}</div>`:'');
+ findings();kpis();mapChart();calChart();gapChart();trendChart();regChart();locChart();destChart();ctxChart();airMixChart();airSeasChart();airYoyChart();origChart();evyChart();capChart();
+}
+
+// ---------- Radiografía: lecturas que cruzan variables
+function findings(){
+ const y=S.y,F=[];
+ // 1. Perfil de oferta (padrón)
+ const cl=Object.entries(SUP.classes).sort((a,b)=>b[1].pl-a[1].pl),allPl=tot(SUP.cba),top=cl[0];
+ const s45=shareSup(SUP.cba,'c45'),s45ar=shareSup(SUP.ar,'c45'),sSind=shareSup(SUP.cba,'sind'),sSindAr=shareSup(SUP.ar,'sind');
+ F.push({h:`La clase de alojamiento más grande es «${lc(top[0])}», no un hotel con estrellas`,p:`Tiene <b>${nf(top[1].pl/allPl*100,1)} %</b> de las ${big(allPl)} plazas de la provincia. Sindicales, mutuales y hoteles sin categoría suman ${nf(sSind,1)} % (en el país, ${nf(sSindAr,1)} %); los 4 y 5 estrellas son apenas <b>${nf(s45,1)} %</b> (país: ${nf(s45ar,1)} %).`,a:'s-loc'});
+ // 2. Escasez × ocupación (padrón × EOH)
+ const rows=CATS.map(c=>({c,o:occY('Córdoba',c.eoh,y),s:shareSup(SUP.cba,c.id),pv:peakValley('Córdoba',c.eoh,y)})).filter(r=>ok(r.o));
+ if(rows.length){const hi=rows.reduce((a,b)=>b.o>a.o?b:a),lo=rows.reduce((a,b)=>b.o<a.o?b:a);
+  F.push({h:hi.s<lo.s?'Lo que menos abunda es lo que más se llena':'La categoría más grande también es la más ocupada',p:`En ${y}, <b>${esc(hi.c.name)}</b> tuvo la mayor ocupación (<b>${nf(hi.o,1)} %</b>) con ${nf(hi.s,1)} % de las plazas. ${esc(lo.c.name)}, con ${nf(lo.s,1)} % de las plazas, quedó en ${nf(lo.o,1)} %.`,a:'s-map'});
+  // 3. Estacionalidad por categoría
+  const pvs=rows.filter(r=>r.pv&&ok(r.pv.ratio)).sort((a,b)=>b.pv.ratio-a.pv.ratio);
+  if(pvs.length>1){const m=pvs[0],l=pvs.at(-1);F.push({h:`${m.c.name}: la categoría que más depende de la temporada`,p:`Su ocupación va de <b>${nf(m.pv.hi[1],0)} % en ${MONTHS[m.pv.hi[0]]}</b> a ${nf(m.pv.lo[1],0)} % en ${MONTHS[m.pv.lo[0]]} (${nf(m.pv.ratio,1)} veces). En ${esc(lc(l.c.name))} la diferencia es de solo ${nf(l.pv.ratio,1)} veces${l.c.id==='c45'?': su demanda no depende del verano, lo que sugiere viajes de trabajo y eventos':''}.`,a:'s-cal'});}
+ }
+ // 4. Recuperación frente a 2019
+ const rec=CATS.map(c=>{const a=occY('Córdoba',c.eoh,y),b=occY('Córdoba',c.eoh,2019);return {c,d:ok(a)&&ok(b)?a-b:null};}).filter(r=>ok(r.d));
+ const n=demY('Córdoba',y,'pernoctes'),n19=demY('Córdoba',2019,'pernoctes'),a=demY('Argentina',y,'pernoctes'),a19=demY('Argentina',2019,'pernoctes');
+ if(rec.length&&y!==2019){const worst=rec.reduce((p,q)=>q.d<p.d?q:p),up=rec.filter(r=>r.d>0);
+  F.push({h:up.length?`Solo ${up.map(r=>lc(r.c.name)).join(' y ')} ${up.length>1?'superan':'supera'} la ocupación de 2019`:'Ninguna categoría recuperó la ocupación de 2019',p:`${esc(worst.c.name)} es la que más perdió: <b class="neg">${pp(worst.d)}</b>. En noches, Córdoba está <b class="${cls(chg(n,n19))}">${pct(chg(n,n19))}</b> frente a 2019 y el país, ${pct(chg(a,a19))}.`,a:'s-gap'});}
+ // 5. Brecha con el país
+ const gap=CATS.map(c=>{const x=occY('Córdoba',c.eoh,y),z=occY('Argentina',c.eoh,y);return {c,d:ok(x)&&ok(z)?x-z:null};}).filter(r=>ok(r.d));
+ if(gap.length){const below=gap.filter(r=>r.d<-0.5),above=gap.filter(r=>r.d>0.5);
+  F.push({h:below.length>above.length?'Córdoba se llena menos que el país en casi todas las categorías':'Córdoba está a la par o por encima del país',p:(below.length?`Por debajo: ${below.map(r=>`${esc(lc(r.c.name))} (<span class="neg">${pp(r.d)}</span>)`).join(', ')}. `:'')+(above.length?`Por encima: ${above.map(r=>`${esc(lc(r.c.name))} (<span class="pos">${pp(r.d)}</span>)`).join(', ')}.`:''),a:'s-gap'});}
+ // 6. Vuelos × noches
+ const ai=airY(y),ai19=airY(2019);
+ if(ok(ai)&&ok(ai19)&&ok(n)&&y!==2019){const air=chg(ai,ai19),ht=chg(n,n19);F.push({h:Math.abs(air)>Math.abs(ht)?'Los vuelos cayeron más que las noches de hotel':'Las noches de hotel cayeron más que los vuelos',p:`Frente a 2019, los pasajeros que llegaron al aeropuerto de Córdoba variaron <b class="${cls(air)}">${pct(air)}</b> y las noches hoteleras, ${pct(ht)}. ${Math.abs(air)>Math.abs(ht)?'La hotelería depende sobre todo de quienes llegan por tierra.':'La caída hotelera no se explica solo por la conectividad aérea.'}`,a:'s-ctx'});}
+ // 6b. Origen internacional de los vuelos × extranjeros en hoteles
+ const mix=airMixYear(y);
+ if(mix&&mix.prev){const ai=chg(mix.air,mix.prev.air),re=chg(mix.rec,mix.prev.rec),ho=chg(mix.hotel,mix.prev.hotel);
+  F.push({h:ai>15&&(!ok(re)||re<ai/2)?'Más vuelos internacionales no significa más extranjeros en los hoteles':'Vuelos internacionales y extranjeros en hoteles',p:`En ${y}, los pasajeros internacionales que aterrizaron en Córdoba variaron <b class="${cls(ai)}">${pct(ai)}</b>; los turistas extranjeros que entraron por el aeropuerto, ${pct(re)}, y los viajeros del exterior en hoteles, <b class="${cls(ho)}">${pct(ho)}</b>. Solo <b>${nf(mix.rec/mix.air*100,0)} de cada 100</b> pasajeros internacionales que llegan son turistas extranjeros: el resto son, sobre todo, residentes que vuelven de viaje.`,a:'s-air'});}
+ // 7. Residencia × estadía
+ const pr=demY('Córdoba',y,'pernoctes_residentes'),vr=demY('Córdoba',y,'viajeros_residentes'),px=demY('Córdoba',y,'pernoctes_no_residentes'),vx=demY('Córdoba',y,'viajeros_no_residentes'),v=demY('Córdoba',y,'viajeros');
+ if(ok(pr)&&ok(px)&&ok(vx)&&vx>0)F.push({h:px/vx<pr/vr?'Quienes vienen del exterior son pocos y se quedan menos':'Quienes vienen del exterior son pocos pero se quedan más',p:`Son el <b>${nf(vx/v*100,1)} %</b> de los viajeros. Se quedan <b>${nf(px/vx,1)} noches</b> en promedio, contra ${nf(pr/vr,1)} de los residentes en Argentina.`,a:'s-dest'});
+ // 8. Turismo interno × hotelería
+ const q=evyQ(y);if(q)F.push({h:'Una parte grande del turismo no pasa por hoteles registrados',p:`En el ${q.label} llegaron <b>${big(q.t)} turistas</b> residentes a Córdoba (EVyTH) y los hoteles registraron ${big(q.v)} viajeros residentes: <b>${nf(q.v/q.t*100,0)} por cada 100</b>, como orden de magnitud. El resto usa segundas residencias, casas de familiares o alquileres temporarios.`,a:'s-evy'});
+ $('t-find').textContent=`Lo que dicen los datos de ${y}`;
+ $('find').innerHTML=F.map(f=>`<li><div><h3>${f.h}</h3><p>${f.p} <a href="#${f.a}">Ver gráfico ↓</a></p></div></li>`).join('');
+}
+function evyQ(y){for(const [m,l] of [['01','primer trimestre'],['07','tercer trimestre']]){const r=EVY.get(y+'-'+m);if(!r||!ok(r.turistas))continue;let v=0;for(let i=0;i<3;i++){const z=demM('Córdoba',y+'-'+String(+m+i).padStart(2,'0'),'viajeros_residentes');if(!ok(z)){v=null;break;}v+=z;}if(ok(v))return {t:r.turistas,v,label:l+' de '+y};}return null;}
+
+function kpis(){
+ const y=S.y,c=eohCat();
+ const o=occY('Córdoba',c,y),o0=occY('Córdoba',c,y-1),o19=occY('Córdoba',c,2019),oa=occY('Argentina',c,y);
+ const n=demY('Córdoba',y,'pernoctes'),n0=demY('Córdoba',y-1,'pernoctes'),n19=demY('Córdoba',2019,'pernoctes');
+ const pl=S.cat?SUP.cba[S.cat]?.pl:tot(SUP.cba),es=S.cat?SUP.cba[S.cat]?.es:Object.values(SUP.cba).reduce((a,b)=>a+b.es,0);
+ $('t-k').textContent=(S.cat?catOf(S.cat).name:'Córdoba, todos los tipos')+' · '+y;
+ const K=[
+  ['Ocupación de plazas',ok(o)?nf(o,1)+' %':'sin dato',`<span class="${cls(o-o0)}">${pp(ok(o)&&ok(o0)?o-o0:null)}</span> interanual · país ${nf(oa,1)} %`],
+  ['Plazas en el padrón',big(pl),`${nf(es,0)} establecimientos · foto 2021${S.cat?' · '+nf(shareSup(SUP.cba,S.cat),1)+' % del total':''}`],
+  ['Noches en hoteles y parahoteles',big(n),`<span class="${cls(chg(n,n0))}">${pct(chg(n,n0))}</span> interanual · ${pct(chg(n,n19))} frente a 2019${S.cat?' · total, sin apertura por tipo':''}`],
+  ['Ocupación frente a 2019',ok(o)&&ok(o19)?pp(o-o19):'sin dato',`${nf(o19,1)} % en 2019 → ${nf(o,1)} % en ${y}`]
+ ];
+ $('kpis').innerHTML=K.map(([l,v,s])=>`<div class="kpi" style="--kc:${C()?.color||'#00897b'}"><span>${l}</span><strong>${v}</strong><small>${s}</small></div>`).join('');
+ const f=$('focus');
+ if(S.cat){const pv=peakValley('Córdoba',c,y),rk=REGIONS.map(r=>[r,occY(r,c,y)]).filter(r=>ok(r[1])).sort((a,b)=>b[1]-a[1]),pos=rk.findIndex(r=>r[0]==='Córdoba')+1;
+  f.hidden=false;f.innerHTML=`<b>Foco en ${esc(lc(catOf(S.cat).name))}.</b> ${ok(o)?`Ocupó ${nf(o,1)} % de sus plazas en ${y}, ${o>=oa?'por encima':'por debajo'} del país (${nf(oa,1)} %), en el puesto ${pos} de ${rk.length} regiones.`:''} ${pv?`Su mejor mes fue ${MONTHS[pv.hi[0]]} (${nf(pv.hi[1],0)} %) y el peor, ${MONTHS[pv.lo[0]]} (${nf(pv.lo[1],0)} %).`:''} La encuesta no publica noches por categoría: las noches y los viajeros de esta página son del total.`;}
+ else f.hidden=true;
+}
+
+function mapChart(){
+ const y=S.y,mk=(scope,sup,ghost)=>CATS.map(c=>{const o=occY(scope,c.eoh,y),pv=peakValley(scope,c.eoh,y);return {id:c.id,name:c.name,value:[shareSup(sup,c.id),o,pv?.ratio??1],itemStyle:{color:ghost?'rgba(111,133,146,.10)':c.color,borderColor:ghost?'#9fb3bf':'#fff',borderWidth:ghost?1.2:2,borderType:ghost?'dashed':'solid',opacity:ghost?1:dim(c.id)},label:{show:!ghost,formatter:c.name,position:$('c-map').clientWidth<640?'top':'right',color:'#14293a',fontSize:12,fontWeight:600,opacity:dim(c.id)}};}).filter(d=>ok(d.value[1]));
+ const cb=mk('Córdoba',SUP.cba,false),ar=mk('Argentina',SUP.ar,true);
+ const sz=v=>12+Math.min(5,v)*9;
+ const best=cb.reduce((a,b)=>b.value[1]>a.value[1]?b:a,cb[0]),most=cb.reduce((a,b)=>b.value[0]>a.value[0]?b:a,cb[0]);
+ $('d-map').innerHTML=best&&most?`En ${y}, <b>${esc(lc(best.name))}</b> es la categoría más ocupada (${nf(best.value[1],1)} %) con ${nf(best.value[0],1)} % de las plazas, mientras que <b>${esc(lc(most.name))}</b> concentra más oferta (${nf(most.value[0],1)} %) y ocupa ${nf(most.value[1],1)} %. Las líneas punteadas unen cada categoría con su par nacional: si la burbuja de Córdoba queda debajo, se llena menos que en el país.`:'';
+ const c=chart('c-map');c.clear();
+ const narrow=$('c-map').clientWidth<640;
+ c.setOption({...base,grid:{left:56,right:narrow?24:170,top:20,bottom:48},
+  tooltip:{...T,formatter:p=>p.data?.name?`<b>${esc(p.data.name)}</b> · ${p.seriesName}<br>Plazas: ${nf(p.data.value[0],1)} % del total<br>Ocupación ${y}: ${nf(p.data.value[1],1)} %<br>Mes pico ÷ mes valle: ${nf(p.data.value[2],1)} veces`:''},
+  xAxis:{type:'value',name:'% de las plazas (padrón 2021)',nameLocation:'middle',nameGap:30,nameTextStyle:{color:'#46606f',fontSize:12},...AX,axisLabel:{...AX.axisLabel,formatter:'{value} %'},min:0},
+  yAxis:{type:'value',name:'Ocupación de plazas',nameTextStyle:{color:'#46606f',fontSize:12,align:'left'},...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:'{value} %'},scale:true},
+  series:[{name:'Argentina',type:'scatter',data:ar,symbolSize:d=>sz(d[2]),z:1,cursor:'pointer'},{name:'Córdoba',type:'scatter',data:cb,symbolSize:d=>sz(d[2]),z:3,cursor:'pointer',emphasis:{scale:1.1}},
+   {type:'lines',coordinateSystem:'cartesian2d',silent:true,z:2,lineStyle:{color:'#b7c6cf',width:1,type:'dotted'},data:cb.map(d=>{const a=ar.find(x=>x.id===d.id);return a?{coords:[a.value.slice(0,2),d.value.slice(0,2)]}:null;}).filter(Boolean)}]});
+ once(c,'click',e=>{if(e.data?.id)set({cat:S.cat===e.data.id?null:e.data.id});});
+}
+
+function calChart(){
+ const y=S.y,rows=[...CATS,{id:'tot',eoh:'Total',name:'Total',short:'Total'}],data=[];
+ rows.forEach((c,ri)=>{for(let m=0;m<12;m++)data.push({value:[m,ri,occM('Córdoba',c.eoh,ym(y,m))],cat:c.id});});
+ $('t-cal').textContent=`Ocupación mes a mes por categoría · ${y}`;
+ const tv=MS.map((_,m)=>occM('Córdoba','Total',ym(y,m))),vals=tv.filter(ok),hi=tv.indexOf(Math.max(...vals)),lo=tv.indexOf(Math.min(...vals));
+ const jul=CATS.map(c=>[c,occM('Córdoba',c.eoh,ym(y,6)),occY('Córdoba',c.eoh,y)]).filter(r=>ok(r[1])&&ok(r[2])).sort((a,b)=>(b[1]-b[2])-(a[1]-a[2]))[0];
+ $('d-cal').innerHTML=vals.length?`El año tiene su pico en <b>${MONTHS[hi]}</b> (${nf(tv[hi],0)} %) y su valle en <b>${MONTHS[lo]}</b> (${nf(tv[lo],0)} %). ${jul?`En julio, con el receso invernal, la que más sube sobre su promedio es ${esc(lc(jul[0].name))} (${nf(jul[1],0)} % frente a ${nf(jul[2],0)} %).`:''}`:'Sin datos para este año.';
+ const c=chart('c-cal');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:6,bottom:44,containLabel:true},
+  tooltip:{...T,formatter:p=>`<b>${esc(rows[p.data.value[1]].name)}</b> · ${MONTHS[p.data.value[0]]} ${y}<br>Ocupación: <b>${nf(p.data.value[2],0)} %</b>`},
+  xAxis:{type:'category',data:MS,...AX,axisLine:{show:false}},
+  yAxis:{type:'category',data:rows.map(r=>r.short),inverse:true,...AX,axisLine:{show:false},triggerEvent:true,axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,fontWeight:500}},
+  visualMap:{min:10,max:60,orient:'horizontal',left:'center',bottom:0,itemHeight:200,itemWidth:12,text:['más ocupada','menos'],textStyle:{fontSize:11,color:'#6f8592'},inRange:{color:['#eef6f4','#9fd8cd','#2fa494','#00695f','#0c3b35']}},
+  series:[{type:'heatmap',data:data.map(d=>({...d,itemStyle:{borderColor:'#fff',borderWidth:2,opacity:S.cat&&d.cat!==S.cat&&d.cat!=='tot'?.3:1}})),label:{show:true,fontSize:10.5,formatter:p=>ok(p.data.value[2])?nf(p.data.value[2],0):''},emphasis:{itemStyle:{borderColor:'#c98500',borderWidth:2}}}]});
+ once(c,'click',e=>{const id=e.componentType==='yAxis'?rows.find(r=>r.short===e.value)?.id:e.data?.cat;if(id&&id!=='tot')set({cat:S.cat===id?null:id});});
+}
+
+function gapChart(){
+ const y=S.y,rows=[...CATS,{id:'tot',eoh:'Total',name:'Total',short:'Total'}];
+ const vsAr=rows.map(c=>{const a=occY('Córdoba',c.eoh,y),b=occY('Argentina',c.eoh,y);return ok(a)&&ok(b)?a-b:null;});
+ const vs19=rows.map(c=>{const a=occY('Córdoba',c.eoh,y),b=occY('Córdoba',c.eoh,2019);return ok(a)&&ok(b)?a-b:null;});
+ const t=rows.length-1;
+ $('d-gap').innerHTML=`En total, Córdoba ocupa <b>${pp(vsAr[t])}</b> frente al promedio del país y <b>${pp(vs19[t])}</b> frente a su propio 2019. Violeta: distancia con el país. Ámbar: distancia con 2019.`;
+ const c=chart('c-gap');c.clear();
+ const lab=v=>({show:true,position:ok(v)&&v<0?'left':'right',fontSize:11,color:'#46606f',formatter:p=>ok(p.value)?pp(p.value):''});
+ const op=i=>S.cat&&rows[i].id!==S.cat&&rows[i].id!=='tot'?.3:1;
+ c.setOption({...base,grid:{left:56,right:54,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,itemGap:18,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>pp(v)},
+  xAxis:{type:'value',...AX,axisLabel:{...AX.axisLabel,formatter:v=>nf(v,0)+' pp'}},
+  yAxis:{type:'category',data:rows.map(r=>r.short),inverse:true,...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12}},
+  series:[{name:'Córdoba − Argentina',type:'bar',barMaxWidth:12,data:vsAr.map((v,i)=>({value:v,label:lab(v),itemStyle:{color:'#6250d6',borderRadius:3,opacity:op(i)}}))},
+   {name:`${y} − 2019`,type:'bar',barMaxWidth:12,data:vs19.map((v,i)=>({value:v,label:lab(v),itemStyle:{color:'#eda100',borderRadius:3,opacity:op(i)}}))}]});
+ once(c,'click',e=>{const id=rows[e.dataIndex]?.id;if(id&&id!=='tot')set({cat:S.cat===id?null:id});});
+}
+
+function trendChart(){
+ const list=S.cat?[catOf(S.cat)]:[...CATS],allY=[];for(let y=2012;y<=+LATEST.slice(0,4);y++)allY.push(y);
+ $('t-trend').textContent=`Ocupación anual · ${S.cat?catOf(S.cat).name:'por categoría'}`;
+ const cur=list.map(c=>{const vs=allY.map(y=>[y,occY('Córdoba',c.eoh,y)]).filter(r=>ok(r[1]));const mx=vs.reduce((a,b)=>b[1]>a[1]?b:a,vs[0]);return [c,occY('Córdoba',c.eoh,S.y),mx];});
+ $('d-trend').innerHTML=cur.map(([c,v,mx])=>`${esc(c.name)}: <b>${nf(v,1)} %</b>${mx?` (máximo: ${nf(mx[1],1)} % en ${mx[0]})`:''}`).join(' · ')+(()=>{const ly=+LATEST.slice(0,4),miss=allY.filter(y=>y!==ly&&occY('Córdoba','Total',y)===null);return '. '+(miss.length?`${miss.join(' y ')} no ${miss.length>1?'tienen':'tiene'} año completo publicado (pandemia). `:'')+(LATEST.slice(5)!=='12'?`${ly} está en curso (datos hasta ${MONTHS[+LATEST.slice(5)-1]}).`:'');})();
+ const series=[];
+ list.forEach(c=>{series.push({name:c.name,type:'line',data:allY.map(y=>occY('Córdoba',c.eoh,y)),symbol:'circle',symbolSize:7,connectNulls:false,lineStyle:{width:2.4,color:c.color},itemStyle:{color:c.color,borderColor:'#fff',borderWidth:1.5},emphasis:{focus:'series'}});
+  series.push({name:c.name+' · Argentina',type:'line',data:allY.map(y=>occY('Argentina',c.eoh,y)),symbol:'none',connectNulls:false,lineStyle:{width:1.4,type:[4,4],color:c.color,opacity:.55},itemStyle:{color:c.color}});});
+ series[0].markLine={silent:true,symbol:'none',lineStyle:{color:'#14293a',width:1,opacity:.35},label:{formatter:String(S.y),color:'#46606f',fontSize:11},data:[{xAxis:String(S.y)}]};
+ const c=chart('c-trend');c.clear();
+ c.setOption({...base,grid:{left:8,right:16,top:list.length>1?40:16,bottom:6,containLabel:true},legend:{show:list.length>1,top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:4,textStyle:{fontSize:11.5},data:list.map(c=>c.name)},
+  tooltip:{...T,trigger:'axis',valueFormatter:v=>ok(v)?nf(v,1)+' %':'sin dato'},
+  xAxis:{type:'category',data:allY.map(String),boundaryGap:false,...AX,splitLine:{show:false}},
+  yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:'{value} %'},scale:true},series});
+ yearClick(c,allY);
+}
+
+function regChart(){
+ const y=S.y,c0=eohCat(),rk=REGIONS.map(r=>({r,v:occY(r,c0,y)})).filter(x=>ok(x.v)).sort((a,b)=>b.v-a.v),ar=occY('Argentina',c0,y),pos=rk.findIndex(x=>x.r==='Córdoba')+1;
+ $('t-reg').textContent=`Ocupación por región · ${S.cat?catOf(S.cat).name:'total'} · ${y}`;
+ $('d-reg').innerHTML=pos?(pos===1?`Córdoba <b>lidera</b> las siete regiones con ${nf(rk[0].v,1)} %. `:`Córdoba está en el puesto <b>${pos} de ${rk.length}</b>, a ${nf(rk[0].v-rk[pos-1].v,1)} puntos de ${esc(rk[0].r)}, que lidera con ${nf(rk[0].v,1)} %. `)+`La línea marca el promedio del país (${nf(ar,1)} %).`:'Sin dato para esta categoría y año.';
+ const c=chart('c-reg');c.clear();
+ c.setOption({...base,grid:{left:8,right:54,top:6,bottom:6,containLabel:true},tooltip:{...T,valueFormatter:v=>nf(v,1)+' %'},
+  xAxis:{type:'value',show:false,max:v=>Math.max(v.max,ar||0)*1.1},
+  yAxis:{type:'category',inverse:true,data:rk.map(x=>x.r),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,formatter:v=>v==='Córdoba'?'{b|Córdoba}':v,rich:{b:{fontWeight:700,color:'#14293a',fontSize:12}}}},
+  series:[{type:'bar',barWidth:'60%',data:rk.map(x=>({value:x.v,itemStyle:{color:x.r==='Córdoba'?(C()?.color||'#00897b'):'#cfdbe2',borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11.5,color:'#46606f',formatter:p=>nf(p.value,1)+' %'},
+   markLine:ok(ar)?{silent:true,symbol:'none',lineStyle:{color:'#14293a',type:[4,3],opacity:.6},label:{formatter:'País',position:'end',fontSize:11,color:'#46606f'},data:[{xAxis:ar}]}:undefined}]});
+}
+
+function locChart(){
+ const locs=Object.entries(SUP.byLoc).map(([i,o])=>({i:+i,name:P.localities[i][2],o,t:tot(o)})).sort((a,b)=>b.t-a.t).slice(0,16);
+ const eohKey=i=>EOH_LOC[i];
+ $('lg-loc').innerHTML=GROUPS.map(g=>`<span><i style="background:${g.color}"></i>${esc(g.name)}</span>`).join('');
+ const first=locs[0],main=l=>GROUPS.map(g=>[g,l.o[g.id]?.pl||0]).sort((a,b)=>b[1]-a[1])[0][0];
+ const para=locs.filter(l=>shareSup(l.o,'para')>50).map(l=>l.name);
+ const order=S.cat?[...locs].sort((a,b)=>(b.o[S.cat]?.pl||0)-(a.o[S.cat]?.pl||0)):locs;
+ const lead=S.cat&&order[0];
+ $('d-loc').innerHTML=`${esc(first.name)} concentra <b>${nf(first.t/tot(SUP.cba)*100,0)} %</b> de las plazas de la provincia; su tipo principal es ${esc(lc(main(first).name))}. ${para.length?`En ${esc(para.slice(0,4).join(', '))} más de la mitad de la oferta es parahotelera (cabañas, hosterías, residenciales).`:''} ${lead?`Con ${esc(lc(catOf(S.cat).name))} lidera <b>${esc(lead.name)}</b> (${nf(lead.o[S.cat]?.pl||0,0)} plazas).`:''}`;
+ const c=chart('c-loc');c.clear();
+ c.setOption({...base,grid:{left:8,right:30,top:6,bottom:6,containLabel:true},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>{const l=order[ps[0].dataIndex];return `<b>${esc(l.name)}</b> · ${nf(l.t,0)} plazas${eohKey(l.i)?'<br><span style="color:#00695f">● Relevado por la encuesta: tocá para ver su demanda</span>':''}`+ps.filter(p=>p.value>0).map(p=>`<br>${p.marker}${esc(p.seriesName)}: ${nf(p.value,0)} (${nf(p.value/l.t*100,0)} %)`).join('');}},
+  xAxis:{type:'value',...AX,axisLabel:{...AX.axisLabel,formatter:v=>v>=1000?nf(v/1000,0)+' mil':v}},
+  yAxis:{type:'category',inverse:true,data:order.map(l=>(eohKey(l.i)?'● ':'')+l.name),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12}},
+  series:GROUPS.map(g=>({name:g.name,type:'bar',stack:'s',barWidth:'64%',cursor:'pointer',data:order.map(l=>l.o[g.id]?.pl||0),itemStyle:{color:g.color,opacity:S.cat&&g.id!==S.cat?.25:1,borderColor:'#fff',borderWidth:1}}))});
+ const pick=i=>{const l=order[i];const k=l&&eohKey(l.i);if(k){set({loc:S.loc===k?'Córdoba':k});go($('s-dest'));}};
+ once(c,'click',e=>pick(e.dataIndex));
+ c.getZr().off('click');c.getZr().on('click',e=>{if(e.target)return;const pt=[e.offsetX,e.offsetY];if(!c.containPixel('grid',pt))return;pick(Math.round(c.convertFromPixel({yAxisIndex:0},pt[1])));});
+}
+
+function destChart(){
+ const k=S.loc,y=S.y,name=k==='Córdoba'?'Córdoba (provincia)':D.eoh.scope_meta[k]?.label||k;
+ const cur=MS.map((_,m)=>demM(k,ym(y,m),'pernoctes')),prev=MS.map((_,m)=>demM(k,ym(y-1,m),'pernoctes'));
+ const n=demY(k,y,'pernoctes'),n0=demY(k,y-1,'pernoctes'),v=demY(k,y,'viajeros'),prov=demY('Córdoba',y,'pernoctes');
+ const vals=cur.filter(ok),hi=cur.indexOf(Math.max(...vals)),lo=cur.indexOf(Math.min(...vals));
+ const xs=demY(k,y,'viajeros_no_residentes');
+ $('t-dest').textContent=`Noches por mes · ${name}`;
+ $('d-dest').innerHTML=ok(n)?`<b>${big(n)} noches</b> en ${y} (<span class="${cls(chg(n,n0))}">${pct(chg(n,n0))}</span> interanual), con ${nf(n/v,1)} noches por viajero${ok(xs)?` y ${nf(xs/v*100,1)} % de viajeros del exterior`:''}. ${k!=='Córdoba'&&ok(prov)?`Equivale a ${nf(n/prov*100,0)} % de las noches de la provincia (series distintas: orden de magnitud). `:''}${cap(MONTHS[hi])} tiene ${nf(cur[hi]/cur[lo],1)} veces las noches de ${MONTHS[lo]}.${k==='Córdoba'?' Tocá un destino con ● en el gráfico de oferta para ver el suyo.':''}`:'Sin datos completos para este destino y año.';
+ const col=k==='Córdoba'?'#00897b':'#2a78d6';
+ const c=chart('c-dest');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>ok(v)?nf(v,0)+' noches':'sin dato'},
+  xAxis:{type:'category',data:MS,...AX},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e6?nf(v/1e6,1)+' M':nf(v/1e3,0)+' mil'}},
+  series:[{name:String(y),type:'bar',barWidth:'46%',data:cur,itemStyle:{color:col,borderRadius:[4,4,0,0]}},{name:String(y-1),type:'line',data:prev,symbol:'circle',symbolSize:6,lineStyle:{color:'#9fb3bf',width:1.6,type:[4,4]},itemStyle:{color:'#9fb3bf'}}]});
+}
+
+function ctxChart(){
+ const ys=[];for(let y=2017;y<=+LATEST.slice(0,4);y++)ys.push(y);
+ const idx=f=>{const b=f(2019);return ys.map(y=>{const v=f(y);return ok(v)&&ok(b)?v/b*100:null;});};
+ const h=idx(y=>demY('Córdoba',y,'pernoctes')),a=idx(airY),ar=idx(y=>demY('Argentina',y,'pernoctes')),hx=idx(y=>demY('Córdoba',y,'pernoctes_no_residentes'));
+ const i=ys.indexOf(S.y);
+ $('d-ctx').innerHTML=`Con 2019 = 100, en ${S.y} las noches hoteleras de Córdoba están en <b>${nf(h[i],0)}</b>, los pasajeros que llegan en avión en <b>${nf(a[i],0)}</b> y las noches del país en ${nf(ar[i],0)}. ${ok(hx[i])?`Las noches de viajeros del exterior, en ${nf(hx[i],0)}: ${hx[i]>h[i]?'se recuperaron mejor que las de residentes':'se recuperaron peor que las de residentes'}.`:''}`;
+ const c=chart('c-ctx');c.clear();
+ const L=(name,data,color,w,dash)=>({name,type:'line',data,symbol:'circle',symbolSize:6,connectNulls:false,lineStyle:{width:w,color,type:dash?[4,4]:'solid'},itemStyle:{color}});
+ c.setOption({...base,grid:{left:8,right:16,top:48,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:4,textStyle:{fontSize:11.5}},
+  tooltip:{...T,trigger:'axis',valueFormatter:v=>ok(v)?nf(v,0):'sin dato'},
+  xAxis:{type:'category',data:ys.map(String),boundaryGap:false,...AX,splitLine:{show:false}},
+  yAxis:{type:'value',...AX,axisLine:{show:false},scale:true},
+  series:[{...L('Noches · Córdoba',h,'#00897b',2.6),markLine:{silent:true,symbol:'none',lineStyle:{color:'#14293a',opacity:.3},label:{show:false},data:[{yAxis:100},{xAxis:String(S.y)}]}},L('Llegadas aéreas · Córdoba',a,'#2a78d6',2),L('Noches · Argentina',ar,'#6f8592',1.6,true),L('Noches del exterior · Córdoba',hx,'#eb6834',1.6)]});
+ yearClick(c,ys);
+}
+
+// Trimestres con llegadas internacionales (ANAC), turistas extranjeros (ETI receptivo) y extranjeros en hoteles (EOH).
+function airQuarters(){const out=[];for(const p of Object.keys(ETI.receptivo||{}).sort()){if(p<'2017-01')continue;const ms=qMonths(p),r=ETI.receptivo[p],e=ETI.emisivo?.[p];
+ const air=sumMonths(ms,m=>airK(m,'Internacional')),hotel=sumMonths(ms,m=>demM('Córdoba',m,'viajeros_no_residentes'));
+ if(ok(air)&&air>0&&ok(r?.turistas))out.push({p,air,rec:r.turistas,emi:ok(e?.turistas)?e.turistas:null,hotel});}return out;}
+function airMixYear(y){const qs=airQuarters().filter(q=>q.p.startsWith(y+'-'));if(qs.length<4||qs.some(q=>!ok(q.hotel)))return null;const sum=f=>qs.reduce((a,q)=>a+q[f],0);
+ const cur={air:sum('air'),rec:sum('rec'),hotel:sum('hotel'),emi:qs.every(q=>ok(q.emi))?sum('emi'):null};const prev=y>2017?airMixYear(y-1):null;return {...cur,prev:prev?{air:prev.air,rec:prev.rec,hotel:prev.hotel}:null};}
+function airMixChart(){
+ const qs=airQuarters().filter(q=>q.p>='2019-01'),lab=p=>Math.ceil(+p.slice(5,7)/3)+'T '+p.slice(2,4);
+ const sel=qs.filter(q=>q.p.startsWith(S.y+'-')),m=airMixYear(S.y);
+ const lastQ=qs.at(-1),firstQ=qs.find(q=>q.p.startsWith(lastQ.p.slice(0,4)-1+'-'+lastQ.p.slice(5)));
+ $('t-air').textContent='Quién llega en avión y quién termina en un hotel';
+ $('d-air').innerHTML=(m?`En ${S.y} aterrizaron <b>${big(m.air)}</b> pasajeros internacionales en Córdoba. De ellos, <b>${big(m.rec)}</b> eran turistas extranjeros (${nf(m.rec/m.air*100,0)} %)${ok(m.emi)?` y ${big(m.emi)} residentes en Argentina volviendo de un viaje al exterior`:''}. Los hoteles registraron <b>${big(m.hotel)}</b> viajeros del exterior: más que los turistas que entraron por el aeropuerto, porque muchos llegan por Ezeiza, Aeroparque o por tierra, y un mismo turista puede registrarse en más de un hotel.`:'')+
+  (lastQ&&firstQ?` En el último trimestre con datos (${lab(lastQ.p)}), los pasajeros internacionales variaron <b class="${cls(chg(lastQ.air,firstQ.air))}">${pct(chg(lastQ.air,firstQ.air))}</b> interanual y los turistas extranjeros, <b class="${cls(chg(lastQ.rec,firstQ.rec))}">${pct(chg(lastQ.rec,firstQ.rec))}</b>.`:'');
+ const op=q=>q.p.startsWith(S.y+'-')?1:.45;
+ const c=chart('c-air');c.clear();
+ c.setOption({...base,grid:{left:8,right:16,top:40,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>{const q=qs[ps[0].dataIndex];return `<b>${Math.ceil(+q.p.slice(5,7)/3)}º trimestre ${q.p.slice(0,4)}</b>`+ps.map(x=>`<br>${x.marker}${esc(x.seriesName)}: <b>${big(x.value)}</b>`).join('')+`<br><span style="color:#6f8592">${nf(q.rec/q.air*100,0)} de cada 100 pasajeros internacionales son turistas extranjeros</span>`;}},
+  xAxis:{type:'category',data:qs.map(q=>lab(q.p)),...AX,axisLabel:{...AX.axisLabel,fontSize:10.5}},
+  yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e3?nf(v/1e3,0)+' mil':v}},
+  series:[{name:'Turistas extranjeros (ETI)',type:'bar',stack:'a',barWidth:'58%',itemStyle:{color:'#eb6834'},data:qs.map(q=>({value:q.rec,itemStyle:{color:'#eb6834',opacity:op(q)}}))},
+   {name:'Resto de pasajeros internacionales (sobre todo residentes que vuelven)',type:'bar',stack:'a',itemStyle:{color:'#cfdbe2'},data:qs.map(q=>({value:Math.max(0,q.air-q.rec),itemStyle:{color:'#cfdbe2',opacity:op(q),borderRadius:[3,3,0,0]}}))},
+   {name:'Viajeros del exterior en hoteles (EOH)',type:'line',data:qs.map(q=>q.hotel),symbol:'circle',symbolSize:6,connectNulls:false,lineStyle:{color:'#14293a',width:2},itemStyle:{color:'#14293a'}}]});
+ once(c,'click',e=>{const y=+qs[e.dataIndex]?.p.slice(0,4);if(YEARS.includes(y))set({y});});
+}
+function airSeasChart(){
+ const y=S.y,cab=MS.map((_,m)=>airK(ym(y,m),'Cabotaje')),res=MS.map((_,m)=>demM('Córdoba',ym(y,m),'viajeros_residentes'));
+ const tc=cab.every(ok)?cab.reduce((a,b)=>a+b,0):null,tr=res.every(ok)?res.reduce((a,b)=>a+b,0):null;
+ $('t-airseas').textContent=`Cuándo llegan en avión y cuándo se alojan · ${y}`;
+ if(!ok(tc)||!ok(tr)){$('d-airseas').textContent='Sin año completo para comparar.';chart('c-airseas').clear();return;}
+ const sc=cab.map(v=>v/tc*100),sr=res.map(v=>v/tr*100),gap=sr.map((v,i)=>v-sc[i]);
+ const road=gap.indexOf(Math.max(...gap)),air=gap.indexOf(Math.min(...gap)),hiC=sc.indexOf(Math.max(...sc)),hiR=sr.indexOf(Math.max(...sr));
+ const rangeC=Math.max(...sc)/Math.min(...sc),rangeR=Math.max(...sr)/Math.min(...sr);
+ $('d-airseas').innerHTML=`El cabotaje es más parejo (su mes más fuerte, ${MONTHS[hiC]}, tiene ${nf(rangeC,1)} veces el más flojo) que los residentes en hoteles (${MONTHS[hiR]}, ${nf(rangeR,1)} veces). En <b>${MONTHS[road]}</b> el hotel pesa ${nf(gap[road],1)} puntos más que el avión: es el mes en que más se viaja por tierra. En ${MONTHS[air]}, al revés: más avión que hotel, lo que sugiere viajes de trabajo cortos o vuelos de paso. Por cada pasajero de cabotaje que llegó hubo <b>${nf(tr/tc,1)} viajeros residentes</b> en hoteles.`;
+ const c=chart('c-airseas');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:4,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',valueFormatter:v=>nf(v,1)+' % del año'},
+  xAxis:{type:'category',data:MS,boundaryGap:false,...AX,splitLine:{show:false}},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:'{value} %'},scale:true},
+  series:[{name:'Llegadas de cabotaje',type:'line',data:sc,symbol:'circle',symbolSize:6,lineStyle:{color:'#2a78d6',width:2.2},itemStyle:{color:'#2a78d6'}},
+   {name:'Residentes en hoteles',type:'line',data:sr,symbol:'circle',symbolSize:6,lineStyle:{color:'#00897b',width:2.6},itemStyle:{color:'#00897b'},areaStyle:{color:'rgba(0,137,123,.08)'}}]});
+}
+function airYoyChart(){
+ // Desde 2024: las variaciones contra 2021-2023 todavía reflejan la reapertura pospandemia, no la relación entre vuelos y hoteles.
+ const ps=[];for(let o=Math.max(2024,+LATEST.slice(0,4)-3)*12;o<=+LATEST.slice(0,4)*12+ +LATEST.slice(5)-1;o++){const p=Math.floor(o/12)+'-'+String(o%12+1).padStart(2,'0');ps.push(p);}
+ const prev=p=>(+p.slice(0,4)-1)+p.slice(4);
+ const yo=(f)=>ps.map(p=>{const a=f(p),b=f(prev(p));return ok(a)&&ok(b)&&b>0?(a/b-1)*100:null;});
+ const cab=yo(p=>airK(p,'Cabotaje')),res=yo(p=>demM('Córdoba',p,'viajeros_residentes')),intl=yo(p=>airK(p,'Internacional')),nor=yo(p=>demM('Córdoba',p,'viajeros_no_residentes'));
+ const corr=(X,Y)=>{const pr=X.map((x,i)=>[x,Y[i]]).filter(([x,y])=>ok(x)&&ok(y));if(pr.length<6)return null;const mx=pr.reduce((a,b)=>a+b[0],0)/pr.length,my=pr.reduce((a,b)=>a+b[1],0)/pr.length;let sxy=0,sx=0,sy=0;for(const [x,y] of pr){sxy+=(x-mx)*(y-my);sx+=(x-mx)**2;sy+=(y-my)**2;}return sxy/Math.sqrt(sx*sy);};
+ const rd=corr(cab,res),ri=corr(intl,nor),word=r=>!ok(r)?'sin dato':Math.abs(r)>=.6?'fuerte':Math.abs(r)>=.3?'moderada':'débil';
+ const same=(a,b)=>a.filter((x,i)=>ok(x)&&ok(b[i])&&Math.sign(x)===Math.sign(b[i])).length,n=(a,b)=>a.filter((x,i)=>ok(x)&&ok(b[i])).length;
+ $('d-airyoy').innerHTML=`Desde 2024 (${n(cab,res)} meses), cabotaje y residentes en hoteles subieron o bajaron juntos en <b>${same(cab,res)}</b> meses: relación ${word(rd)} (correlación ${nf(rd,2)}). Entre vuelos internacionales y extranjeros en hoteles la relación es ${word(ri)} (${nf(ri,2)}): ${ok(ri)&&ri<0.6?'el vuelo internacional crece por el turismo emisivo, que no llena hoteles en Córdoba':'cuando llegan más vuelos del exterior, hay más extranjeros alojados'}.`;
+ const L=(name,data,color,w,dash)=>({name,type:'line',data,symbol:'none',connectNulls:false,smooth:.2,lineStyle:{color,width:w,type:dash?[4,4]:'solid'},itemStyle:{color}});
+ const c=chart('c-airyoy');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:48,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:4,textStyle:{fontSize:11.5}},
+  tooltip:{...T,trigger:'axis',formatter:x=>`<b>${MONTHS[+x[0].axisValue.slice(5)-1]} ${x[0].axisValue.slice(0,4)}</b>`+x.map(s=>`<br>${s.marker}${esc(s.seriesName)}: <b>${pct(s.value)}</b>`).join('')},
+  xAxis:{type:'category',data:ps,boundaryGap:false,...AX,splitLine:{show:false},axisLabel:{...AX.axisLabel,interval:0,formatter:p=>p.endsWith('-01')?p.slice(0,4):''}},
+  yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>nf(v,0)+' %'}},
+  series:[{...L('Cabotaje',cab,'#2a78d6',1.8,true),markLine:{silent:true,symbol:'none',lineStyle:{color:'#14293a',opacity:.35},label:{show:false},data:[{yAxis:0}]}},L('Residentes en hoteles',res,'#00897b',2.4),L('Internacional',intl,'#eb6834',1.8,true),L('Extranjeros en hoteles',nor,'#6250d6',2.4)]});
+ yearClick(c,ps.map(p=>+p.slice(0,4)));
+}
+function origChart(){
+ const y=S.y,all=origins(y),dom=all.filter(o=>o.dom),intl=all.filter(o=>!o.dom),td=dom.reduce((a,b)=>a+b.v,0),ti=intl.reduce((a,b)=>a+b.v,0);
+ const top=[...dom.slice(0,10),...intl.slice(0,6)].sort((a,b)=>b.v-a.v),prevAll=origins(y-1),pv=name=>prevAll.find(o=>o.name===name)?.v;
+ $('t-orig').textContent=`Desde dónde llegan los vuelos a Córdoba · ${y}`;
+ if(!all.length){$('d-orig').textContent='Sin datos de rutas para este año.';chart('c-orig').clear();return;}
+ const ba=dom.find(o=>/Buenos Aires/.test(o.name)),eze=dom.find(o=>o.name==='Ezeiza'),baShare=((ba?.v||0)+(eze?.v||0))/td*100;
+ const growth=[...dom.slice(0,10),...intl.slice(0,6)].map(o=>({...o,g:chg(o.v,pv(o.name))})).filter(o=>ok(o.g)&&o.v>10000).sort((a,b)=>b.g-a.g);
+ $('d-orig').innerHTML=`De ${big(td+ti)} pasajeros que llegaron, <b>${nf(td/(td+ti)*100,0)} %</b> vino de otro aeropuerto argentino y ${nf(ti/(td+ti)*100,0)} % del exterior. Buenos Aires (Aeroparque y Ezeiza) aporta <b>${nf(baShare,0)} %</b> del cabotaje; sin esa escala, el resto llega por pocas rutas directas, encabezadas por ${esc(dom.filter(o=>!/Buenos Aires|Ezeiza/.test(o.name)).slice(0,3).map(o=>o.name).join(', '))}. ${intl[0]?`El principal origen internacional es ${esc(intl[0].name)} (${big(intl[0].v)}), que funciona como conexión hacia otros destinos.`:''} ${growth.length?`La ruta que más creció frente a ${y-1}: ${esc(growth[0].name)} (${pct(growth[0].g)}).`:''}`;
+ const c=chart('c-orig');c.clear();
+ c.setOption({...base,grid:{left:8,right:60,top:6,bottom:6,containLabel:true},
+  tooltip:{...T,formatter:x=>{const o=top[x.dataIndex];const g=chg(o.v,pv(o.name));return `<b>${esc(o.name)}</b> · ${o.dom?'cabotaje':'internacional'}<br>${nf(o.v,0)} pasajeros en ${y}${ok(g)?`<br>${pct(g)} frente a ${y-1}`:''}`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:top.map(o=>o.name),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12}},
+  series:[{type:'bar',barWidth:'62%',data:top.map(o=>({value:o.v,itemStyle:{color:o.dom?'#2a78d6':'#eb6834',borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11.5,color:'#46606f',formatter:p=>big(p.value)}}]});
+}
+function evyChart(){
+ const qs=[];for(const [p,r] of EVY){if(!ok(r.turistas))continue;const m=+p.slice(5,7);let v=0;for(let i=0;i<3;i++){const z=demM('Córdoba',p.slice(0,4)+'-'+String(m+i).padStart(2,'0'),'viajeros_residentes');if(!ok(z)){v=null;break;}v+=z;}if(ok(v))qs.push({p,t:r.turistas,v});}
+ qs.sort((a,b)=>a.p.localeCompare(b.p));const last=qs.slice(-10),lab=p=>Math.ceil(+p.slice(5,7)/3)+'º trim. '+p.slice(0,4);
+ if(!last.length){$('d-evy').textContent='Sin trimestres comparables.';return;}
+ const avg=last.reduce((a,q)=>a+q.v/q.t*100,0)/last.length;
+ const hiQ=last.reduce((a,b)=>b.v/b.t>a.v/a.t?b:a),loQ=last.reduce((a,b)=>b.v/b.t<a.v/a.t?b:a);
+ $('d-evy').innerHTML=`En los últimos ${last.length} trimestres, por cada 100 turistas residentes que llegaron a Córdoba se registraron en promedio <b>${nf(avg,0)} viajeros</b> en hoteles y parahoteles. La proporción más baja fue en el ${lab(loQ.p)} (${nf(loQ.v/loQ.t*100,0)}) y la más alta en el ${lab(hiQ.p)} (${nf(hiQ.v/hiQ.t*100,0)}).`;
+ const c=chart('c-evy');c.clear();
+ c.setOption({...base,grid:{left:8,right:10,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>{const q=last[ps[0].dataIndex];return `<b>${lab(q.p)}</b>`+ps.map(p=>`<br>${p.marker}${esc(p.seriesName)}: ${big(p.value)}`).join('')+`<br><span style="color:#6f8592">${nf(q.v/q.t*100,0)} viajeros en hotel por cada 100 turistas</span>`;}},
+  xAxis:{type:'category',data:last.map(q=>Math.ceil(+q.p.slice(5,7)/3)+'T '+q.p.slice(2,4)),...AX},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e6?nf(v/1e6,1)+' M':nf(v/1e3,0)+' mil'}},
+  series:[{name:'Turistas residentes (EVyTH)',type:'bar',barGap:'10%',data:last.map(q=>q.t),itemStyle:{color:'#cfdbe2',borderRadius:[3,3,0,0]}},{name:'Viajeros residentes en hoteles (EOH)',type:'bar',data:last.map(q=>q.v),itemStyle:{color:'#00897b',borderRadius:[3,3,0,0]}}]});
+}
+
+function capChart(){
+ const R=(OBS?.reports||[]).slice().sort((a,b)=>a.period.localeCompare(b.period));if(!R.length)return;
+ const r=R.find(x=>x.id===S.q)||R.at(-1),lab=x=>x.quarter+'º trim. '+x.year;
+ $('quarters').innerHTML=R.map(x=>`<button class="qchip" data-q="${x.id}" aria-pressed="${x.id===r.id}">${lab(x)}</button>`).join('');
+ const cats=r.categories.slice().sort((a,b)=>b.occupancy_percent-a.occupancy_percent),hi=cats[0],lo=cats.at(-1);
+ const five=cats.find(c=>c.stars===5),four=cats.find(c=>c.stars===4);
+ const sameQ=R.find(x=>x.year===r.year-1&&x.quarter===r.quarter);
+ $('d-cap').innerHTML=`En el ${lab(r)}, la ciudad ocupó <b>${nf(r.occupancy_percent,1)} %</b> de sus ${nf(r.beds,0)} plazas${sameQ?` (${pp(r.occupancy_percent-sameQ.occupancy_percent)} frente al mismo trimestre de ${sameQ.year})`:''}. Lidera ${esc(lc(hi.label))} (${nf(hi.occupancy_percent,1)} %) y cierra ${esc(lc(lo.label))} (${nf(lo.occupancy_percent,1)} %).${five&&four&&four.occupancy_percent>five.occupancy_percent?` El 4 estrellas supera al 5 estrellas por ${nf(four.occupancy_percent-five.occupancy_percent,1)} puntos.`:''}`;
+ const c=chart('c-cap');c.clear();
+ const col=x=>x.stars>=4?'#6250d6':x.stars===3?'#eb6834':x.stars?'#2a78d6':'#00897b';
+ c.setOption({...base,grid:{left:8,right:48,top:6,bottom:6,containLabel:true},tooltip:{...T,valueFormatter:v=>nf(v,1)+' %'},
+  xAxis:{type:'value',show:false,max:v=>Math.max(v.max,r.occupancy_percent)*1.12},yAxis:{type:'category',inverse:true,data:cats.map(x=>x.label),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12}},
+  series:[{type:'bar',barWidth:'60%',data:cats.map(x=>({value:x.occupancy_percent,itemStyle:{color:col(x),borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11.5,color:'#46606f',formatter:p=>nf(p.value,1)+' %'},
+   markLine:{silent:true,symbol:'none',lineStyle:{color:'#14293a',type:[4,3],opacity:.6},label:{formatter:'Ciudad',position:'end',fontSize:11,color:'#46606f'},data:[{xAxis:r.occupancy_percent}]}}]});
+}
+
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.y){set({y:+b.dataset.y});return;}
+ if('cat' in b.dataset){set({cat:b.dataset.cat||null});return;}
+ if(b.dataset.q){set({q:b.dataset.q});return;}
+});
+window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#s-"]');if(!a)return;e.preventDefault();go($(a.getAttribute('href').slice(1)));});
+if(EMBED){let last=0;const tell=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height)+4;if(Math.abs(h-last)>2){last=h;post({type:'height',h});}};
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(tell).observe(document.body);window.addEventListener('load',tell);setTimeout(tell,300);}
+if(!D||!P||!window.echarts){$('find').innerHTML='<li><div><h3>Falta un archivo del tablero</h3><p>Abrí el paquete completo.</p></div></li>';}else render();
+})();
+</script>
+</body>
+</html>

@@ -8,15 +8,15 @@ function render(ctx){
  // Un símbolo distinto por serie: los ámbitos no se distinguen solo por color.
  const symbols=['circle','rect','triangle','diamond','roundRect','pin','arrow','emptyCircle','emptyTriangle'];
  // Orden del relato: primero el stock (oferta), después la demanda, su cruce (ocupación), el cuándo y los eventos.
- const tabs=[['supply','Oferta'],['overview','Demanda'],['typology','Ocupación'],['seasonality','Estacionalidad'],['events','Eventos']];
- if(!tabs.some(([id])=>id===state.hotelTab))state.hotelTab='supply';
+ const tabs=[['types','Panorama por tipo'],['supply','Oferta'],['overview','Demanda'],['typology','Ocupación'],['seasonality','Estacionalidad'],['events','Eventos']];
+ if(!tabs.some(([id])=>id===state.hotelTab))state.hotelTab='types';
  // Una sola tasa de ocupación: la de plazas, coherente con pernoctaciones (noches) y plazas (oferta).
  state.occupancy='plazas';
  const municipal=state.hotelTab==='typology'&&state.hotelSource==='municipal';
  const checked=new Date(obs.checked_at).toLocaleDateString('es-AR',{timeZone:'America/Argentina/Cordoba'});
  const subnav=`<nav class="hotel-tabs" aria-label="Análisis de hotelería">${tabs.map(([id,title])=>`<button data-set="hotelTab" data-value="${id}" class="${state.hotelTab===id?'active':''}" aria-pressed="${state.hotelTab===id}">${title}</button>`).join('')}</nav>`;
  const sourceControl=()=>`<div class="hotel-source-choice">${field('hotelSource','Fuente y alcance de la ocupación',[['eoh','Córdoba provincia y regiones · EOH (Encuesta de Ocupación Hotelera, INDEC)'],['municipal','Córdoba capital · estrellas individuales (Observatorio municipal)']])}</div>`;
- function line({id,title,subtitle,series,periods,metric='pernoctes',view='levels',unit,events=[],zoom=true,quarter=false,method='',...rest}){
+ function line({id,title,subtitle,series,periods,metric='pernoctes',view='levels',unit,events=[],zoom=true,quarter=false,method='',brush=null,...rest}){
   const tr=transform(series,periods,view),u=unit||(view==='index'?'índice':view==='yoy'?'%':specs[metric]?.[1]||''),opt=commonOption();
   opt.grid.bottom=zoom?65:35;
   const eventRows=H.eventMonths(events,tr.periods);
@@ -27,7 +27,7 @@ function render(ctx){
   };
   opt.xAxis={type:'category',data:tr.periods,boundaryGap:tr.periods.length===1,axisLabel:{formatter:p=>label(p,quarter),hideOverlap:true,fontSize:10,color:'#6d8391'},axisTick:{show:false},axisLine:{lineStyle:{color:'#dfe7eb'}}};
   opt.yAxis={type:'value',name:view==='index'?'Base 100':u,nameTextStyle:{fontSize:10,align:'left'},axisLabel:{formatter:axisLabel,fontSize:10},splitLine:{lineStyle:{color:'#edf1f4'}},scale:view==='index'};
-  opt.series=tr.series.map((s,i)=>({name:s.name,type:'line',data:s.values,connectNulls:false,showSymbol:tr.periods.length<30,symbol:symbols[i%symbols.length],symbolSize:6,lineStyle:{width:i?2:3},emphasis:{focus:'series'}}));
+  opt.series=tr.series.map((s,i)=>({name:s.name,type:'line',data:s.values,connectNulls:false,showSymbol:tr.periods.length<30,symbol:symbols[i%symbols.length],symbolSize:6,lineStyle:{width:i?2:3,...(series[i]?.color?{color:series[i].color}:{})},...(series[i]?.color?{itemStyle:{color:series[i].color}}:{}),emphasis:{focus:'series'}}));
   if(opt.series.length&&!quarter){
    const bands=[];
    for(let y=+(periods[0]||'2024').slice(0,4)-1;y<=+(periods.at(-1)||'2025').slice(0,4);y++)for(const [season,color] of [['verano','#f8edd3'],['invierno','#e5eef8']]){
@@ -39,9 +39,26 @@ function render(ctx){
    const eventTip=p=>{const r=eventRows.find(x=>x.period===p.data?.period);return r?'<strong>'+esc(label(r.period))+' · '+r.events.length+(r.events.length>1?' eventos':' evento')+'</strong>'+r.events.map(e=>'<div style="margin-top:6px"><strong>'+esc(e.name)+'</strong><br>'+esc(shortDate(e))+' · '+esc(e.category)+' · '+esc(e.locality)+'</div>').join(''):'';};
    if(eventRows.length)opt.series[0].markLine={symbol:'none',lineStyle:{color:'#b58431',type:'dashed',width:1.5},label:{show:true,formatter:p=>p.data?.count>1?'◆'+p.data.count:'◆',position:'end',rotate:0,distance:4,color:'#9d7022',fontSize:12},tooltip:{show:true,trigger:'item',formatter:eventTip},data:eventRows.map(r=>({xAxis:r.period,period:r.period,count:r.events.length,name:r.events.map(e=>e.name).join(' / ')}))};
   }
+  // brush: períodos elegidos dentro de una serie más larga. Se dibujan sombreados y se cambian arrastrando.
+  const brushRange=brush&&brush.length?[tr.periods.indexOf(brush[0]),tr.periods.indexOf(brush.at(-1))]:null;
+  if(brushRange&&brushRange[0]>=0&&brushRange[1]>=0)opt.brush={toolbox:[],xAxisIndex:0,brushType:'lineX',brushMode:'single',transformable:false,removeOnClick:false,brushStyle:{color:'rgba(0,127,119,0.10)',borderColor:'rgba(0,127,119,0.55)',borderWidth:1},outOfBrush:{colorAlpha:0.3}};
+  if(opt.brush)opt.toolbox={show:false};
   if(zoom&&tr.periods.length>1)opt.dataZoom=[{type:'slider',start:0,end:100,bottom:6,height:20,realtime:false,filterMode:'none',textStyle:{fontSize:9},borderColor:'#d9e4e7',fillerColor:'#d4eae3',handleStyle:{color:'#378d7d'}}];
-  const note=(view==='index'?'Base 100 común: '+(tr.base?label(tr.base):'sin base positiva común')+'. ':view==='yoy'?'Variación frente al mismo mes del año anterior. ':'')+(quarter?'':'Bandas: verano (dic.–feb.) e invierno (jun.–ago.). ')+(zoom?'El selector inferior recalcula el período de todo este análisis. ':'')+'Faltantes sin interpolar. '+method;
-  return card({id,title,subtitle,metric,unit:u,basePeriod:tr.base,option:opt,columns:['Período',...series.map(s=>s.name)],rows:tr.periods.map((p,i)=>[p,...tr.series.map(s=>s.values[i])]),periodText:rangeCaption(periods),method:note,sourceReferences:events.length?unique(events.map(e=>e.source_url)).join(' | '):'',onZoom:zoom?e=>{
+  const note=(view==='index'?'Base 100 común: '+(tr.base?label(tr.base):'sin base positiva común')+'. ':view==='yoy'?'Variación frente al mismo mes del año anterior. ':'')+(quarter?'':'Bandas: verano (dic.–feb.) e invierno (jun.–ago.). ')+(zoom?'El selector inferior recalcula el período de todo este análisis. ':opt.brush?'La franja sombreada es el período del análisis; arrastrá sobre el gráfico para cambiarlo. ':'')+'Faltantes sin interpolar. '+method;
+  const brushReady=opt.brush?chart=>{
+   const draw=()=>chart.dispatchAction({type:'brush',areas:[{brushType:'lineX',xAxisIndex:0,coordRange:brushRange}]});
+   chart.dispatchAction({type:'takeGlobalCursor',key:'brush',brushOption:{brushType:'lineX',brushMode:'single'}});draw();
+   chart.on('brushEnd',e=>{
+    const r=e.areas?.[0]?.coordRange;if(!r){draw();return;}
+    const pos=v=>typeof v==='string'?tr.periods.indexOf(v):Math.round(v),a=Math.max(0,pos(r[0])),b=Math.min(tr.periods.length-1,pos(r[1]));
+    if(a>b||tr.periods[a]===undefined){draw();return;}
+    if(tr.periods[a]!==state.hotelFrom||tr.periods[b]!==state.hotelTo){state.hotelPreset='custom';state.hotelFrom=tr.periods[a];state.hotelTo=tr.periods[b];setTimeout(refresh,0);}else draw();
+   });
+   // El mes bajo el cursor se señala también en la participación en Argentina.
+   chart.on('updateAxisPointer',e=>{const v=e.axesInfo?.[0]?.value,p=typeof v==='number'?tr.periods[v]:v,other=ctx.chart?.('hotel-share');if(!other||!p)return;const i=(other.getOption().xAxis?.[0]?.data||[]).indexOf(p);other.dispatchAction(i>=0?{type:'showTip',seriesIndex:0,dataIndex:i}:{type:'hideTip'});});
+   chart.on('globalout',()=>ctx.chart?.('hotel-share')?.dispatchAction({type:'hideTip'}));
+  }:null;
+  return card({id,title,subtitle,metric,unit:u,basePeriod:tr.base,option:opt,onReady:brushReady,columns:['Período',...series.map(s=>s.name)],rows:tr.periods.map((p,i)=>[p,...tr.series.map(s=>s.values[i])]),periodText:rangeCaption(periods),method:note,sourceReferences:events.length?unique(events.map(e=>e.source_url)).join(' | '):'',onZoom:zoom?e=>{
    const z=e.batch?.[0]||e,ps=tr.periods;if(!ps.length)return;
    const index=(v,percent,fallback)=>typeof v==='string'?ps.indexOf(v):Number.isFinite(v)?Math.round(v):Number.isFinite(percent)?Math.round((ps.length-1)*percent/100):fallback;
    const a=Math.max(0,index(z.startValue,z.start,0)),b=Math.min(ps.length-1,index(z.endValue,z.end,ps.length-1));
@@ -49,6 +66,14 @@ function render(ctx){
   }:null,onClick:events.length?p=>{if(p.componentType==='markLine'){const found=eventRows.find(r=>r.events.some(e=>p.name.includes(e.name)));if(found){state.hotelEvent=found.events[0].id;state.hotelTab='events';refresh();}}}:null,...rest});
  }
  function eventDate(e){const show=p=>p.split('-').reverse().join('/');return e.start_date===e.end_date?show(e.start_date):show(e.start_date)+'–'+show(e.end_date);}
+ // Panorama por tipo: la página de alojamiento (demanda.html) incrustada, con sus propios gráficos coordinados.
+ if(state.hotelTab==='types'){
+  const last=D.eoh.scopes['Córdoba'].at(-1).period;ctx.setCurrent({family:'eoh',period:last,latest:last,quarter:false});
+  $('filters').innerHTML=subnav;
+  $('dashboard').innerHTML=`<iframe id="aloj-frame" class="aloj-frame" title="Panorama del alojamiento por tipo en Córdoba" data-state="${esc(state.alojView||'')}"${root.ALOJ_SRCDOC?'':' src="demanda.html"'}></iframe>`;
+  if(root.ALOJ_SRCDOC)$('aloj-frame').srcdoc=root.ALOJ_SRCDOC;
+  return;
+ }
  if(municipal){renderMunicipal();return;}
  const isCategory=state.hotelTab==='typology';
  // 1. Territorio: Córdoba provincia (región EOH) o un destino de Córdoba relevado. La escala se deriva del territorio.
@@ -70,8 +95,17 @@ function render(ctx){
  controls+=field('hotelPreset','Período del análisis',[['year','Año completo'],['12','Últimos 12 meses'],['verano','Verano · dic. a feb.'],['otono','Otoño · mar. a may.'],['invierno','Invierno · jun. a ago.'],['primavera','Primavera · sep. a nov.'],['custom','Intervalo personalizado']]);
  if(!['12','custom'].includes(state.hotelPreset))controls+=field('hotelYear','Año / año de cierre del verano',years);
  const ps=H.selection(state,latest,first);state.hotelFrom=ps[0];state.hotelTo=ps.at(-1);
+ // Ventana de lectura de la serie en Demanda: los últimos 6 años (o desde el inicio de la selección); el período elegido va sombreado.
+ const trendWindow=months(month(Math.max(ordinal(first),Math.min(ordinal(ps[0]),ordinal(latest)-71))),latest);
  if(state.hotelPreset==='custom')controls+=`<label class="field"><span>Desde</span><input type="month" data-key="hotelFrom" aria-label="Desde" min="${first}" max="${latest}" value="${ps[0]}"></label><label class="field"><span>Hasta</span><input type="month" data-key="hotelTo" aria-label="Hasta" min="${first}" max="${latest}" value="${ps.at(-1)}"></label>`;
  $('filters').innerHTML=subnav+controls;
+ // Demanda: franja mínima. El período se elige con atajos o arrastrando sobre la serie; los comparadores, desde el ranking.
+ if(state.hotelTab==='overview'){
+  const quick=[...years.filter(y=>all.includes(y+'-01')&&all.includes(y+'-12')).slice(0,4).map(y=>['year:'+y,y]),['12','Últimos 12 meses'],['verano:'+state.hotelYear,'Verano '+state.hotelYear],['invierno:'+state.hotelYear,'Invierno '+state.hotelYear]];
+  const now=state.hotelPreset==='year'?'year:'+state.hotelYear:state.hotelPreset==='12'?'12':['verano','invierno'].includes(state.hotelPreset)?state.hotelPreset+':'+state.hotelYear:'';
+  const periodChips=`<div class="field quick-period"><span>Período</span><div class="chips" role="group" aria-label="Atajos de período">${quick.map(([k,l])=>`<button class="chip${now===k?'':' off'}" data-hotel-period="${esc(k)}" aria-pressed="${now===k}">${esc(l)}</button>`).join('')}${now?'':`<span class="chip custom" aria-current="true">${esc(rangeCaption(ps))} · elegido en el gráfico</span>`}</div><small class="field-hint">o arrastrá sobre la serie mensual</small></div>`;
+  $('filters').innerHTML=subnav+field('territory','Territorio',territories,{wide:true})+periodChips+T.control({relative,compact:true});
+ }
  function compareControl(){return T.control({relative});}
  ctx.setCurrent({family:'eoh',period:ps.at(-1),latest,quarter:false});
  // Textos: el título nombra indicador y comparación; el subtítulo, ámbitos, período y residencia.
@@ -83,7 +117,7 @@ function render(ctx){
  const availableEvents=H.eventsFor(calendar.events,focus,ps,state.hotelTab==='events'?state.hotelEventType:'all');
  const markedEvents=state.hotelShowEvents==='yes'?availableEvents:[];
  const rangeInfo=`<div class="hotel-range"><span><strong>${esc(caption)}</strong> · ${ps.length} meses · ${esc(scopeLabel(focus))}${isCategory?'':' · '+esc(residenceLabel)} · Fuente: EOH (Encuesta de Ocupación Hotelera, INDEC)</span></div>`;
- let html=rangeInfo;
+ let html=state.hotelTab==='overview'?'':rangeInfo;
  if(!isCategory&&snap.complete!==ps.length)html+=notice('Cobertura incompleta: '+snap.complete+' de '+ps.length+' meses con datos','historical');
  if(!isCategory&&chosenRefs.length&&!relative)html+=notice('Las referencias nacionales/provinciales solo se comparan en índice o variación, por diferencia de escala');
  if(isCategory)html+=sourceControl()+renderCategories();
@@ -92,23 +126,46 @@ function render(ctx){
  else html+=renderOverview();
  $('dashboard').innerHTML=html;
  function residenceControl(){return field('residence','Residencia de los viajeros',[['total','Todas las residencias'],['residentes','En Argentina'],['no_residentes','En el exterior']]);}
+ // Botones en lugar de listas: lectura, residencia y marcas de eventos (el indicador lo eligen las tarjetas).
+ function segs(key,title,values){return `<div class="seg-field"><span>${esc(title)}</span><div class="segments" role="group" aria-label="${esc(title)}">${values.map(([v,l])=>`<button data-set="${key}" data-value="${v}" class="${state[key]===v?'active':''}" aria-pressed="${state[key]===v}">${esc(l)}</button>`).join('')}</div></div>`;}
+ function readingControls(){return `<div class="inline-controls">${segs('hotelView','Lectura',[['levels','Valores'],['index','Índice 100'],['yoy','Var. interanual']])}${state.metric==='proporcion_no_residentes'?'':segs('residence','Residencia',[['total','Todas'],['residentes','En Argentina'],['no_residentes','En el exterior']])}${segs('hotelShowEvents','Eventos',[['yes','Mostrar'],['no','Ocultar']])}</div>`;}
  function controlsForMetric(includeView=true){return `<div class="inline-controls">${field('metric','Indicador del gráfico',['viajeros','pernoctes','estadia_media','proporcion_no_residentes'].map(k=>[k,specs[k][0]]))}${includeView?field('hotelView','Lectura',[['levels','Valores observados'],['index','Índice base 100'],['yoy','Variación interanual (%)']]):''}${residenceControl()}${field('hotelShowEvents','Eventos en la serie',[['yes','Mostrar eventos registrados'],['no','Ocultar marcas']])}</div>`;}
+ // Tarjetas que eligen el indicador de toda la solapa; la participación lleva a su gráfico.
+ function metricCards(){
+  const fix=(html,metric)=>{
+   const on=metric&&state.metric===metric,attrs=metric?`data-set="metric" data-value="${metric}" aria-pressed="${on}" title="Ver ${esc(specs[metric][0].toLowerCase())} en todos los gráficos"`:'data-scroll="panel-hotel-share" title="Ir a la participación en Argentina"';
+   return html.replace(/^<article class="kpi[^"]*">/,`<button type="button" class="kpi kpi-button${on?' primary':''}" ${attrs}>`).replace(/<\/article>$/,'<span class="kpi-cta" aria-hidden="true">'+(metric?(on?'En los gráficos':'Ver en gráficos'):'Ir al gráfico ↓')+'</span></button>');
+  };
+  return '<div class="kpis interactive">'+fix(kpi('Pernoctaciones · '+scopeLabel(focus),fmt(snap.pernoctes),signed(snap.changes.pernoctes)+' % interanual','Noches acumuladas · '+caption),'pernoctes')+fix(kpi('Viajeros hospedados',fmt(snap.viajeros),signed(snap.changes.viajeros)+' % interanual','Registros de viajeros · '+caption),'viajeros')+fix(kpi('Estadía media',value(snap.estadia_media,'estadia_media'),'Argentina: '+value(ar.estadia_media,'estadia_media'),'Noches por viajero'),'estadia_media')+fix(kpi('Participación en noches de Argentina',value(snap.share,'ocupacion'),valid(snap.share)&&valid(snap.oldShare)?signed(snap.share-snap.oldShare)+' pp interanuales':'Sin comparación interanual','Mismo período y residencia · total nacional EOH'),null)+'</div>';
+ }
+ // Frase que resume la selección y cambia con cada clic.
+ function narrative(){
+  const m=state.metric,rank=H.ranking(D,level,ps,m,state.residence),pos=rank.find(r=>r.code===focus)?.rank,ch=snap.changes[m];
+  const others=scopes.filter(k=>k!==focus).map(name);
+  if(!valid(snap[m]))return `<p class="narrative"><strong>${esc(specs[m][0])} · ${esc(scopeLabel(focus))}:</strong> sin dato completo para ${esc(caption)} (${snap.complete} de ${ps.length} meses publicados). Elegí un año completo o los últimos 12 meses.</p>`;
+  return `<p class="narrative"><strong>${esc(specs[m][0])} · ${esc(scopeLabel(focus))}:</strong> ${esc(value(snap[m],m))} en ${esc(caption)}${valid(ch)?', '+esc(signed(ch))+' % interanual':''}${pos?'. Puesto '+pos+' de '+rank.length+' '+(level==='region'?'regiones EOH':'localidades relevadas'):''}${others.length?'. Comparado con '+esc(others.join(', ').replace(/, ([^,]*)$/,' y $1')):''}.</p><p class="interaction-hint">Clic en una tarjeta cambia el indicador · arrastrá sobre la serie para elegir el período · clic en el ranking suma o quita comparadores</p>`;
+ }
  function metrics(){
   return '<div class="kpis">'+kpi('Pernoctaciones · '+scopeLabel(focus),fmt(snap.pernoctes),signed(snap.changes.pernoctes)+' % interanual','Noches acumuladas · '+caption,true)+kpi('Viajeros hospedados',fmt(snap.viajeros),signed(snap.changes.viajeros)+' % interanual','Registros de viajeros · '+caption)+kpi('Estadía media',value(snap.estadia_media,'estadia_media'),'Argentina: '+value(ar.estadia_media,'estadia_media'),'Noches por viajero')+kpi('Participación en noches de Argentina',value(snap.share,'ocupacion'),valid(snap.share)&&valid(snap.oldShare)?signed(snap.share-snap.oldShare)+' pp interanuales':'Sin comparación interanual','Mismo período y residencia · total nacional EOH')+'</div>';
  }
  function mainTrend(id='hotel-trend'){
-  return line({id,title:specs[state.metric][0]+' por mes · '+name(focus)+versus(scopes),subtitle:who(scopes)+' · '+caption+' · '+(state.metric==='proporcion_no_residentes'?'todas las residencias':residenceLabel),series:scopes.map(k=>({name:name(k),rows:get(k)})),periods:ps,metric:state.metric,view:state.hotelView,events:markedEvents,method:(state.metric==='proporcion_no_residentes'?'Proporción de viajeros del exterior sobre todas las residencias; no se aplica el filtro de residencia.':'Residencia: '+residenceLabel+'.')+(markedEvents.length?' ◆ Eventos registrados.':'')});
+  return line({id,title:specs[state.metric][0]+' por mes · '+name(focus)+versus(scopes),subtitle:who(scopes)+' · '+caption+' · '+(state.metric==='proporcion_no_residentes'?'todas las residencias':residenceLabel),series:scopes.map(k=>({name:name(k),rows:get(k)})),periods:id==='hotel-trend'&&state.hotelTab==='overview'?trendWindow:ps,brush:id==='hotel-trend'&&state.hotelTab==='overview'?ps:null,zoom:!(id==='hotel-trend'&&state.hotelTab==='overview'),metric:state.metric,view:state.hotelView,events:markedEvents,method:(state.metric==='proporcion_no_residentes'?'Proporción de viajeros del exterior sobre todas las residencias; no se aplica el filtro de residencia.':'Residencia: '+residenceLabel+'.')+(markedEvents.length?' ◆ Eventos registrados.':'')});
  }
  function rankCard(id='hotel-ranking',metric=state.metric){
   const rank=H.ranking(D,level,ps,metric,state.residence),position=rank.find(r=>r.code===focus)?.rank;
   const shown=rank.slice(0,10);if(!shown.some(r=>r.code===focus)&&rank.some(r=>r.code===focus))shown.push(rank.find(r=>r.code===focus));
   // La tabla contiene todo el universo; el foco permanece visible aun fuera del top 10.
-  return barCard({id,title:'Ranking de '+specs[metric][0].toLowerCase()+' · '+(level==='region'?'regiones EOH':'localidades relevadas'),subtitle:(position?'Posición de '+name(focus)+': '+position+' de '+rank.length+' · ':'')+caption+' · '+(metric==='proporcion_no_residentes'?'todas las residencias':residenceLabel),items:[...shown,...rank.filter(r=>!shown.includes(r))].map(r=>({code:r.code,name:r.rank+'. '+scopeLabel(r.code),values:[r.value],highlight:r.code===focus})),limit:shown.length,seriesNames:[specs[metric][0]],unit:specs[metric][1],metric,periodText:caption,method:(metric==='proporcion_no_residentes'?'Proporción sobre todas las residencias. ':'Mismo período y residencia. ')+'Solo ámbitos con dato completo; Argentina no integra el ranking. Empates comparten posición. Clic en una barra agrega ese comparador. Tabla y CSV incluyen todos los ámbitos válidos.',onClick:r=>{if(r.code!==focus)T.add(r.code);}});
+  // Color = el de la serie del ámbito en los otros gráficos; los ámbitos no elegidos quedan en gris.
+  const palette=commonOption().color,items=[...shown,...rank.filter(r=>!shown.includes(r))].map(r=>({code:r.code,name:r.rank+'. '+scopeLabel(r.code)+(scopes.includes(r.code)&&r.code!==focus?'  ✓':''),values:[r.value],highlight:r.code===focus,color:scopes.includes(r.code)?palette[scopes.indexOf(r.code)%palette.length]:null}));
+  return barCard({id,title:'Ranking de '+specs[metric][0].toLowerCase()+' · '+(level==='region'?'regiones EOH':'localidades relevadas'),subtitle:(position?'Posición de '+name(focus)+': '+position+' de '+rank.length+' · ':'')+caption+' · '+(metric==='proporcion_no_residentes'?'todas las residencias':residenceLabel)+' · clic para comparar',items,limit:shown.length,seriesNames:[specs[metric][0]],unit:specs[metric][1],metric,periodText:caption,method:(metric==='proporcion_no_residentes'?'Proporción sobre todas las residencias. ':'Mismo período y residencia. ')+'Solo ámbitos con dato completo; Argentina no integra el ranking. Empates comparten posición. Clic en una barra suma o quita ese comparador; los elegidos llevan el color de su serie. Tabla y CSV incluyen todos los ámbitos válidos.',onClick:r=>{if(!r||r.code===focus)return;if(T.keys().includes(r.code))T.set(T.keys().filter(k=>k!==r.code));else T.add(r.code);},onReady:chart=>{
+   // Pasar sobre una barra resalta esa serie en la evolución mensual.
+   const lit=(p,type)=>{const code=items[p.dataIndex]?.code,main=ctx.chart?.('hotel-trend');if(main&&code&&scopes.includes(code))main.dispatchAction({type,seriesName:name(code)});};
+   chart.on('mouseover',p=>lit(p,'highlight'));chart.on('mouseout',p=>lit(p,'downplay'));}});
  }
  function renderOverview(){
-  let out=section('¿Cuánta demanda hay?',scopeLabel(focus)+' · '+caption+' · '+residenceLabel)+metrics()+section('¿Cuándo se aloja la gente?','Evolución mensual · el selector inferior del gráfico cambia el período de toda la solapa')+controlsForMetric()+mainTrend();
+  let out='<button class="new-view" data-set="hotelTab" data-value="types"><strong>Panorama por tipo de alojamiento</strong><span>Oferta, ocupación, vuelos y demanda por categoría, con lecturas que cruzan fuentes →</span></button>'+narrative()+section('¿Cuánta demanda hay?',scopeLabel(focus)+' · '+caption+' · '+residenceLabel)+metricCards()+section('¿Cuándo se aloja la gente?','Evolución mensual · arrastrá sobre la serie para cambiar el período de toda la solapa')+readingControls()+mainTrend();
   const volume=['viajeros','pernoctes'].includes(state.metric)?state.metric:'pernoctes',shareScopes=scopes.filter(k=>k!=='Argentina');
-  const shares=shareScopes.map(k=>({name:name(k),rows:get(k,volume).map(r=>({period:r.period,value:ratio(r.value,at(get('Argentina',volume),r.period).value,100)}))}));
+  const palette=commonOption().color,shares=shareScopes.map(k=>({name:name(k),color:palette[scopes.indexOf(k)%palette.length],rows:get(k,volume).map(r=>({period:r.period,value:ratio(r.value,at(get('Argentina',volume),r.period).value,100)}))}));
   out+=section('¿Es mucho o poco?','Peso en el total del país y posición entre ámbitos de la misma escala')+'<div class="grid equal">'+line({id:'hotel-share',title:'Participación en las '+specs[volume][0].toLowerCase()+' de Argentina · '+name(focus)+versus(shareScopes),subtitle:who(shareScopes)+' · '+caption+' · '+residenceLabel,series:shares,periods:ps,metric:'ocupacion',unit:'%',zoom:false,method:'Cada mes se divide por el total nacional EOH del mismo mes. Una subida indica ganancia de participación, aunque el volumen pueda caer. Argentina es el denominador; no es otra línea.'})+rankCard()+'</div>';
   const growthItems=withRefs.map(k=>{const s=H.snapshot(D,k,ps,state.residence);return {name:name(k),values:[s.changes.viajeros,s.changes.estadia_media,s.changes.pernoctes]};});
   out+=section('¿Cómo se compone y cómo viene cambiando?','Viajeros, estadía y residencia')+'<div class="grid equal">'+barCard({id:'hotel-growth',title:'Variación interanual de viajeros, estadía media y pernoctaciones · por ámbito',subtitle:who(withRefs)+' · '+caption+' frente a los mismos meses del año anterior · '+residenceLabel,items:growthItems,seriesNames:['Viajeros','Estadía media','Pernoctaciones'],metric:'ocupacion',unit:'%',periodText:caption,method:'Noches = viajeros × estadía. Las tres variaciones no se suman: (1 + variación de viajeros) × (1 + variación de estadía) = 1 + variación de noches, expresadas como proporciones.'})+barCard({id:'hotel-residence',title:'Viajeros según residencia · participación en cada ámbito',subtitle:who(scopes)+' · '+caption+' · todas las residencias',items:scopes.map(k=>({name:name(k),values:['residentes','no_residentes'].map(res=>ratio(H.total(records(k),ps,'viajeros',res),H.total(records(k),ps,'viajeros','total'),100))})),seriesNames:['Residentes en Argentina','Residentes en el exterior'],metric:'ocupacion',unit:'%',periodText:caption,method:'Usa todas las residencias para conservar el denominador. No identifica nacionalidad, medio de transporte ni motivo del viaje.'})+'</div>';

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Turismo interno en Córdoba</title>
+<meta name="description" content="Turistas residentes que viajan a Córdoba: cuántos, cuándo, cuánto se quedan y gastan, cómo se compara con otras regiones y qué calidad turística certifica.">
+<script>try{if(window.parent!==window)document.documentElement.classList.add('embed');}catch(_){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="panorama.css">
+<style>
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--amber-soft);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;color:#4a3a14}
+.pill button{border:0;background:#fff;border-radius:999px;width:22px;height:22px;line-height:20px;color:var(--ink-2);font-size:14px}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+ <nav class="crumbs" aria-label="Ruta"><a href="index.html">Inteligencia turística</a> / <a href="index.html">Turismo interno</a> / Panorama</nav>
+ <div class="hero">
+  <div><p class="eyebrow">Turismo interno</p><h1>Cuántos argentinos eligen Córdoba, cuándo vienen, cuánto se quedan y cuánto gastan</h1>
+  <p class="hero-sub">Encuesta de Viajes y Turismo de los Hogares (EVyTH, INDEC), comparada con las otras regiones de destino del país, con la hotelería y con la calidad turística certificada. Tocá una región o un año: el resto se acomoda.</p></div>
+  <div class="years"><span>Año analizado</span><div class="ychips" id="years" role="group" aria-label="Año analizado"></div></div>
+ </div>
+</div></header>
+
+<div class="bar"><div class="in"><p class="intro">Turistas residentes en Argentina que viajan a Córdoba (EVyTH), comparados con otras regiones, con la hotelería y con la calidad certificada. Tocá una región o un año: el resto se acomoda.</p></div><div class="in" id="ctl" role="group" aria-label="Selección"></div></div>
+
+<main class="in">
+ <section aria-labelledby="t-k" style="margin-bottom:18px"><h2 id="t-k" class="sr"></h2><div class="kpis" id="kpis"></div><div class="focus" id="focus" hidden></div></section>
+ <section class="card" aria-labelledby="t-find" style="margin-bottom:18px"><p class="q">Radiografía</p><h2 id="t-find"></h2><ol class="find" id="find"></ol></section>
+
+ <div class="grid g21">
+  <section class="card" id="s-trend" aria-labelledby="t-trend"><p class="q">¿Cuántos y cuándo?</p><h2 id="t-trend">Turistas residentes que llegan a Córdoba, por trimestre</h2><p class="desc" id="d-trend"></p>
+   <p class="how">Tocá un año para analizarlo</p><div class="chart" id="c-trend" role="img"></div></section>
+  <section class="card" id="s-rank" aria-labelledby="t-rank"><p class="q">¿Es mucho o poco?</p><h2 id="t-rank"></h2><p class="desc" id="d-rank"></p>
+   <p class="how">Tocá una región para compararla con Córdoba</p><div class="chart" id="c-rank" role="img"></div></section>
+ </div>
+
+ <div class="grid g2">
+  <section class="card" id="s-share" aria-labelledby="t-share"><p class="q">¿Gana o pierde peso?</p><h2 id="t-share"></h2><p class="desc" id="d-share"></p>
+   <p class="how">% de los turistas del país que eligen cada región · tocá un año para analizarlo</p><div class="chart" id="c-share" role="img"></div></section>
+  <section class="card" id="s-sp" aria-labelledby="t-sp"><p class="q">¿Cuánto se quedan y cuánto gastan?</p><h2 id="t-sp"></h2><p class="desc" id="d-sp"></p>
+   <p class="how">Cada punto es una región en el año elegido; la línea punteada une los años de Córdoba · pesos constantes</p><div class="chart" id="c-sp" role="img"></div></section>
+ </div>
+
+ <div class="grid g2">
+  <section class="card" id="s-seas" aria-labelledby="t-seas"><p class="q">¿Qué tan estacional?</p><h2 id="t-seas"></h2><p class="desc" id="d-seas"></p>
+   <p class="how">% de los turistas del año que llega en cada trimestre</p><div class="chart s" id="c-seas" role="img"></div></section>
+  <section class="card" id="s-hot" aria-labelledby="t-hot"><p class="q">¿Cuántos pasan por un hotel?</p><h2 id="t-hot">Turistas y viajeros alojados en hoteles</h2><p class="desc" id="d-hot"></p>
+   <div class="chart s" id="c-hot" role="img"></div>
+   <p class="warn">Orden de magnitud, no una tasa: la EVyTH cuenta turistas residentes de los grandes aglomerados urbanos y la EOH cuenta registros de viajeros en hoteles y parahoteles.</p></section>
+ </div>
+
+ <div class="grid g2">
+  <section class="card" id="s-qual" aria-labelledby="t-qual"><p class="q">¿Con qué calidad?</p><h2 id="t-qual">Distinciones de calidad turística cada 100 mil turistas</h2><p class="desc" id="d-qual"></p>
+   <p class="how">Distinciones del Sistema Argentino de Calidad Turística (SACT) por región, divididas por sus turistas del año elegido</p><div class="chart s" id="c-qual" role="img"></div>
+   <div class="foot"><span>SACT · registros históricos de distinciones, no certificaciones vigentes</span></div></section>
+  <section class="card" id="s-prog" aria-labelledby="t-prog"><p class="q">¿Cuáles?</p><h2 id="t-prog">Distinciones de Córdoba por programa</h2><p class="desc" id="d-prog"></p>
+   <div class="chart s" id="c-prog" role="img"></div></section>
+ </div>
+
+ <section class="card" id="s-quint" aria-labelledby="t-quint" style="margin-bottom:18px"><p class="q">¿Quién viaja en el país?</p><h2 id="t-quint">Turistas por nivel de ingreso del hogar · total del país</h2><p class="desc" id="d-quint"></p>
+  <p class="how">% de los turistas de cada año según el quintil de ingreso de su hogar (la EVyTH lo publica solo para el total nacional)</p><div class="chart s" id="c-quint" role="img"></div>
+  <div class="foot"><span>INDEC · EVyTH · turistas residentes de los grandes aglomerados urbanos</span><span>Gasto deflactado con el IPC nacional (INDEC)</span></div></section>
+</main>
+<footer class="in">Fuentes: INDEC (EVyTH, EOH, IPC), Turismo de la Nación (SACT). La EVyTH releva hogares de los grandes aglomerados urbanos: no cuenta a quienes viven en localidades chicas. <span class="back">· <a href="index.html">Volver al tablero completo</a></span></footer>
+
+<script src="vendor/echarts-6.0.0.min.js"></script>
+<script>(function(){var p=null;try{if(window.parent!==window&&window.parent.DASHBOARD_DATA)p=window.parent;}catch(_){}
+if(p){window.DASHBOARD_DATA=p.DASHBOARD_DATA;}else document.write('<script src="data/dashboard.js"><\/script>');})();</script>
+<script>
+(function(){
+'use strict';
+const D=window.DASHBOARD_DATA,N=D.internal;
+const $=id=>document.getElementById(id);
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EMBED=document.documentElement.classList.contains('embed');
+const post=msg=>{try{window.parent.postMessage({src:'interno',...msg},'*');}catch(_){}};
+function go(el){if(!el)return;if(EMBED)post({type:'scroll',top:el.getBoundingClientRect().top+window.scrollY});else el.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});}
+const ok=v=>typeof v==='number'&&isFinite(v);
+const nf=(x,d=0)=>ok(x)?x.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d}):'sin dato';
+const big=x=>!ok(x)?'sin dato':Math.abs(x)>=1e6?nf(x/1e6,2)+' M':Math.abs(x)>=1e4?nf(x/1e3,0)+' mil':nf(x,0);
+const ars=x=>!ok(x)?'sin dato':'$ '+(Math.abs(x)>=1e9?nf(x/1e9,1)+' mil M':Math.abs(x)>=1e6?nf(x/1e6,1)+' M':nf(x,0));
+const pct=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' %':'sin dato';
+const pp=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' pp':'sin dato';
+const cls=x=>ok(x)?(x<0?'neg':'pos'):'';
+const chg=(a,b)=>ok(a)&&ok(b)&&b!==0?(a/b-1)*100:null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CBA='Córdoba',AR='Argentina',TEAL='#00897b',CMP='#eb6834';
+const REG=Object.keys(N.scopes).filter(k=>k!==AR);
+const regName=k=>k==='PBA - Resto'?'Provincia de Buenos Aires (resto)':k==='PBA - Partidos del GBA'?'Partidos del Gran Buenos Aires':k;
+const Q=['01','04','07','10'],QN=['1º trim.','2º trim.','3º trim.','4º trim.'];
+const IDX={};for(const [k,rows] of Object.entries(N.scopes))for(const r of rows)IDX[k+'|'+r.period]=r;
+const last=N.scopes[CBA].at(-1).period,LY=+last.slice(0,4),LQ=Q.indexOf(last.slice(5))+1;
+// Período: año completo, o los trimestres publicados del año en curso (comparados con los mismos del año anterior).
+const qsOf=y=>Q.slice(0,y===LY?LQ:4);
+const label=y=>y===LY&&LQ<4?`${y} (${LQ===1?'1º trim.':LQ===2?'1º sem.':'ene–sep'})`:String(y);
+function sumQ(k,y,f,qs=qsOf(y)){let t=0;for(const q of qs){const r=IDX[k+'|'+y+'-'+q];if(!r||!ok(r[f]))return null;t+=r[f];}return t;}
+function st(k,y,ref=y){const qs=qsOf(ref),t=sumQ(k,y,'turistas',qs),n=sumQ(k,y,'pernoctes',qs),g=sumQ(k,y,'gasto_total_ars_const',qs);return {t,n,g,stay:ok(t)&&ok(n)&&t>0?n/t:null,gpt:ok(g)&&ok(t)&&t>0?g/t:null};}
+const ALLY=[...new Set(N.scopes[CBA].map(r=>+r.period.slice(0,4)))].sort();
+const YEARS=ALLY.filter(y=>ok(sumQ(CBA,y,'turistas'))&&ok(sumQ(AR,y,'turistas')));
+const FULL=YEARS.filter(y=>qsOf(y).length===4);
+
+// Calidad (SACT): provincias a regiones de destino de la EVyTH.
+const PROV={'Capital Federal':'CABA','Buenos Aires':'PBA','Córdoba':'Córdoba','Mendoza':'Cuyo','San Juan':'Cuyo','San Luis':'Cuyo','Jujuy':'Norte','Salta':'Norte','Tucumán':'Norte','Catamarca':'Norte','La Rioja':'Norte','Santiago del Estero':'Norte','Misiones':'Litoral','Corrientes':'Litoral','Entre Ríos':'Litoral','Santa Fe':'Litoral','Chaco':'Litoral','Formosa':'Litoral','Neuquén':'Patagonia','Río Negro':'Patagonia','Chubut':'Patagonia','Santa Cruz':'Patagonia','Tierra del Fuego':'Patagonia','La Pampa':'Patagonia'};
+const QUAL={};for(const [p,n] of Object.entries(D.quality?.counts||{})){const r=PROV[p];if(r)QUAL[r]=(QUAL[r]||0)+n;}
+const qualTur=(r,y)=>r==='PBA'?(sumQ('PBA - Resto',y,'turistas')??0)+(sumQ('PBA - Partidos del GBA',y,'turistas')??0):sumQ(r,y,'turistas');
+
+let S={y:FULL.at(-1),cmp:null};
+try{const raw=EMBED?(window.frameElement?.dataset?.state||''):decodeURIComponent(location.hash.slice(1));S={...S,...JSON.parse(raw||'{}')};}catch(_){}
+S.y=+S.y;if(!YEARS.includes(S.y))S.y=FULL.at(-1);if(S.cmp&&!REG.includes(S.cmp))S.cmp=null;
+let firstSave=true;
+const save=()=>{if(EMBED){if(firstSave){firstSave=false;return;}post({type:'state',state:JSON.stringify(S)});return;}try{history.replaceState(null,'','#'+encodeURIComponent(JSON.stringify(S)));}catch(_){}};
+const set=p=>{Object.assign(S,p);render();};
+
+const charts={};
+const chart=id=>{if(!charts[id]||charts[id].getDom()!==$(id))charts[id]=echarts.init($(id),null,{renderer:'canvas'});return charts[id];};
+const once=(c,ev,fn)=>{c.off(ev);c.on(ev,fn);};
+const T={confine:true,backgroundColor:'#fff',borderColor:'#e1e8ed',padding:[8,12],textStyle:{color:'#14293a',fontSize:12},extraCssText:'box-shadow:0 6px 20px rgba(16,44,65,.12);border-radius:10px'};
+const AX={axisLine:{lineStyle:{color:'#d5dee4'}},axisTick:{show:false},axisLabel:{color:'#6f8592',fontSize:11},splitLine:{lineStyle:{color:'#eef2f5'}}};
+const base={animation:!REDUCED,animationDuration:300,textStyle:{fontFamily:'Inter, system-ui, sans-serif'}};
+function yearClick(c,ys){c.getZr().off('click');c.getZr().on('click',e=>{const pt=[e.offsetX,e.offsetY];if(!c.containPixel('grid',pt))return;const y=ys[Math.round(c.convertFromPixel({xAxisIndex:0},pt[0]))];if(YEARS.includes(y)&&y!==S.y)set({y});});}
+const per=y=>label(y)+(y===LY&&LQ<4?` frente a los mismos trimestres de ${y-1}`:'');
+
+function render(){
+ save();
+ const yc=YEARS.slice(-7).map(y=>`<button class="ychip" data-y="${y}" aria-pressed="${y===S.y}">${label(y)}</button>`).join('');
+ $('years').innerHTML=yc;
+ $('ctl').innerHTML=`<span class="bar-l">Comparar con</span>${S.cmp?`<span class="pill">${esc(regName(S.cmp))}<button data-clear="cmp" aria-label="Quitar región">×</button></span>`:'<span class="hint" style="margin-left:0">Tocá una región en el ranking para compararla con Córdoba</span>'}`+(EMBED?`<div class="ychips" role="group" aria-label="Año analizado">${yc}</div>`:'');
+ kpis();findings();trendChart();rankChart();shareChart();spChart();seasChart();hotChart();qualChart();progChart();quintChart();
+}
+
+function kpis(){
+ const y=S.y,c=st(CBA,y),c0=st(CBA,y-1,y),a=st(AR,y),a0=st(AR,y-1,y);
+ const sh=c.t/a.t*100,sh0=c0.t/a0.t*100;
+ $('t-k').textContent='Indicadores '+label(y);
+ const K=[['Turistas residentes',big(c.t),`<span class="${cls(chg(c.t,c0.t))}">${pct(chg(c.t,c0.t))}</span> interanual · país ${pct(chg(a.t,a0.t))}`],
+  ['Participación en el país',nf(sh,1)+' %',`<span class="${cls(sh-sh0)}">${pp(sh-sh0)}</span> interanual · de cada 100 turistas del país`],
+  ['Estadía media',nf(c.stay,1)+' noches',`país ${nf(a.stay,1)} noches · ${pct(chg(c.stay,c0.stay))} interanual`],
+  ['Gasto por turista',ars(c.gpt),`pesos constantes · país ${ars(a.gpt)}`]];
+ $('kpis').innerHTML=K.map(([l,v,s])=>`<div class="kpi" style="--kc:${TEAL}"><span>${l}</span><strong>${v}</strong><small>${s}</small></div>`).join('');
+ const f=$('focus');
+ if(S.cmp){const r=st(S.cmp,y),r0=st(S.cmp,y-1,y);f.hidden=false;f.innerHTML=`<b>Comparando con ${esc(regName(S.cmp))}:</b> ${big(r.t)} turistas (${pct(chg(r.t,r0.t))} interanual), ${nf(r.stay,1)} noches de estadía y ${ars(r.gpt)} por turista. Su línea aparece en la evolución, la participación y el gráfico de estadía y gasto.`;}else f.hidden=true;
+}
+
+// ---------- Radiografía
+function findings(){
+ const y=S.y,F=[],c=st(CBA,y),a=st(AR,y),c19=st(CBA,2019,y),a19=st(AR,2019,y),c0=st(CBA,y-1,y);
+ const rk=REG.map(k=>({k,t:st(k,y).t})).filter(r=>ok(r.t)).sort((p,q)=>q.t-p.t),pos=rk.findIndex(r=>r.k===CBA)+1;
+ F.push({h:`Córdoba es el ${pos}º destino del turismo interno: ${nf(c.t/a.t*100,1)} de cada 100 turistas del país`,p:`En ${esc(per(y))} recibió <b>${big(c.t)} turistas residentes</b> (${pct(chg(c.t,c0.t))}). ${y!==2019&&ok(c19.t)?`Frente a 2019 está <b class="${cls(chg(c.t,c19.t))}">${pct(chg(c.t,c19.t))}</b>; el total del país, ${pct(chg(a.t,a19.t))}.`:''} Por delante: ${rk.slice(0,pos-1).map(r=>esc(regName(r.k))).join(' y ')||'nadie'}.`,a:'s-rank'});
+ const s17=st(CBA,2017,y);
+ if(ok(c.stay)&&ok(a.stay))F.push({h:c.stay<a.stay?'Viajes más cortos que el promedio del país':'Viajes más largos que el promedio del país',p:`Quien viaja a Córdoba se queda <b>${nf(c.stay,1)} noches</b>; el promedio del país es ${nf(a.stay,1)}. ${ok(s17.stay)&&y!==2017?`En 2017 eran ${nf(s17.stay,1)} noches: ${c.stay<s17.stay?'crecen las escapadas cortas, que suman turistas pero menos noches':'las estadías se alargaron'}.`:''}`,a:'s-sp'});
+ if(ok(c.gpt)&&ok(a.gpt))F.push({h:c.gpt<a.gpt&&c.g/c.n>a.g/a.n?'Gasta menos por viaje, pero más por noche':c.gpt<a.gpt?'Cada turista gasta menos que el promedio del país':'Cada turista gasta más que el promedio del país',p:`En pesos constantes, <b>${ars(c.gpt)}</b> por turista frente a ${ars(a.gpt)} del país (${pct(chg(c.gpt,a.gpt))}). Por noche: ${ars(c.g/c.n)} en Córdoba y ${ars(a.g/a.n)} en el país. ${ok(c19.g)?`El gasto total real está ${pct(chg(c.g,c19.g))} frente a 2019.`:''}`,a:'s-sp'});
+ const qv=qsOf(y).map(q=>IDX[CBA+'|'+y+'-'+q]?.turistas);
+ if(qv.length===4&&qv.every(ok)){const tt=qv.reduce((p,q)=>p+q,0),av=Q.map(q=>IDX[AR+'|'+y+'-'+q]?.turistas),at=av.reduce((p,q)=>p+q,0);
+  F.push({h:`${nf(qv[0]/tt*100,0)} % de los turistas llega en el primer trimestre`,p:`Enero a marzo concentra ${nf(qv[0]/tt*100,0)} % del año en Córdoba y ${nf(av[0]/at*100,0)} % en el país. El trimestre más flojo es el ${qv.indexOf(Math.min(...qv))+1}º (${nf(Math.min(...qv)/tt*100,0)} %).`,a:'s-seas'});}
+ const sh=rk.map(r=>({k:r.k,now:st(r.k,y).t/a.t*100,then:ok(st(r.k,2019,y).t)?st(r.k,2019,y).t/a19.t*100:null})).filter(r=>ok(r.then));
+ const cb=sh.find(r=>r.k===CBA),win=sh.slice().sort((p,q)=>(q.now-q.then)-(p.now-p.then))[0];
+ if(cb&&win&&y!==2019)F.push({h:Math.abs(cb.now-cb.then)<0.3?'Córdoba mantiene su peso frente a 2019':cb.now>cb.then?'Córdoba gana peso frente a 2019':'Córdoba pierde peso frente a 2019',p:`Su participación pasó de ${nf(cb.then,1)} % en 2019 a <b>${nf(cb.now,1)} %</b>. La región que más ganó es ${esc(regName(win.k))} (${pp(win.now-win.then)}).`,a:'s-share'});
+ const ho=hotelQ(y);if(ho.length){const r=ho.reduce((p,q)=>p+q.v,0)/ho.reduce((p,q)=>p+q.t,0)*100;
+  F.push({h:`${nf(r,0)} viajeros en hoteles por cada 100 turistas`,p:`En ${esc(label(y))}, los hoteles y parahoteles de Córdoba registraron ${big(ho.reduce((p,q)=>p+q.v,0))} viajeros residentes y la EVyTH contó ${big(ho.reduce((p,q)=>p+q.t,0))} turistas. Como orden de magnitud, una parte grande se aloja en casas propias, de familiares o alquileres temporarios: la hotelería no capta todo el turismo que llega.`,a:'s-hot'});}
+ const qt=qualTur(CBA,FULL.at(-1)),qa=Object.values(QUAL).reduce((p,q)=>p+q,0),ta=sumQ(AR,FULL.at(-1),'turistas');
+ if(QUAL[CBA]&&ok(qt))F.push({h:'Mucho turismo, poca calidad certificada',p:`Córdoba recibe ${nf(qt/ta*100,0)} % de los turistas del país, pero tiene ${nf(QUAL[CBA]/qa*100,1)} % de las distinciones del Sistema Argentino de Calidad Turística (${QUAL[CBA]} de ${nf(qa,0)}): <b>${nf(QUAL[CBA]/qt*1e5,1)} cada 100 mil turistas</b>, contra ${nf(qa/ta*1e5,1)} del país. Hay margen para programas de calidad en destinos y prestadores.`,a:'s-qual'});
+ $('t-find').textContent=`Lo que dicen los datos · ${label(y)}`;
+ $('find').innerHTML=F.map(f=>`<li><div><h3>${f.h}</h3><p>${f.p} <a href="#${f.a}">Ver gráfico ↓</a></p></div></li>`).join('');
+}
+
+function hotelQ(y){const out=[];const E=new Map(D.eoh.scopes[CBA].map(r=>[r.period,r]));for(const q of qsOf(y)){const r=IDX[CBA+'|'+y+'-'+q];if(!r||!ok(r.turistas))continue;let v=0;for(let i=0;i<3;i++){const z=E.get(y+'-'+String(+q+i).padStart(2,'0'))?.viajeros_residentes;if(!ok(z)){v=null;break;}v+=z;}if(ok(v))out.push({p:y+'-'+q,t:r.turistas,v});}return out;}
+
+function trendChart(){
+ const ps=[];for(const y of ALLY.filter(y=>y>=2014))for(const q of Q){const p=y+'-'+q;if(p<=last)ps.push(p);}
+ const v=ps.map(p=>IDX[CBA+'|'+p]?.turistas??null),cv=S.cmp?ps.map(p=>IDX[S.cmp+'|'+p]?.turistas??null):null;
+ const i=ps.indexOf(S.y+'-01'),mx=v.reduce((a,x,j)=>ok(x)&&x>(v[a]||0)?j:a,0);
+ $('d-trend').innerHTML=`El trimestre con más turistas de la serie fue el ${Q.indexOf(ps[mx].slice(5))+1}º de ${ps[mx].slice(0,4)} (<b>${big(v[mx])}</b>). En el último publicado (${Q.indexOf(last.slice(5))+1}º de ${LY}) llegaron ${big(v.at(-1))}, ${pct(chg(v.at(-1),IDX[CBA+'|'+(LY-1)+last.slice(4)]?.turistas))} interanual. 2020 y 2021 tienen datos parciales por la pandemia.`;
+ const c=chart('c-trend');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:S.cmp?34:12,bottom:6,containLabel:true},legend:{show:!!S.cmp,top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:x=>{const p=ps[x[0].dataIndex];return `<b>${Q.indexOf(p.slice(5))+1}º trimestre ${p.slice(0,4)}</b>`+x.map(s=>`<br>${s.marker}${esc(s.seriesName)}: <b>${ok(s.value)?nf(s.value,0):'sin dato'}</b>`).join('');}},
+  xAxis:{type:'category',data:ps,...AX,axisLabel:{...AX.axisLabel,interval:0,formatter:p=>p.endsWith('-01')?p.slice(0,4):''}},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:x=>x>=1e6?nf(x/1e6,1)+' M':nf(x/1e3,0)+' mil'}},
+  series:[{name:'Córdoba',type:'bar',barGap:'5%',itemStyle:{color:TEAL},data:v.map((x,j)=>({value:x,itemStyle:{color:TEAL,opacity:ps[j].startsWith(S.y+'-')?1:.45,borderRadius:[3,3,0,0]}}))},
+   ...(cv?[{name:regName(S.cmp),type:'line',data:cv,symbol:'circle',symbolSize:5,connectNulls:false,lineStyle:{color:CMP,width:2},itemStyle:{color:CMP}}]:[])]});
+ yearClick(c,ps.map(p=>+p.slice(0,4)));
+}
+
+function rankChart(){
+ const y=S.y,a=st(AR,y),rk=REG.map(k=>({k,t:st(k,y).t,t0:st(k,y-1,y).t})).filter(r=>ok(r.t)).sort((p,q)=>q.t-p.t);
+ $('t-rank').textContent=`Regiones de destino · ${label(y)}`;
+ const g=rk.filter(r=>ok(chg(r.t,r.t0))).sort((p,q)=>chg(q.t,q.t0)-chg(p.t,p.t0));
+ $('d-rank').innerHTML=`${esc(regName(rk[0].k))} lidera con ${nf(rk[0].t/a.t*100,0)} % de los turistas. ${g.length?`${chg(g[0].t,g[0].t0)>=0?'La que más creció':'Todas cayeron; la que menos'} frente a ${y-1}: ${esc(regName(g[0].k))} (${pct(chg(g[0].t,g[0].t0))}); la que más cayó: ${esc(regName(g.at(-1).k))} (${pct(chg(g.at(-1).t,g.at(-1).t0))}).`:''}`;
+ const c=chart('c-rank');c.clear();
+ c.setOption({...base,grid:{left:8,right:96,top:6,bottom:6,containLabel:true},
+  tooltip:{...T,formatter:x=>{const r=rk[x.dataIndex];return `<b>${esc(regName(r.k))}</b><br>${nf(r.t,0)} turistas (${nf(r.t/a.t*100,1)} %)<br>${pct(chg(r.t,r.t0))} frente a ${y-1}${r.k!==CBA?'<br><span style="color:#6f8592">Tocá para compararla con Córdoba</span>':''}`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:rk.map(r=>regName(r.k)),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,width:180,overflow:'truncate'}},
+  series:[{type:'bar',barWidth:'60%',cursor:'pointer',data:rk.map(r=>({value:r.t,itemStyle:{color:r.k===CBA?TEAL:r.k===S.cmp?CMP:'#cfdbe2',borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11,color:'#46606f',formatter:x=>{const r=rk[x.dataIndex];return big(r.t)+(ok(chg(r.t,r.t0))?'  '+pct(chg(r.t,r.t0),0):'');}}}]});
+ once(c,'click',e=>{const k=rk[e.dataIndex]?.k;if(k&&k!==CBA)set({cmp:S.cmp===k?null:k});});
+}
+
+function shareChart(){
+ const ys=FULL.filter(y=>y>=2012),sh=k=>ys.map(y=>{const t=sumQ(k,y,'turistas'),a=sumQ(AR,y,'turistas');return ok(t)&&ok(a)?t/a*100:null;});
+ const cb=sh(CBA),i=ys.indexOf(S.y),mx=Math.max(...cb.filter(ok)),mn=Math.min(...cb.filter(ok));
+ $('t-share').textContent='Participación en los turistas del país'+(S.cmp?' · Córdoba y '+regName(S.cmp):' · Córdoba');
+ $('d-share').innerHTML=`${i>=0?`En ${S.y}, Córdoba tuvo <b>${nf(cb[i],1)} %</b> de los turistas del país. `:''}En la serie anual se movió entre ${nf(mn,1)} % y ${nf(mx,1)} %${(()=>{const j=ys.indexOf(2019);return j>=0&&i>=0&&j!==i?`; en 2019 era ${nf(cb[j],1)} % (${pp(cb[i]-cb[j])})`:'';})()}.`;
+ const c=chart('c-share');c.clear();
+ c.setOption({...base,grid:{left:8,right:16,top:S.cmp?34:12,bottom:6,containLabel:true},legend:{show:!!S.cmp,top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:4,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',valueFormatter:v=>ok(v)?nf(v,1)+' %':'sin dato'},
+  xAxis:{type:'category',data:ys.map(String),boundaryGap:false,...AX,splitLine:{show:false}},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:'{value} %'},scale:true},
+  series:[{name:'Córdoba',type:'line',data:cb,symbol:'circle',symbolSize:6,connectNulls:false,lineStyle:{color:TEAL,width:2.6},itemStyle:{color:TEAL},markLine:{silent:true,symbol:'none',lineStyle:{color:'#14293a',opacity:.3},label:{show:false},data:[{xAxis:String(S.y)}]}},
+   ...(S.cmp?[{name:regName(S.cmp),type:'line',data:sh(S.cmp),symbol:'circle',symbolSize:5,connectNulls:false,lineStyle:{color:CMP,width:2},itemStyle:{color:CMP}}]:[])]});
+ yearClick(c,ys);
+}
+
+function spChart(){
+ const y=S.y,pts=REG.map(k=>({k,...st(k,y)})).filter(p=>ok(p.stay)&&ok(p.gpt)),a=st(AR,y);
+ const traj=FULL.map(z=>({z,...st(CBA,z)})).filter(p=>ok(p.stay)&&ok(p.gpt));
+ $('t-sp').textContent=`Estadía y gasto por turista · ${label(y)}`;
+ const cb=pts.find(p=>p.k===CBA),longer=pts.filter(p=>p.stay>cb?.stay).map(p=>regName(p.k));
+ $('d-sp').innerHTML=cb?`Córdoba: <b>${nf(cb.stay,1)} noches</b> y <b>${ars(cb.gpt)}</b> por turista. ${longer.length?`Se quedan más en ${esc(longer.slice(0,3).join(', '))}.`:'Es la región con estadías más largas.'} El cruce de las líneas punteadas es el promedio del país.`:'';
+ const c=chart('c-sp');c.clear();
+ c.setOption({...base,grid:{left:70,right:24,top:20,bottom:44},
+  tooltip:{...T,formatter:x=>{const p=x.data.p;return p?`<b>${esc(p.k?regName(p.k):'Córdoba '+p.z)}</b><br>${nf(p.stay,1)} noches · ${ars(p.gpt)} por turista<br>${big(p.t)} turistas`:'';}},
+  xAxis:{type:'value',name:'Noches por turista',nameLocation:'middle',nameGap:28,nameTextStyle:{color:'#46606f',fontSize:12},...AX,scale:true},
+  yAxis:{type:'value',name:'Gasto por turista (pesos constantes)',nameTextStyle:{color:'#46606f',fontSize:12,align:'left'},...AX,axisLine:{show:false},scale:true,axisLabel:{...AX.axisLabel,formatter:v=>nf(v/1e3,0)+' mil'}},
+  series:[{type:'scatter',data:pts.map(p=>({value:[p.stay,p.gpt],p,symbolSize:10+Math.sqrt(p.t)/90,itemStyle:{color:p.k===CBA?TEAL:p.k===S.cmp?CMP:'#9fb3bf',opacity:p.k===CBA||p.k===S.cmp?1:.7,borderColor:'#fff',borderWidth:1.5}})),cursor:'pointer',
+    label:{show:true,position:'right',fontSize:11,color:'#14293a',formatter:x=>regName(x.data.p.k).replace('Provincia de Buenos Aires (resto)','PBA resto').replace('Partidos del Gran Buenos Aires','GBA')},
+    markLine:{silent:true,symbol:'none',lineStyle:{color:'#14293a',type:[4,3],opacity:.35},label:{show:false},data:[{xAxis:a.stay},{yAxis:a.gpt}]}},
+   {type:'line',silent:true,data:traj.map(p=>[p.stay,p.gpt]),symbol:'circle',symbolSize:4,lineStyle:{color:TEAL,width:1,type:[3,3],opacity:.6},itemStyle:{color:TEAL,opacity:.5}}]});
+ once(c,'click',e=>{const k=e.data?.p?.k;if(k&&k!==CBA)set({cmp:S.cmp===k?null:k});});
+}
+
+function seasChart(){
+ const y=FULL.includes(S.y)?S.y:FULL.at(-1),sh=k=>{const v=Q.map(q=>IDX[k+'|'+y+'-'+q]?.turistas);const t=v.reduce((a,b)=>a+(b||0),0);return v.map(x=>ok(x)&&t>0?x/t*100:null);};
+ const cb=sh(CBA),ar=sh(AR),cm=S.cmp?sh(S.cmp):null;
+ $('t-seas').textContent=`Turistas por trimestre · ${y}`;
+ $('d-seas').innerHTML=`En Córdoba el 1º trimestre reúne <b>${nf(cb[0],0)} %</b> de los turistas del año; en el país, ${nf(ar[0],0)} %. ${cb[2]>ar[2]?`El receso invernal (3º trimestre) pesa más que en el país (${nf(cb[2],0)} % contra ${nf(ar[2],0)} %).`:`El 3º trimestre, con el receso invernal, pesa ${nf(cb[2],0)} %.`}${S.y!==y?` (${S.y} no tiene los cuatro trimestres; se muestra ${y}.)`:''}`;
+ const c=chart('c-seas');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>nf(v,1)+' %'},
+  xAxis:{type:'category',data:QN,...AX},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:'{value} %'}},
+  series:[{name:'Córdoba',type:'bar',barGap:'10%',data:cb,itemStyle:{color:TEAL,borderRadius:[3,3,0,0]},label:{show:true,position:'top',fontSize:11,color:'#46606f',formatter:p=>nf(p.value,0)+' %'}},
+   {name:'Argentina',type:'bar',data:ar,itemStyle:{color:'#9fb3bf',borderRadius:[3,3,0,0]}},...(cm?[{name:regName(S.cmp),type:'bar',data:cm,itemStyle:{color:CMP,borderRadius:[3,3,0,0]}}]:[])]});
+}
+
+function hotChart(){
+ const all=[];for(const y of ALLY.filter(y=>y>=2017))all.push(...hotelQ(y));
+ const lab=p=>Math.ceil(+p.slice(5,7)/3)+'T '+p.slice(2,4),sel=hotelQ(S.y);
+ const r=sel.length?sel.reduce((a,q)=>a+q.v,0)/sel.reduce((a,q)=>a+q.t,0)*100:null;
+ $('d-hot').innerHTML=ok(r)?`En ${esc(label(S.y))}, por cada 100 turistas residentes que llegaron a Córdoba los hoteles registraron <b>${nf(r,0)} viajeros</b>. ${(()=>{if(all.length<3)return '';const r=all.map(q=>[q,q.v/q.t*100]),lo=r.reduce((a,b)=>b[1]<a[1]?b:a),hi=r.reduce((a,b)=>b[1]>a[1]?b:a);return `En la serie va de ${nf(lo[1],0)} (${lab(lo[0].p)}) a ${nf(hi[1],0)} (${lab(hi[0].p)}): la EVyTH es una muestra y los trimestres sueltos varían mucho.`;})()}`:'Sin trimestres comparables para este año.';
+ const c=chart('c-hot');c.clear();
+ c.setOption({...base,grid:{left:8,right:10,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>{const q=all[ps[0].dataIndex];return `<b>${lab(q.p)}</b>`+ps.map(x=>`<br>${x.marker}${esc(x.seriesName)}: ${big(x.value)}`).join('')+`<br><span style="color:#6f8592">${nf(q.v/q.t*100,0)} viajeros en hotel por cada 100 turistas</span>`;}},
+  xAxis:{type:'category',data:all.map(q=>lab(q.p)),...AX,axisLabel:{...AX.axisLabel,fontSize:10.5}},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e6?nf(v/1e6,1)+' M':nf(v/1e3,0)+' mil'}},
+  series:[{name:'Turistas residentes (EVyTH)',type:'bar',barGap:'8%',itemStyle:{color:'#cfdbe2'},data:all.map(q=>({value:q.t,itemStyle:{color:'#cfdbe2',opacity:q.p.startsWith(S.y+'-')?1:.6}}))},
+   {name:'Viajeros residentes en hoteles (EOH)',type:'bar',itemStyle:{color:TEAL},data:all.map(q=>({value:q.v,itemStyle:{color:TEAL,opacity:q.p.startsWith(S.y+'-')?1:.5}}))}]});
+ yearClick(c,all.map(q=>+q.p.slice(0,4)));
+}
+
+function qualChart(){
+ const y=FULL.includes(S.y)?S.y:FULL.at(-1),regs=['CABA','PBA','Córdoba','Cuyo','Litoral','Norte','Patagonia'];
+ const rows=regs.map(r=>({r,n:QUAL[r]||0,t:qualTur(r,y)})).filter(x=>ok(x.t)&&x.t>0).map(x=>({...x,rate:x.n/x.t*1e5})).sort((a,b)=>b.rate-a.rate);
+ const qa=Object.values(QUAL).reduce((a,b)=>a+b,0),ta=sumQ(AR,y,'turistas'),cb=rows.find(x=>x.r===CBA);
+ $('d-qual').innerHTML=cb?`Córdoba tiene <b>${nf(cb.rate,1)} distinciones cada 100 mil turistas</b>, contra ${nf(qa/ta*1e5,1)} del país; ${esc(rows[0].r)} lidera con ${nf(rows[0].rate,1)}. ${rows.indexOf(cb)===rows.length-1?'Es la región con menos distinciones en relación con su demanda.':''} Datos del SACT al ${esc(D.quality.latest_date?.split('-').reverse().join('/'))}.`:'Sin datos de calidad.';
+ const c=chart('c-qual');c.clear();
+ c.setOption({...base,grid:{left:8,right:110,top:6,bottom:6,containLabel:true},
+  tooltip:{...T,formatter:x=>{const r=rows[x.dataIndex];return `<b>${esc(r.r)}</b><br>${nf(r.n,0)} distinciones · ${big(r.t)} turistas en ${y}<br>${nf(r.rate,1)} cada 100 mil turistas`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:rows.map(r=>r.r==='PBA'?'Provincia de Buenos Aires':r.r),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12}},
+  series:[{type:'bar',barWidth:'60%',data:rows.map(r=>({value:r.rate,itemStyle:{color:r.r===CBA?TEAL:'#cfdbe2',borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11,color:'#46606f',formatter:x=>nf(x.value,1)+' · '+nf(rows[x.dataIndex].n,0)+' dist.'}}]});
+}
+
+function progChart(){
+ const rows=(D.quality?.programs||[]).filter(p=>p.scope===CBA).sort((a,b)=>b.records-a.records),ar=new Map((D.quality?.programs||[]).filter(p=>p.scope===AR).map(p=>[p.program,p.records]));
+ const tot=rows.reduce((a,b)=>a+b.records,0);
+ if(!rows.length){$('d-prog').textContent='Sin datos.';return;}
+ const missing=[...ar.entries()].sort((a,b)=>b[1]-a[1]).filter(([p])=>!rows.some(r=>r.program===p)).slice(0,2);
+ $('d-prog').innerHTML=`${tot} distinciones en ${rows.length} programas. Los más usados: <b>${esc(rows[0].program)}</b> (${rows[0].records}) y ${esc(rows[1]?.program||'')} (${rows[1]?.records||0}).${missing.length?` Sin distinciones en Córdoba, aunque son de los más usados en el país: ${missing.map(([p,n])=>esc(p)+' ('+n+' en el país)').join(' y ')}.`:''}`;
+ const c=chart('c-prog');c.clear();
+ const top=rows.slice(0,9);
+ c.setOption({...base,grid:{left:8,right:40,top:6,bottom:6,containLabel:true},tooltip:{...T,formatter:x=>{const r=top[x.dataIndex];return `<b>${esc(r.program)}</b><br>${r.records} en Córdoba · ${ar.get(r.program)||'—'} en el país`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:top.map(r=>r.program),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:11.5,width:230,overflow:'truncate'}},
+  series:[{type:'bar',barWidth:'60%',data:top.map(r=>({value:r.records,itemStyle:{color:TEAL,borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11,color:'#46606f'}}]});
+}
+
+function quintChart(){
+ const G=['Quintiles 1 y 2','Quintiles 3 y 4','Quintil 5'],GN=['40 % de menores ingresos','Ingresos medios (quintiles 3 y 4)','20 % de mayores ingresos'],GC=['#2a78d6','#9fb3bf','#6250d6'];
+ const ys=FULL.filter(y=>y>=2012),val=(g,y)=>{let t=0;for(const q of Q){const r=N.quintiles.find(x=>x.group===g&&x.period===y+'-'+q);if(!r||!ok(r.turistas))return null;t+=r.turistas;}return t;};
+ const sh=ys.map(y=>{const v=G.map(g=>val(g,y)),t=v.reduce((a,b)=>a+(b||0),0);return v.map(x=>ok(x)&&t>0?x/t*100:null);});
+ const i=ys.indexOf(FULL.includes(S.y)?S.y:FULL.at(-1)),j=ys.indexOf(2019);
+ $('d-quint').innerHTML=i>=0?`En ${ys[i]}, el 20 % de hogares de mayores ingresos aportó <b>${nf(sh[i][2],0)} %</b> de los turistas del país y el 40 % de menores ingresos, ${nf(sh[i][0],0)} %${j>=0&&j!==i?` (en 2019: ${nf(sh[j][2],0)} % y ${nf(sh[j][0],0)} %)`:''}. Es contexto nacional: la EVyTH no abre el ingreso por destino.`:'';
+ const c=chart('c-quint');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},valueFormatter:v=>ok(v)?nf(v,1)+' %':'sin dato'},
+  xAxis:{type:'category',data:ys.map(String),...AX},yAxis:{type:'value',max:100,...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:'{value} %'}},
+  series:G.map((g,k)=>({name:GN[k],type:'bar',stack:'q',barWidth:'58%',itemStyle:{color:GC[k],borderColor:'#fff',borderWidth:1},data:sh.map((r,yi)=>({value:r[k],itemStyle:{color:GC[k],opacity:ys[yi]===ys[i]?1:.55}})),label:{show:k!==1,fontSize:10.5,color:'#fff',formatter:p=>ok(p.value)&&p.value>=10?nf(p.value,0):''}}))});
+ yearClick(c,ys);
+}
+
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#s-"]');if(a){e.preventDefault();go($(a.getAttribute('href').slice(1)));return;}
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.y){set({y:+b.dataset.y});return;}
+ if(b.dataset.clear){set({[b.dataset.clear]:null});return;}
+});
+window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
+if(EMBED){let lastH=0;const tell=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height)+4;if(Math.abs(h-lastH)>2){lastH=h;post({type:'height',h});}};
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(tell).observe(document.body);window.addEventListener('load',tell);setTimeout(tell,300);}
+if(!D||!window.echarts){$('find').innerHTML='<li><div><h3>Falta un archivo del tablero</h3><p>Abrí el paquete completo.</p></div></li>';}else render();
+})();
+</script>
+</body>
+</html>

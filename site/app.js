@@ -14,10 +14,10 @@ const specs={viajeros:['Viajeros hospedados','viajeros',0],pernoctes:['Pernoctac
 const navs={demand:['Hotelería','OFERTA, DEMANDA Y OCUPACIÓN','Cuánto alojamiento hay, cuánta gente se aloja, qué parte se ocupa y en qué momento del año.','M3 20V10h4v10M10 20V4h4v16M17 20V7h4v13'],air:['Conectividad aérea','CÓRDOBA COMO ORIGEN Y DESTINO','Cuánto mueve el aeropuerto de Córdoba y cómo se reparte por aeropuerto, aerolínea, tipo de tráfico y destino.','M3 13l7 1 4 7 2-1-2-7 6-6c2-2 0-4-2-2l-6 6-7-2-1 2 7 4'],international:['Mercados internacionales','VIAJES A TRAVÉS DEL AEROPUERTO','Turismo receptivo y emisivo por el paso Córdoba, comparado con otros pasos aeroportuarios relevados.','M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18'],internal:['Turismo interno','DEMANDA DENTRO DEL PAÍS','Viajes de los argentinos dentro del país y, al cierre, el padrón de calidad turística','M3 11l9-8 9 8M6 10v11h12V10M10 21v-7h4v7'],sources:['Fuentes y metodología','DATOS CON TRAZABILIDAD','Fuentes oficiales, hasta cuándo hay datos, informes y eventos incorporados, y cómo leer el tablero.','M5 4h14v17H5zM8 8h8M8 12h8M8 16h5']};
 const hotelLatest=D.eoh.scopes['Córdoba'].at(-1).period;
 const hotelFullYear=String(+hotelLatest.slice(0,4)-(hotelLatest.slice(5)<='11'?1:0));
-const defaults={hotelTab:'supply',supplyMetric:'plazas',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'eoh',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'plazas',direction:'ambos',kind:'all',carrier:'all',airMetric:'pasajeros',airCompare:'SAME',airPreset:'12',airYear:D.air.periods.filter(p=>p.endsWith('-12')).at(-1)?.slice(0,4)||'',airFrom:'',airTo:'',routeSort:'metric',airCarrierView:'levels',airIntlMetric:'destinos',airSeasonView:'share',rankLimit:'10',minFlights:'30',routeSearch:'',seasonYear:'',flow:'receptivo',intlMetric:'turistas',intlCompare:'Aep. Mendoza,Ezeiza y Aeroparque',intlPreset:'year',intlYear:'',intlBalance:'usd',intlMarketView:'share',internalMetric:'turistas',internalCompare:'Argentina,Cuyo',internalPreset:'latest',internalYear:'',internalRankMetric:'turistas'};
+const defaults={alojView:'',aereoView:'',mercadosView:'',internoView:'',airMode:'panorama',intlMode:'panorama',internalMode:'panorama',hotelTab:'types',supplyMetric:'plazas',hotelPreset:'year',hotelYear:hotelFullYear,hotelFrom:'',hotelTo:'',hotelView:'levels',hotelSource:'eoh',hotelQuarter:window.HOTEL_DATA.observatory.reports.slice().sort((a,b)=>a.period.localeCompare(b.period)).at(-1)?.id||'',hotelStar:'all',hotelSeasonMetric:'pernoctes',hotelProfile:'share',hotelShowEvents:'yes',hotelEventType:'all',hotelEvent:'',tab:'demand',cutoff:D.air.periods.at(-1),range:'24',view:'index',territory:'Córdoba',compare:'Argentina,Cuyo',metric:'pernoctes',residence:'total',category:'Total',occupancy:'plazas',direction:'ambos',kind:'all',carrier:'all',airMetric:'pasajeros',airCompare:'SAME',airPreset:'12',airYear:D.air.periods.filter(p=>p.endsWith('-12')).at(-1)?.slice(0,4)||'',airFrom:'',airTo:'',routeSort:'metric',airCarrierView:'levels',airIntlMetric:'destinos',airSeasonView:'share',rankLimit:'10',minFlights:'30',routeSearch:'',seasonYear:'',flow:'receptivo',intlMetric:'turistas',intlCompare:'Aep. Mendoza,Ezeiza y Aeroparque',intlPreset:'year',intlYear:'',intlBalance:'usd',intlMarketView:'share',internalMetric:'turistas',internalCompare:'Argentina,Cuyo',internalPreset:'latest',internalYear:'',internalRankMetric:'turistas'};
 const unique=xs=>[...new Set(xs.filter(Boolean))];
 // Límite por clave en enlaces compartidos; la lista de comparadores admite más texto.
-const maxLength=k=>k==='compare'||k==='airCompare'||k==='internalCompare'?600:200;
+const maxLength=k=>k==='alojView'||k==='aereoView'||k==='mercadosView'||k==='internoView'||k==='compare'||k==='airCompare'||k==='internalCompare'?600:200;
 function readSaved(saved){
  const s={...defaults},str=k=>typeof saved[k]==='string'&&saved[k].length<200?saved[k]:null;
  for(const k of Object.keys(defaults))if(typeof saved[k]==='string'&&saved[k].length<maxLength(k))s[k]=saved[k];
@@ -28,7 +28,7 @@ function readSaved(saved){
   if(typeof saved.compare!=='string')s.compare=unique([str('compare1')??'Argentina',str('compare2')??'Cuyo']).join(',');
  }
  // Enlaces anteriores a la reorganización por relato (sin marca de versión): conservan los valores iniciales de entonces.
- if(saved.v!=='2'&&Object.keys(saved).length)for(const [k,v] of Object.entries({hotelTab:'overview',hotelSource:'municipal',direction:'salidas',airPreset:'latest'}))if(typeof saved[k]!=='string')s[k]=v;
+ if(saved.v!=='2'&&Object.keys(saved).length)for(const [k,v] of Object.entries({airMode:'detail',intlMode:'detail',internalMode:'detail',hotelTab:'overview',hotelSource:'municipal',direction:'salidas',airPreset:'latest'}))if(typeof saved[k]!=='string')s[k]=v;
  // La sección Estacionalidad pasó a ser una solapa de Hotelería: se conservan territorio, comparadores y año del enlace.
  if(saved.tab==='season'){
   s.tab='demand';s.hotelTab='seasonality';
@@ -93,13 +93,15 @@ function eohScopeCompare({territoryKey,compareKey,refsAt=()=>[],extraAt=()=>[],r
  }
  const add=k=>{if(k&&!keys().includes(k))set([...keys(),k]);};
  // relative: si la lectura del gráfico admite las referencias (índice o variación).
- function control({relative=false}={}){
+ function control({relative=false,compact=false}={}){
   const chosen=compare(),focus=territory(),lv=level(),opt=([k,l])=>`<option value="${esc(k)}">${esc(l)}</option>`,free=([k])=>!chosen.includes(k);
   const pool=Object.entries(meta).filter(([k,m])=>k!==focus&&(lv==='region'?m.level==='region'||m.level==='pais':m.level==='localidad')).map(([k,m])=>[k,m.level==='pais'?m.label+' · total nacional':m.label]).sort((a,b)=>a[1].localeCompare(b[1],'es'));
   const references=refsAt(lv).map(k=>[k,name(k)]),extras=extraAt(lv).map(k=>[k,meta[k].label+(meta[k].level==='pais'?' · total nacional':'')]);
   const menu=lv==='localidad'?`<optgroup label="Localidades relevadas">${pool.filter(free).map(opt).join('')}</optgroup>${extras.some(free)?`<optgroup label="Total nacional">${extras.filter(free).map(opt).join('')}</optgroup>`:''}${references.some(free)?`<optgroup label="Referencias · solo índice o variación">${references.filter(free).map(opt).join('')}</optgroup>`:''}`:pool.filter(free).map(opt).join('');
   const chips=chosen.map(k=>{const off=isReference(k)&&!relative;return `<button class="chip${off?' off':''}" data-chip-remove="${esc(k)}" data-compare-key="${compareKey}" aria-pressed="true" aria-label="Quitar ${esc(name(k))}${off?' (no se grafica en valores observados)':''}" title="Quitar comparador">${esc(name(k))}${off?' · solo en índice o variación':''} <span aria-hidden="true">×</span></button>`;}).join('');
   const others=lv==='region'?Object.keys(meta).filter(k=>meta[k].level==='region'&&k!==focus).concat('Argentina'):Object.keys(meta).filter(k=>meta[k].cordoba&&k!==focus);
+  // Versión compacta: las fichas son el control; sumar se hace desde el ranking o con el menú «+ Agregar».
+  if(compact)return `<div class="compare-group compact"><div class="field"><span>Comparando con</span></div><div class="chips" role="group" aria-label="Comparadores seleccionados: ${chosen.length+1} de ${MAX_SERIES} series">${chips||'<span class="chips-empty">Sin comparadores · clic en el ranking para sumar</span>'}<select class="chip-add" data-compare-add="${compareKey}" aria-label="Agregar comparador"><option value="">+ Agregar</option>${menu}</select><button class="chip off" data-compare-set="${esc(others.join(','))}" data-compare-key="${compareKey}">${lv==='region'?'Todas las regiones':'Todos los destinos de Córdoba'}</button>${chosen.length?`<button class="chip off" data-compare-set="" data-compare-key="${compareKey}">Quitar todos</button>`:''}</div></div>`;
   return `<div class="compare-group"><label class="field"><span>Comparar con</span><select data-compare-add="${compareKey}" aria-label="Agregar comparador"><option value="">Agregar comparador…</option>${menu}</select></label><div class="compare-extras"><div class="chips" role="group" aria-label="Comparadores seleccionados: ${chosen.length+1} de ${MAX_SERIES} series">${chips||'<span class="chips-empty">Sin comparadores</span>'}</div><div class="compare-shortcuts"><button class="button small" data-compare-set="${esc(others.join(','))}" data-compare-key="${compareKey}">${lv==='region'?'Todas las regiones':'Todos los destinos de Córdoba'}</button><button class="button small subtle" data-compare-set="" data-compare-key="${compareKey}"${chosen.length?'':' disabled'}>Quitar todos</button></div></div></div>`;
  }
  return {MAX_SERIES,territoryKey,compareKey,territories:eohTerritories,level,keys,all:keys,compare,comparable,isReference,name,set,add,control};
@@ -222,7 +224,7 @@ function tableHTML(c){
 function commonOption(){return {backgroundColor:'#fff',animation:!window.matchMedia('(prefers-reduced-motion: reduce)').matches,animationDuration:350,color:colors,textStyle:{fontFamily:'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif'},aria:{enabled:true,decal:{show:false}},tooltip:{trigger:'axis',confine:true,backgroundColor:'#fff',borderColor:'#d7e3e8',textStyle:{color:'#214459',fontSize:11}},legend:{type:'scroll',top:6,left:0,right:0,icon:'roundRect',itemWidth:14,itemHeight:3,textStyle:{fontSize:10,color:'#5b7586'}},grid:{left:5,right:20,top:49,bottom:65,containLabel:true}};}
 function axisLabel(x){return Math.abs(x)>=1e6?fmt(x/1e6,1)+' M':Math.abs(x)>=1e4?fmt(x/1000,0)+' mil':fmt(x,Math.abs(x)<10&&x!==0?1:0);}
 function tooltipRows(params,unit=''){
- const ps=Array.isArray(params)?params:[params];return '<strong>'+esc(ps[0]?.axisValueLabel||ps[0]?.name||'')+'</strong>'+ps.map(p=>'<div style="margin-top:5px">'+p.marker+' '+esc(p.seriesName)+': <strong>'+esc(valid(p.value)?fmt(p.value,unit==='%'||unit==='índice'||unit==='noches'||unit==='veces'?1:0)+(unit?' '+unit:''):'Sin dato')+'</strong></div>').join('');
+ const ps=Array.isArray(params)?params:[params],head=ps[0]?.axisValueLabel||ps[0]?.name||'';return '<strong>'+esc(/^20\d\d-(0[1-9]|1[0-2])$/.test(head)?label(head):head)+'</strong>'+ps.map(p=>'<div style="margin-top:5px">'+p.marker+' '+esc(p.seriesName)+': <strong>'+esc(valid(p.value)?fmt(p.value,unit==='noches'&&Number.isInteger(p.value)?0:unit==='%'||unit==='índice'||unit==='noches'||unit==='veces'?1:0)+(unit?' '+unit:''):'Sin dato')+'</strong></div>').join('');
 }
 function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,quarter=current.quarter,seasonBands=true,periods:fixed,...rest}){
  const all=unique(series.flatMap(s=>s.rows.map(r=>r.period))).sort();
@@ -250,7 +252,7 @@ function lineCard({id,title,subtitle,series,metric='viajeros',view=state.view,qu
 function barCard({id,title,subtitle,items,seriesNames=['Córdoba'],unit='',metric='viajeros',limit=10,onClick,labelDigits=null,labelWidth=150,...rest}){
  const shown=items.slice(0,limit),opt=commonOption();opt.grid={left:4,right:40,top:seriesNames.length>1?40:12,bottom:12,containLabel:true};opt.legend.show=seriesNames.length>1;opt.tooltip.formatter=p=>tooltipRows(p,unit);
  opt.xAxis={type:'value',axisLabel:{fontSize:9,color:'#7c909b',formatter:axisLabel},splitLine:{lineStyle:{color:'#edf1f4'}}};opt.yAxis={type:'category',inverse:true,data:shown.map(r=>r.name),axisLabel:{fontSize:10,color:'#4d6b7c',width:labelWidth,overflow:'truncate'},axisTick:{show:false},axisLine:{show:false}};
- opt.series=seriesNames.map((s,i)=>({name:s,type:'bar',barMaxWidth:14,data:shown.map(r=>({value:r.values[i],itemStyle:{color:r.highlight&&seriesNames.length===1?colors[0]:seriesNames.length===1?'#a3baca':colors[i],borderRadius:[0,3,3,0]}})),label:{show:seriesNames.length===1,position:'right',fontSize:9,color:'#597787',formatter:p=>valid(p.value)?fmt(p.value,labelDigits??(unit==='%'?1:0)):''},emphasis:{focus:'series'}}));
+ opt.series=seriesNames.map((s,i)=>({name:s,type:'bar',barMaxWidth:14,data:shown.map(r=>({value:r.values[i],itemStyle:{color:r.color&&seriesNames.length===1?r.color:r.highlight&&seriesNames.length===1?colors[0]:seriesNames.length===1?'#a3baca':colors[i],borderRadius:[0,3,3,0]}})),label:{show:seriesNames.length===1,position:'right',fontSize:9,color:'#597787',formatter:p=>valid(p.value)?fmt(p.value,labelDigits??(unit==='%'?1:0)):''},emphasis:{focus:'series'}}));
  return card({id,title,subtitle,metric,unit,option:opt,columns:['Categoría',...seriesNames],rows:items.map(r=>[r.name,...r.values]),onClick:onClick?params=>onClick(shown[params.dataIndex]):null,className:shown.length>8?'tall':'',...rest});
 }
 function paint(){
@@ -261,6 +263,8 @@ function paint(){
   c.option.aria={enabled:true,description:c.title+'. '+(c.subtitle||'')+'. Período: '+c.periodText+'. Unidad: '+(c.unit||specs[c.metric]?.[1]||'registros')+'. Consultá los valores con el botón Tabla.'};
   const chart=echarts.init(target,null,{renderer:'canvas'});charts.set(id,chart);chart.setOption(c.option);if(c.onClick)chart.on('click',c.onClick);if(c.onZoom)chart.on('datazoom',c.onZoom);
  }
+ // Gráficos coordinados: cada uno se conecta con los demás cuando ya están todos dibujados.
+ for(const [id,c] of cards)if(c.onReady&&charts.has(id))c.onReady(charts.get(id));
 }
 function latestSeries(family){return D.sources.filter(s=>s.family===family).map(s=>s.latest_period).filter(Boolean).sort().at(-1);}
 function rankItems(scopes,seriesGetter,ps,metric){return scopes.map(k=>({code:k,value:aggregate(seriesGetter(k),ps,metric)})).filter(r=>valid(r.value)).sort((a,b)=>b.value-a.value);}
@@ -270,11 +274,20 @@ function warnHistorical(family){const last=latestSeries(family);return last&&ord
 // Oferta de alojamiento: padrón anual (PUNA), en un archivo propio; si falta, la solapa lo avisa.
 const puna=window.PUNA_DATA&&window.PunaModel?{...window.PunaModel.create(window.PUNA_DATA),data:window.PUNA_DATA}:null;
 function renderDemand(){
- window.HotelDashboard.render({puna,seasonBlocks,D,M,model,state,$,esc,fmt,signed,label,value,specs,field,compareFields,scopeOptions,scopeLabel,unique,section,notice,kpi,card,barCard,commonOption,axisLabel,tooltipRows,rangeCaption,render,setCurrent:c=>{current=c;},hotel:hotelScope});
+ window.HotelDashboard.render({puna,seasonBlocks,D,M,model,state,$,esc,fmt,signed,label,value,specs,field,compareFields,scopeOptions,scopeLabel,unique,section,notice,kpi,card,barCard,commonOption,axisLabel,tooltipRows,rangeCaption,render,setCurrent:c=>{current=c;},hotel:hotelScope,chart:id=>charts.get(id)});
 }
 
 function renderAir(){
  const selected=airPeriod(),latest=D.air.periods.at(-1);
+ // Panorama (aereo.html incrustado) o análisis detallado con sus filtros.
+ const airNav=`<nav class="hotel-tabs" aria-label="Vistas de conectividad aérea">${[['panorama','Panorama'],['detail','Análisis detallado']].map(([v,l])=>`<button data-set="airMode" data-value="${v}" class="${state.airMode===v?'active':''}" aria-pressed="${state.airMode===v}">${l}</button>`).join('')}</nav>`;
+ if(state.airMode!=='detail'){
+  current={family:'air',period:latest,latest,quarter:false};
+  $('filters').innerHTML=airNav;
+  $('dashboard').innerHTML=`<iframe id="aereo-frame" class="aloj-frame" title="Panorama de la conectividad aérea de Córdoba" data-state="${esc(state.aereoView||'')}"${window.AEREO_SRCDOC?'':' src="aereo.html"'}></iframe>`;
+  if(window.AEREO_SRCDOC)$('aereo-frame').srcdoc=window.AEREO_SRCDOC;
+  return;
+ }
  current={family:'air',quarter:false,period:selected.at(-1),latest};
  const data=model.air(state.direction,state.kind,state.carrier),get=k=>data[k]||[],val=k=>aggregate(get(k),selected,state.airMetric),scopes=airScopes(),caption=rangeCaption(selected);
  // Atajo: los 6 aeropuertos argentinos con más pasajeros en el período (sin Córdoba ni el total nacional).
@@ -286,7 +299,7 @@ function renderAir(){
  controls+=field('airPreset','Período del análisis',[['latest','Último mes disponible'],['ytd','Acumulado del año'],['12','Últimos 12 meses'],['year','Año completo'],['custom','Personalizado']]);
  if(state.airPreset==='year')controls+=field('airYear','Año',airYears());
  if(state.airPreset==='custom')controls+=`<label class="field"><span>Desde</span><input type="month" data-key="airFrom" aria-label="Desde" min="${D.air.periods[0]}" max="${latest}" value="${selected[0]}"></label><label class="field"><span>Hasta</span><input type="month" data-key="airTo" aria-label="Hasta" min="${D.air.periods[0]}" max="${latest}" value="${selected.at(-1)}"></label>`;
- $('filters').innerHTML=controls;
+ $('filters').innerHTML=airNav+controls;
  const local=field('airMetric','Variable de los gráficos',['pasajeros','asientos','vuelos','ocupacion'].map(k=>[k,airMetricLabel(k)]))+field('view','Lectura de la evolución',[['index','Índice base 100'],['levels','Valores observados'],['yoy','Variación interanual (%)'],['base2019','Índice base 2019 (= 100)']]);
  const eligible=Object.keys(data).filter(k=>k!=='Argentina'&&aggregate(get(k),selected,'vuelos')>=+state.minFlights),ranking=rankItems(eligible,get,selected,state.airMetric),rank=rankPosition(ranking,'SACO'),c=val('SACO'),a=val('Argentina'),old=aggregate(get('SACO'),selected.map(previous),state.airMetric),share=state.airMetric!=='ocupacion',peer=airCompareKeys()[0];
  const coverageNote=selected.some(p=>!valid(at(get('SACO'),p).pasajeros))?' Cobertura parcial en Córdoba: el detalle suma solo los registros disponibles; los indicadores que requieren todos los meses quedan sin dato.':'';
@@ -535,14 +548,19 @@ function intlBalance(){
  opt.series=[{name:'Receptivo · entraron por el paso',type:'bar',barMaxWidth:18,data:years.map(r=>r.r),itemStyle:{color:colors[0]}},{name:'Emisivo · salieron por el paso',type:'bar',barMaxWidth:18,data:years.map(r=>r.e),itemStyle:{color:colors[1]}},{name:'Saldo (receptivo − emisivo)',type:'line',data:years.map(r=>r.saldo),symbolSize:6,lineStyle:{width:2,color:'#183c51'},itemStyle:{color:'#183c51'}}];
  return card({id:'intl-balance',title:'Balanza del turismo internacional por el aeropuerto de Córdoba',subtitle:'Aeropuerto de Córdoba · '+(years[0]?.year||'')+'–'+(years.at(-1)?.year||'')+' · '+(byUsd?'gasto en dólares corrientes':'turistas')+' · receptivo, emisivo y saldo'+(omitted.length?' · años omitidos por trimestres faltantes: '+omitted.join(', '):''),controls:field('intlBalance','Indicador',[['usd','Gasto (USD)'],['turistas','Turistas']]),option:opt,metric:byUsd?'gasto_total_usd':'turistas',unit,columns:['Año','Receptivo','Emisivo','Saldo'],rows:years.map(r=>[r.year,r.r,r.e,r.saldo]),digits:[null,0,0,0],periodText:(years[0]?.year||'')+' – '+(years.at(-1)?.year||''),method:'Gasto declarado en la ETI, en dólares corrientes. El emisivo es sensible al tipo de cambio y a la inflación en dólares; no se deflacta. El paso no identifica la residencia provincial de quien viaja. Cada año suma sus 4 trimestres; los años con trimestres faltantes se omiten.'+(omitted.length?' Omitidos: '+omitted.join(', ')+'.':'')});
 }
+// Panorama incrustado (página propia con sus gráficos coordinados) o análisis detallado con filtros.
+function modeNav(key,label){return `<nav class="hotel-tabs" aria-label="${esc(label)}">${[['panorama','Panorama'],['detail','Análisis detallado']].map(([v,l])=>`<button data-set="${key}" data-value="${v}" class="${state[key]===v?'active':''}" aria-pressed="${state[key]===v}">${l}</button>`).join('')}</nav>`;}
+function panoramaFrame(id,page,stateKey,srcdoc,title){$('dashboard').innerHTML=`<iframe id="${id}" class="aloj-frame" title="${esc(title)}" data-state="${esc(state[stateKey]||'')}"${srcdoc?'':` src="${page}"`}></iframe>`;if(srcdoc)$(id).srcdoc=srcdoc;}
 function renderInternational(){
  const ps=intlPeriod(),scopes=intlScopes(),last=intlQuarters().at(-1),caption=ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),true):label(ps[0],true);
  current={family:'eti',quarter:true,period:ps.at(-1),latest:last};
+ const intlNav=modeNav('intlMode','Vistas de mercados internacionales');
+ if(state.intlMode!=='detail'){$('filters').innerHTML=intlNav;panoramaFrame('mercados-frame','mercados.html','mercadosView',window.MERCADOS_SRCDOC,'Panorama de los mercados internacionales de Córdoba');return;}
  // 1. Franja: sentido, comparadores (fichas activables) y período del análisis.
  let controls=field('flow','Sentido',[['receptivo','Receptivo · entraron al país por el paso'],['emisivo','Emisivo · salieron del país por el paso']],{wide:true})+chipCompare('intlCompare',INTL_PEERS.map(k=>[k,gateLabel(k)]),intlCompareKeys(),gateLabel,[],[],{toggle:true});
  controls+=field('intlPreset','Período del análisis',[['year','Año completo'],['4q','Últimos 4 trimestres'],['latest','Último trimestre']]);
  if(state.intlPreset==='year')controls+=field('intlYear','Año',intlYears());
- $('filters').innerHTML=controls;
+ $('filters').innerHTML=intlNav+controls;
  const agg=(g,flow=state.flow,q=ps)=>model.internationalPeriod(g,flow,q),metric=state.intlMetric,co=agg('Aep. Córdoba'),old=agg('Aep. Córdoba',state.flow,ps.map(previous)),peer=scopes[1];
  const local=field('intlMetric','Indicador',metricOptions(['turistas','pernoctes','estadia_media','gasto_por_turista_usd','gasto_diario_usd']))+field('view','Lectura',[['levels','Valores observados'],['index','Índice base 100'],['yoy','Variación interanual (%)']]);
  // Concepto que gobierna la sección: el paso no es el destino.
@@ -583,11 +601,13 @@ function internalShareByYear(){
 function renderInternal(){
  const ps=internalPeriod(),last=internalQuarters().at(-1),caption=ps.length>1?label(ps[0],true)+' – '+label(ps.at(-1),true):label(ps[0],true),regions=INTERNAL_REGIONS();
  current={family:'evyth',quarter:true,period:ps.at(-1),latest:last};
+ const internalNav=modeNav('internalMode','Vistas de turismo interno');
+ if(state.internalMode!=='detail'){$('filters').innerHTML=internalNav;panoramaFrame('interno-frame','interno.html','internoView',window.INTERNO_SRCDOC,'Panorama del turismo interno en Córdoba');return;}
  // 1. Franja: comparadores (regiones de destino; Argentina como referencia) y período del análisis.
  let controls=chipCompare('internalCompare',regions.map(k=>[k,k]),internalAllKeys(),internalName,[['Todas las regiones',internalAllKeys().includes('Argentina')?[...regions,'Argentina']:regions]],[['Argentina',INTERNAL_REFERENCE_LABEL,internalRelative()]]);
  controls+=field('internalPreset','Período del análisis',[['latest','Último trimestre'],['4q','Últimos 4 trimestres'],['year','Año completo']]);
  if(state.internalPreset==='year')controls+=field('internalYear','Año',internalYears());
- $('filters').innerHTML=controls;
+ $('filters').innerHTML=internalNav+controls;
  // Enlaces viejos pueden traer un indicador de gasto: la evolución solo admite volumen y estadía.
  if(!INTERNAL_TREND_METRICS.includes(state.internalMetric))state.internalMetric='turistas';
  const scopes=internalScopes(),agg=(k,q=ps)=>M.evythAggregate(D.internal.scopes[k]||[],q),metric=state.internalMetric,c=agg('Córdoba'),a=agg('Argentina'),peer=internalAllKeys().find(k=>k!=='Argentina');
@@ -665,6 +685,8 @@ function render(){
   ({demand:renderDemand,air:renderAir,international:renderInternational,internal:renderInternal,sources:renderSources}[state.tab])();
   $('available-through').textContent=state.tab==='sources'?'Según cada fuente':current.latestText||label(current.latest,current.quarter);$('loaded-at').textContent='Incorporación: '+(current.loadedAt||loaded)+' (Córdoba)';
   $('active-filters').innerHTML=context().filter(Boolean).map(t=>'<span class="filter-tag">'+esc(t)+'</span>').join('');
+  // En Demanda la frase de lectura reemplaza a la franja de filtros activos.
+  $('active-filters').parentElement.hidden=state.tab==='demand'&&(state.hotelTab==='types'||state.hotelTab==='overview'&&current.family==='eoh')||state.tab==='air'&&state.airMode!=='detail'||state.tab==='international'&&state.intlMode!=='detail'||state.tab==='internal'&&state.internalMode!=='detail';
   $('footer-version').textContent='Fuentes oficiales · Apache ECharts';
   for(const c of cards.values())c.selection=context().join(' · ');
   paint();syncURL();
@@ -713,6 +735,9 @@ document.addEventListener('click',e=>{
  if('chipRemove' in b.dataset){const r=compareRegistry()[b.dataset.compareKey||'compare'];r?.set(r.all().filter(k=>k!==b.dataset.chipRemove));return;}
  if('compareSet' in b.dataset){compareRegistry()[b.dataset.compareKey||'compare']?.set(b.dataset.compareSet.split(',').filter(Boolean));return;}
  if(b.dataset.tab){state.tab=b.dataset.tab;render();return;}
+ // Atajos de período de Hotelería · Demanda: «year:2024», «12», «verano:2025».
+ if(b.dataset.hotelPeriod){const [preset,year]=b.dataset.hotelPeriod.split(':');state.hotelPreset=preset;if(year)state.hotelYear=year;render();return;}
+ if(b.dataset.scroll){$(b.dataset.scroll)?.scrollIntoView?.({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});return;}
  if(b.dataset.set){
   changeState(b.dataset.set,b.dataset.value);
   // "Analizar este mes": llevar la vista a la sección del mes del evento.
@@ -727,6 +752,14 @@ document.addEventListener('click',e=>{
  if(b.id==='method-shortcut'){state.tab='sources';render();}
 });
 window.addEventListener('resize',()=>charts.forEach(c=>c.resize()));
+// Panorama por tipo (marco incrustado): altura, estado compartible y desplazamiento a un gráfico.
+// Panorama aéreo (aereo.html): mismo protocolo, con su propia clave de estado.
+const FRAMES={aloj:['aloj-frame','alojView'],aereo:['aereo-frame','aereoView'],mercados:['mercados-frame','mercadosView'],interno:['interno-frame','internoView']};
+window.addEventListener('message',e=>{const d=e.data,m=d&&FRAMES[d.src],f=m&&$(m[0]);if(!m||!f||e.source!==f.contentWindow)return;
+ if(d.type==='height'&&d.h>200)f.style.height=d.h+'px';
+ if(d.type==='state'&&typeof d.state==='string'&&d.state.length<maxLength(m[1])){state[m[1]]=d.state;f.dataset.state=d.state;syncURL();}
+ if(d.type==='scroll'&&Number.isFinite(d.top))window.scrollTo({top:f.getBoundingClientRect().top+window.scrollY+d.top-70,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+});
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>charts.forEach(c=>c.resize())).observe($('dashboard'));
 window.addEventListener('hashchange',()=>{try{state=readSaved(JSON.parse(new URLSearchParams(location.hash.slice(1)).get('vista')||'{}'));if(!navs[state.tab])state.tab='demand';render();}catch(_){toast('El enlace de vista no es válido.');}});
 if(!D||D.schema_version!==3||!window.echarts||!window.HOTEL_DATA||!window.HotelDashboard){$('error').hidden=false;$('error').textContent='Falta un archivo del tablero. Abrí el paquete completo o la vista HTML autocontenida.';}else render();

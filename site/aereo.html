@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Conectividad aérea de Córdoba</title>
+<meta name="description" content="Pasajeros, rutas, aerolíneas y ocupación del aeropuerto de Córdoba, con lecturas que cruzan red, capacidad y turismo.">
+<script>try{if(window.parent!==window)document.documentElement.classList.add('embed');}catch(_){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="panorama.css">
+<style>
+.seg{display:inline-flex;gap:2px;background:var(--plane);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font-size:13px;color:var(--ink-2)}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--amber-soft);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;color:#4a3a14}
+.pill button{border:0;background:#fff;border-radius:999px;width:22px;height:22px;line-height:20px;color:var(--ink-2);font-size:14px}
+.pill button:hover{color:var(--down)}
+.lists{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:12px}
+.lists h3{font-size:13px;margin:0 0 6px;font-weight:650}
+.lists ul{list-style:none;margin:0;padding:0}
+.lists li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid #eef2f5;font-size:13px}
+.lists li button{border:0;background:none;padding:0;text-align:left;color:var(--ink);font-weight:500}
+.lists li button:hover{color:var(--teal-ink);text-decoration:underline}
+.lists small{color:var(--muted)}
+.route-k{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.route-k div{background:var(--plane);border-radius:10px;padding:10px 12px}
+.route-k span{display:block;font-size:11.5px;color:var(--ink-2)}
+.route-k strong{display:block;font-size:20px;letter-spacing:-.4px;font-variant-numeric:tabular-nums}
+@media(max-width:820px){.lists,.route-k{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+ <nav class="crumbs" aria-label="Ruta"><a href="index.html">Inteligencia turística</a> / <a href="index.html">Conectividad aérea</a> / Panorama</nav>
+ <div class="hero">
+  <div><p class="eyebrow">Conectividad aérea de Córdoba</p><h1>A dónde vuela Córdoba, con quién y qué tan llenos van los aviones</h1>
+  <p class="hero-sub">Pasajeros, rutas, aerolíneas y asientos del aeropuerto Ingeniero Taravella. Elegí un año, un tipo de tráfico, una aerolínea o una ruta tocando los gráficos: el resto de la página se acomoda.</p></div>
+  <div class="years"><span>Año analizado</span><div class="ychips" id="years" role="group" aria-label="Año analizado"></div></div>
+ </div>
+</div></header>
+
+<div class="bar"><div class="in"><p class="intro">Pasajeros, rutas, aerolíneas y asientos del aeropuerto de Córdoba. Elegí año y tipo de tráfico, o tocá una aerolínea o una ruta en los gráficos: el resto se acomoda.</p></div><div class="in" id="ctl" role="group" aria-label="Selección"></div></div>
+
+<main class="in">
+ <section aria-labelledby="t-k" style="margin-bottom:18px"><h2 id="t-k" class="sr"></h2><div class="kpis" id="kpis"></div><div class="focus" id="focus" hidden></div></section>
+ <section class="card" aria-labelledby="t-find" style="margin-bottom:18px"><p class="q">Radiografía</p><h2 id="t-find"></h2><ol class="find" id="find"></ol></section>
+
+ <section class="card" id="s-trend" aria-labelledby="t-trend" style="margin-bottom:18px">
+  <p class="q">¿Cómo viene?</p><h2 id="t-trend"></h2><p class="desc" id="d-trend"></p>
+  <p class="how">Pasajeros por mes (llegadas + salidas), separados en cabotaje e internacional · tocá un año para analizarlo</p>
+  <div class="chart" id="c-trend" role="img"></div>
+  <div class="foot"><span>ANAC · SIAC, procesamiento Yvera · los últimos tres meses son provisorios</span></div>
+ </section>
+
+ <div class="grid g21">
+  <section class="card" id="s-net" aria-labelledby="t-net"><p class="q">¿A dónde?</p><h2 id="t-net"></h2><p class="desc" id="d-net"></p>
+   <p class="how">Tocá una ruta para ver su detalle y filtrar aerolíneas</p>
+   <div class="legend"><span><i style="background:#2a78d6"></i>Cabotaje</span><span><i style="background:#eb6834"></i>Internacional</span></div>
+   <div class="chart l" id="c-net" role="img"></div></section>
+  <section class="card" id="s-car" aria-labelledby="t-car"><p class="q">¿Con quién?</p><h2 id="t-car"></h2><p class="desc" id="d-car"></p>
+   <p class="how">Tocá una aerolínea para ver solo su red</p><div class="chart l" id="c-car" role="img"></div></section>
+ </div>
+
+ <section class="card" id="s-route" aria-labelledby="t-route" style="margin-bottom:18px">
+  <p class="q">La ruta</p><h2 id="t-route"></h2><p class="desc" id="d-route"></p>
+  <div class="route-k" id="route-k"></div>
+  <div class="chart s" id="c-route" role="img"></div>
+ </section>
+
+ <div class="grid g2">
+  <section class="card" id="s-lf" aria-labelledby="t-lf"><p class="q">¿Sobran o faltan asientos?</p><h2 id="t-lf">Capacidad y ocupación por ruta</h2><p class="desc" id="d-lf"></p>
+   <p class="how">Más a la derecha, más asientos ofrecidos; más arriba, aviones más llenos. Arriba a la izquierda: rutas chicas y llenas, candidatas a más frecuencias</p><div class="chart l" id="c-lf" role="img"></div></section>
+  <section class="card" id="s-chg" aria-labelledby="t-chg"><p class="q">¿Qué cambió?</p><h2 id="t-chg"></h2><p class="desc" id="d-chg"></p>
+   <div class="lists" id="lists"></div>
+   <p class="note" style="font-size:12px;color:var(--muted);margin-top:10px">Ruta regular: al menos un vuelo semanal de ida y vuelta en el período (≈ 100 vuelos al año).</p></section>
+ </div>
+
+ <div class="grid g2">
+  <section class="card" id="s-rank" aria-labelledby="t-rank"><p class="q">¿Es mucho o poco?</p><h2 id="t-rank"></h2><p class="desc" id="d-rank"></p>
+   <p class="how">Pasajeros en el mismo período, aeropuertos argentinos · no responde a aerolínea ni ruta</p><div class="chart l" id="c-rank" role="img"></div></section>
+  <section class="card" id="s-cal" aria-labelledby="t-cal"><p class="q">¿Cuándo?</p><h2 id="t-cal"></h2><p class="desc" id="d-cal"></p>
+   <p class="how">Pasajeros por mes y año · tocá una fila para elegir ese año</p><div class="chart l" id="c-cal" role="img"></div></section>
+ </div>
+</main>
+<footer class="in">Fuentes: ANAC · SIAC (procesamiento Yvera), INDEC (ETI y EOH). Pasajeros = llegadas + salidas del aeropuerto de Córdoba; no equivalen a personas ni a turistas. <span class="back">· <a href="index.html">Volver al tablero completo</a></span></footer>
+
+<script src="vendor/echarts-6.0.0.min.js"></script>
+<script>(function(){var p=null;try{if(window.parent!==window&&window.parent.DASHBOARD_DATA)p=window.parent;}catch(_){}
+if(p){window.DASHBOARD_DATA=p.DASHBOARD_DATA;}else document.write('<script src="data/dashboard.js"><\/script>');})();</script>
+<script>
+(function(){
+'use strict';
+const D=window.DASHBOARD_DATA,A=D.air;
+const $=id=>document.getElementById(id);
+const REDUCED=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EMBED=document.documentElement.classList.contains('embed');
+const post=msg=>{try{window.parent.postMessage({src:'aereo',...msg},'*');}catch(_){}};
+function go(el){if(!el)return;if(EMBED)post({type:'scroll',top:el.getBoundingClientRect().top+window.scrollY});else el.scrollIntoView({behavior:REDUCED?'auto':'smooth',block:'start'});}
+const MONTHS=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const ok=v=>typeof v==='number'&&isFinite(v);
+const nf=(x,d=0)=>ok(x)?x.toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d}):'sin dato';
+const big=x=>!ok(x)?'sin dato':Math.abs(x)>=1e6?nf(x/1e6,2)+' M':Math.abs(x)>=1e4?nf(x/1e3,0)+' mil':nf(x,0);
+const pct=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' %':'sin dato';
+const pp=(x,d=1)=>ok(x)?(x>0?'+':x<0?'−':'')+nf(Math.abs(x),d)+' pp':'sin dato';
+const cls=x=>ok(x)?(x<0?'neg':'pos'):'';
+const chg=(a,b)=>ok(a)&&ok(b)&&b!==0?(a/b-1)*100:null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DOM='#2a78d6',INT='#eb6834';
+
+// ---------- rutas del aeropuerto de Córdoba (llegadas + salidas)
+const ci=Object.fromEntries(A.route_columns.map((c,i)=>[c,i]));
+const KINDS=['Cabotaje','Internacional'];
+const kindOf=r=>{const o=r[ci.origin]==='SACO'?r[ci.destination]:r[ci.origin];return A.airports[o]?.domestic===false?'Internacional':'Cabotaje';};
+const ROWS=A.route_rows.filter(r=>r[ci.origin]==='SACO'||r[ci.destination]==='SACO').map(r=>({p:r[ci.period],o:r[ci.origin]==='SACO'?r[ci.destination]:r[ci.origin],k:null,c:r[ci.carrier_index],pax:r[ci.pasajeros]||0,seats:r[ci.asientos]||0,fl:r[ci.vuelos]||0,raw:r}));
+for(const r of ROWS)r.k=kindOf(r.raw);
+const ap=k=>A.airports[k]||{};
+const city=k=>{const a=ap(k),c=a.city||k;return a.domestic===false&&a.country&&a.country!==c?c+' ('+a.country+')':c;};
+const carrier=i=>A.carriers[i]||'Otra';
+const LATEST=A.periods.at(-1);const LY=+LATEST.slice(0,4),LM=+LATEST.slice(5,7);
+const YEARS=[];for(let y=2017;y<=LY;y++)YEARS.push(y);
+const ym=(y,m)=>y+'-'+String(m+1).padStart(2,'0');
+// Período: año completo, o enero-mes más reciente en el año en curso (se compara con los mismos meses del año anterior).
+const monthsOf=y=>{const n=y===LY?LM:12;return Array.from({length:n},(_,m)=>ym(y,m));};
+const label=y=>y===LY&&LM<12?`${y} (ene–${MS[LM-1]})`:String(y);
+
+// ---------- estado
+// Por defecto, el último año completo; el año en curso se elige con su chip (ene–mes más reciente).
+let S={y:LM===12?LY:LY-1,k:'all',c:null,r:null};
+try{const raw=EMBED?(window.frameElement?.dataset?.state||''):decodeURIComponent(location.hash.slice(1));S={...S,...JSON.parse(raw||'{}')};}catch(_){}
+S.y=+S.y;if(!YEARS.includes(S.y))S.y=LY-1;
+let firstSave=true;
+const save=()=>{if(EMBED){if(firstSave){firstSave=false;return;}post({type:'state',state:JSON.stringify(S)});return;}try{history.replaceState(null,'','#'+encodeURIComponent(JSON.stringify(S)));}catch(_){}};
+const set=p=>{Object.assign(S,p);render();};
+
+// Filas filtradas por la selección (tipo, aerolínea, ruta) y período.
+function rows(y,{k=S.k,c=S.c,r=S.r,months}={}){const ms=new Set(months||monthsOf(y));return ROWS.filter(x=>ms.has(x.p)&&(k==='all'||x.k===k)&&(c===null||x.c===c)&&(r===null||x.o===r));}
+const sum=(rs,f)=>rs.reduce((a,x)=>a+x[f],0);
+// Mismo tramo de meses en otro año (para comparar el año en curso con el mismo período).
+const same=(y,y2)=>monthsOf(y).map(p=>y2+p.slice(4));
+function tot(y,opt={},y2=null){const rs=rows(y2??y,{...opt,months:y2?same(y,y2):undefined});return {pax:sum(rs,'pax'),seats:sum(rs,'seats'),fl:sum(rs,'fl'),rs};}
+const lf=t=>t.seats>0?t.pax/t.seats*100:null;
+function groupBy(rs,key){const m=new Map();for(const x of rs){const g=m.get(x[key])||{key:x[key],pax:0,seats:0,fl:0,k:x.k};g.pax+=x.pax;g.seats+=x.seats;g.fl+=x.fl;m.set(x[key],g);}return [...m.values()].sort((a,b)=>b.pax-a.pax);}
+
+// Pasajeros mensuales por aeropuerto (llegadas + salidas), para el ranking y el total nacional.
+const MON={};for(const r of A.monthly){if(!ok(r.pasajeros))continue;const k=r.scope+'|'+r.period;MON[k]=(MON[k]||0)+r.pasajeros;}
+const monPax=(scope,ms)=>{let t=0;for(const p of ms){const v=MON[scope+'|'+p];if(!ok(v))return null;t+=v;}return t;};
+
+// ---------- gráficos
+const charts={};
+const chart=id=>{if(!charts[id]||charts[id].getDom()!==$(id))charts[id]=echarts.init($(id),null,{renderer:'canvas'});return charts[id];};
+const once=(c,ev,fn)=>{c.off(ev);c.on(ev,fn);};
+const T={confine:true,backgroundColor:'#fff',borderColor:'#e1e8ed',padding:[8,12],textStyle:{color:'#14293a',fontSize:12},extraCssText:'box-shadow:0 6px 20px rgba(16,44,65,.12);border-radius:10px'};
+const AX={axisLine:{lineStyle:{color:'#d5dee4'}},axisTick:{show:false},axisLabel:{color:'#6f8592',fontSize:11},splitLine:{lineStyle:{color:'#eef2f5'}}};
+const base={animation:!REDUCED,animationDuration:300,textStyle:{fontFamily:'Inter, system-ui, sans-serif'}};
+function yearClick(c,ys){c.getZr().off('click');c.getZr().on('click',e=>{const pt=[e.offsetX,e.offsetY];if(!c.containPixel('grid',pt))return;const y=ys[Math.round(c.convertFromPixel({xAxisIndex:0},pt[0]))];if(YEARS.includes(y)&&y!==S.y)set({y});});}
+const selText=()=>[S.k!=='all'?S.k.toLowerCase():null,S.c!==null?carrier(S.c):null,S.r?'ruta a '+city(S.r):null].filter(Boolean).join(' · ');
+
+function render(){
+ save();
+ const yc=YEARS.slice(-7).map(y=>`<button class="ychip" data-y="${y}" aria-pressed="${y===S.y}">${label(y)}</button>`).join('');
+ $('years').innerHTML=yc;
+ const pills=[S.c!==null?`<span class="pill">Aerolínea: ${esc(carrier(S.c))}<button data-clear="c" aria-label="Quitar filtro de aerolínea">×</button></span>`:'',S.r?`<span class="pill">Ruta: Córdoba ↔ ${esc(city(S.r))}<button data-clear="r" aria-label="Quitar filtro de ruta">×</button></span>`:''].join('');
+ $('ctl').innerHTML=`<span class="bar-l">Tráfico</span><div class="seg" role="group" aria-label="Tipo de tráfico">${[['all','Todo'],['Cabotaje','Cabotaje'],['Internacional','Internacional']].map(([v,l])=>`<button data-k="${v}" aria-pressed="${S.k===v}">${l}</button>`).join('')}</div>${pills}<span class="hint">Aerolíneas y rutas se eligen tocando los gráficos</span>`+(EMBED?`<div class="ychips" role="group" aria-label="Año analizado">${yc}</div>`:'');
+ kpis();findings();trendChart();netChart();carChart();routeCard();lfChart();changes();rankChart();calChart();
+}
+
+function kpis(){
+ const y=S.y,t=tot(y),p=tot(y,{},y-1),p19=tot(y,{},2019);
+ const dest=new Set(groupBy(t.rs,'o').filter(g=>g.fl>=monthsOf(y).length*100/12).map(g=>g.key)).size,cars=new Set(groupBy(t.rs,'c').filter(g=>g.pax>0).map(g=>g.key)).size;
+ $('t-k').textContent='Indicadores '+label(y);
+ const K=[['Pasajeros',big(t.pax),`<span class="${cls(chg(t.pax,p.pax))}">${pct(chg(t.pax,p.pax))}</span> interanual · ${pct(chg(t.pax,p19.pax))} frente a 2019`],
+  ['Asientos ofrecidos',big(t.seats),`<span class="${cls(chg(t.seats,p.seats))}">${pct(chg(t.seats,p.seats))}</span> interanual · ${nf(t.fl,0)} vuelos`],
+  ['Ocupación de los aviones',ok(lf(t))?nf(lf(t),1)+' %':'sin dato',`<span class="${cls(lf(t)-lf(p))}">${pp(ok(lf(t))&&ok(lf(p))?lf(t)-lf(p):null)}</span> interanual · pasajeros ÷ asientos`],
+  [S.r?'Aerolíneas en la ruta':'Rutas regulares',S.r?String(cars):String(dest),S.r?`operaron en ${label(y)}`:`al menos un vuelo semanal · ${cars} aerolíneas`]];
+ $('kpis').innerHTML=K.map(([l,v,s])=>`<div class="kpi" style="--kc:${S.k==='Internacional'?INT:S.k==='Cabotaje'?DOM:'#00897b'}"><span>${l}</span><strong>${v}</strong><small>${s}</small></div>`).join('');
+ const f=$('focus');const st=selText();
+ if(st){f.hidden=false;f.innerHTML=`<b>Filtrando: ${esc(st)}.</b> Los indicadores, la radiografía y los gráficos de red, aerolíneas, ocupación y cambios muestran solo esta selección. El ranking de aeropuertos sigue mostrando el total.`;}else f.hidden=true;
+}
+
+// ---------- Radiografía: lecturas que cruzan red, capacidad y turismo
+function findings(){
+ const y=S.y,F=[],ms=monthsOf(y),t=tot(y),p=tot(y,{},y-1),p19=tot(y,{},2019);
+ const per=label(y)+(y===LY&&LM<12?' frente a los mismos meses de '+(y-1):'');
+ // 1. Volumen y recuperación frente al país
+ const ar=monPax('Argentina',ms),ar0=monPax('Argentina',same(y,y-1)),ar19=monPax('Argentina',same(y,2019)),cb=monPax('SACO',ms),cb19=monPax('SACO',same(y,2019));
+ if(!S.c&&!S.r&&S.k==='all'&&ok(cb)&&ok(cb19)&&ok(ar)&&ok(ar19))F.push({h:chg(cb,cb19)<chg(ar,ar19)?'Córdoba se recupera más lento que el país':'Córdoba se recupera más rápido que el país',p:`En ${esc(per)} pasaron <b>${big(t.pax)} pasajeros</b> (${pct(chg(t.pax,p.pax))}). Frente a 2019, Córdoba está <b class="${cls(chg(cb,cb19))}">${pct(chg(cb,cb19))}</b> y el total de aeropuertos argentinos, ${pct(chg(ar,ar19))}.`,a:'s-trend'});
+ else F.push({h:`${esc(selText()||'Selección')}: ${chg(t.pax,p.pax)>=0?'crece':'cae'} ${pct(Math.abs(chg(t.pax,p.pax)||0)).replace(/^[+−]/,'')}`,p:`<b>${big(t.pax)} pasajeros</b> en ${esc(per)}, ${pct(chg(t.pax,p.pax))} interanual y ${pct(chg(t.pax,p19.pax))} frente a 2019.`,a:'s-trend'});
+ // 2. Internacional vs cabotaje
+ if(S.k==='all'){const ti=sum(t.rs.filter(x=>x.k==='Internacional'),'pax'),pi=sum(p.rs.filter(x=>x.k==='Internacional'),'pax'),td=t.pax-ti,pd=p.pax-pi;
+  F.push({h:chg(ti,pi)>chg(td,pd)?'El crecimiento viene del tráfico internacional':'El cabotaje empuja más que el internacional',p:`El internacional ya es el <b>${nf(ti/t.pax*100,0)} %</b> de los pasajeros y varió <b class="${cls(chg(ti,pi))}">${pct(chg(ti,pi))}</b>; el cabotaje, <b class="${cls(chg(td,pd))}">${pct(chg(td,pd))}</b>. La mayoría de quienes vuelan al exterior son residentes en Argentina: el aumento internacional es sobre todo turismo emisivo (ver Panorama de alojamiento).`,a:'s-trend'});}
+ // 3. Dependencia de Buenos Aires
+ const dom=t.rs.filter(x=>x.k==='Cabotaje'),dt=sum(dom,'pax'),ba=sum(dom.filter(x=>x.o==='SABE'||x.o==='SAEZ'),'pax');
+ if(dt>0&&S.k!=='Internacional'&&!S.r){const others=groupBy(dom.filter(x=>x.o!=='SABE'&&x.o!=='SAEZ'),'o');
+  F.push({h:`${nf(ba/dt*100,0)} de cada 100 pasajeros de cabotaje vuelan a o desde Buenos Aires`,p:`El resto se reparte en ${others.length} destinos; los principales sin escala son ${others.slice(0,3).map(g=>esc(city(g.key))+' ('+big(g.pax)+')').join(', ')}. Una ruta federal directa evita la conexión por Aeroparque.`,a:'s-net'});}
+ // 4. Concentración en aerolíneas
+ const cars=groupBy(t.rs,'c');if(cars.length>1&&S.c===null){const lc=cars.filter(g=>/Flybondi|JetSMART/i.test(carrier(g.key))),lcs=sum(lc,'pax')/t.pax*100,p0=groupBy(p.rs,'c'),lcs0=sum(p0.filter(g=>/Flybondi|JetSMART/i.test(carrier(g.key))),'pax')/p.pax*100;
+  const hhi=cars.reduce((a,g)=>a+(g.pax/t.pax*100)**2,0);
+  F.push({h:`${esc(carrier(cars[0].key))} lleva ${nf(cars[0].pax/t.pax*100,0)} % de los pasajeros`,p:`Las de bajo costo (Flybondi y JetSMART) suman <b>${nf(lcs,0)} %</b> (${pp(lcs-lcs0)} interanual). Concentración ${hhi>2500?'alta':hhi>1500?'moderada':'baja'} (índice HHI ${nf(hhi,0)}): ${hhi>2500?'la oferta depende de pocas decisiones de red':'hay varias aerolíneas compitiendo'}.`,a:'s-car'});}
+ // 5. Ocupación y rutas llenas
+ const routes=groupBy(t.rs,'o').filter(g=>g.fl>=ms.length*100/12&&g.seats>0).map(g=>({...g,lf:g.pax/g.seats*100}));
+ const full=routes.filter(g=>g.lf>=85).sort((a,b)=>b.lf-a.lf),empty=routes.filter(g=>g.lf<65).sort((a,b)=>a.lf-b.lf);
+ if(routes.length)F.push({h:full.length?`${full.length} ${full.length>1?'rutas regulares viajan':'ruta regular viaja'} con más de 85 % de ocupación`:'Ninguna ruta regular supera el 85 % de ocupación',p:`${full.length?`${full.slice(0,3).map(g=>esc(city(g.key))+' ('+nf(g.lf,0)+' %)').join(', ')}: son candidatas a más frecuencias o aviones más grandes. `:''}${empty.length?`En el otro extremo, ${empty.slice(0,2).map(g=>esc(city(g.key))+' ('+nf(g.lf,0)+' %)').join(' y ')} ${empty.length>1?'vuelan':'vuela'} con muchos asientos vacíos.`:''} La ocupación general fue ${nf(lf(t),1)} %.`,a:'s-lf'});
+ // 6. Rutas ganadas y perdidas
+ const ch=routeChanges(y);if(ch.gain.length||ch.loss.length)F.push({h:`${ch.gain.length} ${ch.gain.length===1?'ruta regular nueva':'rutas regulares nuevas'} y ${ch.loss.length} ${ch.loss.length===1?'perdida':'perdidas'}`,p:`${ch.gain.length?'Ganadas: '+ch.gain.slice(0,4).map(g=>esc(city(g.key))).join(', ')+'. ':''}${ch.loss.length?'Perdidas: '+ch.loss.slice(0,4).map(g=>esc(city(g.key))).join(', ')+'.':''} Comparado con ${y-1}${y===LY&&LM<12?' en los mismos meses':''}.`,a:'s-chg'});
+ // 7. Estacionalidad aérea frente a la hotelera
+ const mp=ms.map(p=>sum(t.rs.filter(x=>x.p===p),'pax'));if(ms.length===12&&mp.every(v=>v>0)){const hi=mp.indexOf(Math.max(...mp)),lo=mp.indexOf(Math.min(...mp));
+  const nights=ms.map(p=>D.eoh.scopes['Córdoba'].find(r=>r.period===p)?.pernoctes);const hasN=nights.every(ok);const nh=hasN?Math.max(...nights)/Math.min(...nights):null;
+  F.push({h:'El avión es mucho menos estacional que el hotel',p:`El mes más fuerte (${MONTHS[hi]}) tiene ${nf(mp[hi]/mp[lo],1)} veces los pasajeros del más flojo (${MONTHS[lo]})${ok(nh)?`; en la hotelería esa relación es de ${nf(nh,1)} veces`:''}. El aeropuerto sostiene un flujo de negocios y residentes todo el año; el pico turístico de verano llega sobre todo por tierra.`,a:'s-cal'});}
+ // 8. Turistas extranjeros entre los pasajeros internacionales (ETI)
+ const eti=D.international.series.filter(r=>r.gateway==='Aep. Córdoba'&&r.flow==='receptivo'&&r.period.startsWith(y+'-')&&ok(r.turistas));
+ const arrI=ms.reduce((a,p)=>a+(D.air.monthly.find(r=>r.scope==='SACO'&&r.period===p&&r.direction==='llegadas'&&r.kind==='Internacional')?.pasajeros||0),0);
+ if(eti.length&&S.k!=='Cabotaje'&&!S.c&&!S.r){const etiMs=eti.flatMap(r=>[0,1,2].map(i=>r.period.slice(0,4)+'-'+String(+r.period.slice(5)+i).padStart(2,'0'))).filter(p=>ms.includes(p));const arr=etiMs.reduce((a,p)=>a+(D.air.monthly.find(r=>r.scope==='SACO'&&r.period===p&&r.direction==='llegadas'&&r.kind==='Internacional')?.pasajeros||0),0),rec=eti.reduce((a,r)=>a+r.turistas,0);
+  if(arr>0)F.push({h:'Pocos de los que aterrizan del exterior son turistas extranjeros',p:`En los trimestres medidos de ${y}, entraron por Córdoba <b>${big(rec)} turistas extranjeros</b> sobre ${big(arr)} pasajeros internacionales que aterrizaron: <b>${nf(rec/arr*100,0)} de cada 100</b>. Más rutas internacionales no garantizan más turismo receptivo sin promoción en origen.`,a:'s-net'});}
+ $('t-find').textContent=`Lo que dicen los datos · ${label(y)}`;
+ $('find').innerHTML=F.map(f=>`<li><div><h3>${f.h}</h3><p>${f.p} <a href="#${f.a}">Ver gráfico ↓</a></p></div></li>`).join('');
+}
+
+function routeChanges(y){
+ const n=monthsOf(y).length,th=100*n/12;
+ const cur=groupBy(rows(y,{r:null}),'o'),prev=groupBy(rows(y-1,{r:null,months:same(y,y-1)}),'o');
+ const reg=gs=>new Map(gs.filter(g=>g.fl>=th).map(g=>[g.key,g]));const a=reg(cur),b=reg(prev);
+ return {gain:[...a.values()].filter(g=>!b.has(g.key)),loss:[...b.values()].filter(g=>!a.has(g.key)),grow:[...a.values()].filter(g=>b.has(g.key)&&b.get(g.key).pax>=10000).map(g=>({...g,ch:chg(g.pax,b.get(g.key).pax)})).sort((x,z)=>z.ch-x.ch)};
+}
+
+function trendChart(){
+ const all=[];for(let o=2017*12;o<=LY*12+LM-1;o++)all.push(Math.floor(o/12)+'-'+String(o%12+1).padStart(2,'0'));
+ const sel=new Set(monthsOf(S.y));
+ const by=k=>all.map(p=>{const rs=ROWS.filter(x=>x.p===p&&x.k===k&&(S.c===null||x.c===S.c)&&(S.r===null||x.o===S.r));return rs.length?sum(rs,'pax'):0;});
+ const dom=S.k==='Internacional'?null:by('Cabotaje'),int=S.k==='Cabotaje'?null:by('Internacional');
+ const tot12=i=>{let t=0;for(let j=i-11;j<=i;j++){if(j<0)return null;t+=(dom?.[j]||0)+(int?.[j]||0);}return t;};
+ const last=all.length-1,y1=tot12(last),y0=tot12(last-12),peak=Math.max(...all.map((_,i)=>tot12(i)||0)),peakI=all.map((_,i)=>tot12(i)||0).indexOf(peak);
+ $('t-trend').textContent='Pasajeros por mes'+(selText()?' · '+selText():'');
+ $('d-trend').innerHTML=`En los últimos 12 meses (a ${MONTHS[LM-1]} de ${LY}) pasaron <b>${big(y1)}</b> pasajeros, <b class="${cls(chg(y1,y0))}">${pct(chg(y1,y0))}</b> frente a los 12 meses anteriores. El máximo de 12 meses de la serie fue ${big(peak)} (a ${MONTHS[+all[peakI].slice(5)-1]} de ${all[peakI].slice(0,4)}): hoy está ${pct(chg(y1,peak))} de ese récord.`;
+ const c=chart('c-trend');c.clear();
+ const ser=[];if(dom)ser.push({name:'Cabotaje',type:'bar',stack:'t',data:dom.map((v,i)=>({value:v,itemStyle:{color:DOM,opacity:sel.has(all[i])?1:.4}})),itemStyle:{color:DOM},barCategoryGap:'18%'});
+ if(int)ser.push({name:'Internacional',type:'bar',stack:'t',data:int.map((v,i)=>({value:v,itemStyle:{color:INT,opacity:sel.has(all[i])?1:.4}})),itemStyle:{color:INT}});
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>{const p=all[ps[0].dataIndex];const t=ps.reduce((a,x)=>a+(x.value||0),0);return `<b>${MONTHS[+p.slice(5)-1]} ${p.slice(0,4)}</b>`+ps.map(x=>`<br>${x.marker}${x.seriesName}: <b>${nf(x.value,0)}</b>`).join('')+(ps.length>1?`<br>Total: <b>${nf(t,0)}</b> · internacional ${nf((ps[1]?.value||0)/t*100,0)} %`:'');}},
+  xAxis:{type:'category',data:all,...AX,axisLabel:{...AX.axisLabel,interval:0,formatter:p=>p.endsWith('-01')?p.slice(0,4):''}},
+  yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e3?nf(v/1e3,0)+' mil':v}},series:ser});
+ yearClick(c,all.map(p=>+p.slice(0,4)));
+}
+
+function netChart(){
+ const y=S.y,t=tot(y,{r:null}),p=tot(y,{r:null},y-1),g=groupBy(t.rs,'o'),gp=new Map(groupBy(p.rs,'o').map(x=>[x.key,x])),top=g.slice(0,18);
+ $('t-net').textContent=`Destinos desde Córdoba · ${label(y)}`;
+ const dom=g.filter(x=>x.k==='Cabotaje'),int=g.filter(x=>x.k==='Internacional'),grow=top.map(x=>({...x,ch:chg(x.pax,gp.get(x.key)?.pax)})).filter(x=>ok(x.ch)&&x.pax>20000&&(gp.get(x.key)?.pax||0)>=10000).sort((a,b)=>b.ch-a.ch);
+ $('d-net').innerHTML=g.length?`${g.length} destinos con pasajeros: ${dom.length} en Argentina y ${int.length} en el exterior. <b>${esc(city(g[0].key))}</b> concentra ${nf(g[0].pax/t.pax*100,0)} %.${grow.length?` El que más crece: ${esc(city(grow[0].key))} (${pct(grow[0].ch)}); el que más cae: ${esc(city(grow.at(-1).key))} (${pct(grow.at(-1).ch)}).`:''}`:'Sin pasajeros para esta selección.';
+ const c=chart('c-net');c.clear();
+ c.setOption({...base,grid:{left:8,right:96,top:6,bottom:6,containLabel:true},
+  tooltip:{...T,formatter:x=>{const r=top[x.dataIndex],q=gp.get(r.key);return `<b>Córdoba ↔ ${esc(city(r.key))}</b> · ${r.k.toLowerCase()}<br>${nf(r.pax,0)} pasajeros · ${nf(r.fl,0)} vuelos<br>Ocupación ${nf(r.pax/r.seats*100,1)} %${q?`<br>${pct(chg(r.pax,q.pax))} frente a ${y-1}`:'<br>Sin vuelos el año anterior'}<br><span style="color:#6f8592">Tocá para ver el detalle</span>`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:top.map(x=>city(x.key)),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,width:150,overflow:'truncate'}},
+  series:[{type:'bar',barWidth:'62%',cursor:'pointer',data:top.map(x=>({value:x.pax,itemStyle:{color:x.k==='Cabotaje'?DOM:INT,opacity:S.r&&S.r!==x.key?.3:1,borderRadius:[0,4,4,0]}})),
+   label:{show:true,position:'right',fontSize:11,color:'#46606f',formatter:x=>{const r=top[x.dataIndex],q=gp.get(r.key);const v=chg(r.pax,q?.pax);return big(x.value)+(ok(v)?'  '+pct(v,0):'  nueva');}}}]});
+ once(c,'click',e=>{const k=top[e.dataIndex]?.key;if(k){set({r:S.r===k?null:k});if(S.r)go($('s-route'));}});
+}
+
+function carChart(){
+ const y=S.y,t=tot(y,{c:null}),p=tot(y,{c:null},y-1),g=groupBy(t.rs,'c').filter(x=>x.pax>0),gp=new Map(groupBy(p.rs,'c').map(x=>[x.key,x])),top=g.slice(0,10);
+ $('t-car').textContent=`Aerolíneas · ${label(y)}`+(S.r?' · ruta a '+city(S.r):'');
+ $('d-car').innerHTML=g.length?`${g.length} ${g.length===1?'aerolínea':'aerolíneas'} ${S.r?'en esta ruta':'con pasajeros'}. ${esc(carrier(g[0].key))} lidera con ${nf(g[0].pax/t.pax*100,0)} %${g[1]?`, seguida por ${esc(carrier(g[1].key))} (${nf(g[1].pax/t.pax*100,0)} %)`:''}.${(()=>{const n=g.filter(x=>!gp.has(x.key)&&x.pax>1000);return n.length?` Nuevas frente a ${y-1}: ${n.map(x=>esc(carrier(x.key))).join(', ')}.`:'';})()}`:'Sin pasajeros para esta selección.';
+ const c=chart('c-car');c.clear();
+ c.setOption({...base,grid:{left:8,right:96,top:6,bottom:6,containLabel:true},
+  tooltip:{...T,formatter:x=>{const r=top[x.dataIndex],q=gp.get(r.key);return `<b>${esc(carrier(r.key))}</b><br>${nf(r.pax,0)} pasajeros (${nf(r.pax/t.pax*100,1)} %)<br>Ocupación ${nf(r.pax/r.seats*100,1)} %${q?`<br>${pct(chg(r.pax,q.pax))} frente a ${y-1}`:''}`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:top.map(x=>carrier(x.key)),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,width:140,overflow:'truncate'}},
+  series:[{type:'bar',barWidth:'62%',cursor:'pointer',data:top.map(x=>({value:x.pax/t.pax*100,itemStyle:{color:S.c===x.key?'#14293a':'#00897b',opacity:S.c!==null&&S.c!==x.key?.3:1,borderRadius:[0,4,4,0]}})),
+   label:{show:true,position:'right',fontSize:11,color:'#46606f',formatter:x=>{const r=top[x.dataIndex],q=gp.get(r.key);return nf(x.value,1)+' %'+(q?'  '+pct(chg(r.pax,q.pax),0):'  nueva');}}}]});
+ once(c,'click',e=>{const k=top[e.dataIndex]?.key;if(k!==undefined)set({c:S.c===k?null:k});});
+}
+
+function routeCard(){
+ const y=S.y,ms=monthsOf(y),key=S.r;
+ const t=tot(y),p=tot(y,{},y-1);
+ $('t-route').textContent=key?`Córdoba ↔ ${city(key)} · ${label(y)}`:`Todas las rutas${selText()?' · '+selText():''} · ${label(y)}`;
+ const mp=ms.map(m=>sum(t.rs.filter(x=>x.p===m),'pax')),mpp=ms.map(m=>sum(p.rs.filter(x=>x.p===(y-1)+m.slice(4)),'pax')),seat=ms.map(m=>sum(t.rs.filter(x=>x.p===m),'seats'));
+ const lfm=mp.map((v,i)=>seat[i]>0?v/seat[i]*100:null),hi=lfm.indexOf(Math.max(...lfm.filter(ok)));
+ const cars=groupBy(t.rs,'c');
+ $('d-route').innerHTML=key?`${ap(key).domestic===false?'Ruta internacional':'Ruta de cabotaje'} operada por ${cars.map(g=>esc(carrier(g.key))+' ('+nf(g.pax/t.pax*100,0)+' %)').join(', ')||'—'}. ${ok(lfm[hi])?`El mes más lleno fue ${MONTHS[hi]} (${nf(lfm[hi],0)} % de ocupación).`:''} Tocá la misma ruta en «Destinos» para volver al total.`:'Elegí una ruta en «Destinos» o en el gráfico de ocupación para ver su detalle. Mientras tanto, se muestra el total de la selección.';
+ const per=t.fl>0?t.pax/t.fl:null;
+ $('route-k').innerHTML=[['Pasajeros',big(t.pax),pct(chg(t.pax,p.pax))+' interanual'],['Vuelos',nf(t.fl,0),nf(t.fl/(ms.length*30.4)*7,1)+' por semana'],['Ocupación',ok(lf(t))?nf(lf(t),1)+' %':'sin dato',pp(ok(lf(t))&&ok(lf(p))?lf(t)-lf(p):null)+' interanual'],['Pasajeros por vuelo',nf(per,0),'tamaño medio de la operación']].map(([l,v,s])=>`<div><span>${l}</span><strong>${v}</strong><span>${s}</span></div>`).join('');
+ const c=chart('c-route');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:34,bottom:6,containLabel:true},legend:{top:0,left:0,icon:'roundRect',itemWidth:12,itemHeight:8,textStyle:{fontSize:12}},
+  tooltip:{...T,trigger:'axis',axisPointer:{type:'shadow'},formatter:ps=>{const i=ps[0].dataIndex;return `<b>${MONTHS[i]}</b>`+ps.map(x=>`<br>${x.marker}${x.seriesName}: <b>${nf(x.value,0)}</b>`).join('')+(ok(lfm[i])?`<br>Ocupación ${y}: ${nf(lfm[i],1)} %`:'');}},
+  xAxis:{type:'category',data:MS.slice(0,ms.length),...AX},yAxis:{type:'value',...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:v=>v>=1e3?nf(v/1e3,0)+' mil':v}},
+  series:[{name:String(y),type:'bar',barWidth:'46%',data:mp,itemStyle:{color:key?(ap(key).domestic===false?INT:DOM):'#00897b',borderRadius:[4,4,0,0]}},{name:String(y-1),type:'line',data:mpp,symbol:'circle',symbolSize:6,lineStyle:{color:'#9fb3bf',width:1.6,type:[4,4]},itemStyle:{color:'#9fb3bf'}}]});
+}
+
+function lfChart(){
+ const y=S.y,ms=monthsOf(y),th=100*ms.length/12,g=groupBy(tot(y,{r:null}).rs,'o').filter(x=>x.fl>=th/2&&x.seats>0).map(x=>({...x,lf:x.pax/x.seats*100}));
+ const avg=g.reduce((a,x)=>a+x.pax,0)/g.reduce((a,x)=>a+x.seats,0)*100;
+ const full=g.filter(x=>x.lf>=85&&x.seats<g.reduce((a,b)=>a+b.seats,0)/g.length).sort((a,b)=>b.lf-a.lf);
+ $('d-lf').innerHTML=g.length?`Ocupación media de ${nf(avg,1)} %. ${full.length?`Rutas chicas y llenas: <b>${full.slice(0,4).map(x=>esc(city(x.key))+' ('+nf(x.lf,0)+' %)').join(', ')}</b>.`:'No hay rutas chicas por encima del 85 %.'} Las burbujas grandes de la derecha son las rutas troncales: allí un punto de ocupación equivale a miles de pasajeros.`:'Sin rutas con vuelos suficientes en la selección.';
+ const c=chart('c-lf');c.clear();
+ c.setOption({...base,grid:{left:56,right:24,top:20,bottom:48},
+  tooltip:{...T,formatter:x=>{const r=g[x.dataIndex];return `<b>Córdoba ↔ ${esc(city(r.key))}</b><br>${nf(r.seats,0)} asientos · ${nf(r.pax,0)} pasajeros<br>Ocupación: <b>${nf(r.lf,1)} %</b> · ${nf(r.fl,0)} vuelos`;}},
+  xAxis:{type:'log',name:'Asientos ofrecidos (escala logarítmica)',nameLocation:'middle',nameGap:30,nameTextStyle:{color:'#46606f',fontSize:12},...AX,axisLabel:{...AX.axisLabel,formatter:v=>v>=1e3?nf(v/1e3,0)+' mil':v}},
+  yAxis:{type:'value',name:'Ocupación',nameTextStyle:{color:'#46606f',fontSize:12,align:'left'},...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,formatter:'{value} %'},min:v=>Math.max(0,Math.floor(v.min/10)*10),max:100},
+  series:[{type:'scatter',cursor:'pointer',data:g.map(x=>({value:[x.seats,x.lf],itemStyle:{color:x.k==='Cabotaje'?DOM:INT,opacity:S.r&&S.r!==x.key?.25:.85,borderColor:'#fff',borderWidth:1.5}})),symbolSize:(v,p)=>8+Math.sqrt(g[p.dataIndex].pax)/18,
+   label:{show:true,position:'right',fontSize:11,color:'#46606f',formatter:x=>{const r=g[x.dataIndex];return r.pax>=g.map(z=>z.pax).sort((a,b)=>b-a)[Math.min(7,g.length-1)]||r.lf>=88?city(r.key).replace(/ \(.*\)/,''):'';}},
+   markLine:{silent:true,symbol:'none',lineStyle:{color:'#14293a',type:[4,3],opacity:.5},label:{formatter:'85 %',fontSize:11,color:'#46606f'},data:[{yAxis:85}]}}]});
+ once(c,'click',e=>{const k=g[e.dataIndex]?.key;if(k){set({r:S.r===k?null:k});if(S.r)go($('s-route'));}});
+}
+
+function changes(){
+ const y=S.y,ch=routeChanges(y);
+ $('t-chg').textContent=`Rutas regulares ganadas y perdidas · ${label(y)} vs ${y-1}`;
+ const up=ch.grow.filter(x=>ok(x.ch)).slice(0,3),down=ch.grow.filter(x=>ok(x.ch)).slice(-3).reverse();
+ $('d-chg').innerHTML=`${ch.gain.length} ${ch.gain.length===1?'ruta nueva':'rutas nuevas'} y ${ch.loss.length} ${ch.loss.length===1?'perdida':'perdidas'}${selText()?' para '+esc(selText()):''}. Entre las que siguen, crecen más ${up.map(x=>esc(city(x.key))+' ('+pct(x.ch,0)+')').join(', ')||'—'} y caen más ${down.filter(x=>x.ch<0).map(x=>esc(city(x.key))+' ('+pct(x.ch,0)+')').join(', ')||'ninguna'}.`;
+ const li=(g,extra)=>`<li><button data-route="${esc(g.key)}">${esc(city(g.key))}</button><small>${extra}</small></li>`;
+ $('lists').innerHTML=`<div><h3 class="pos">Ganadas (${ch.gain.length})</h3><ul>${ch.gain.slice(0,8).map(g=>li(g,big(g.pax)+' pasajeros')).join('')||'<li><small>Ninguna</small></li>'}</ul></div><div><h3 class="neg">Perdidas (${ch.loss.length})</h3><ul>${ch.loss.slice(0,8).map(g=>li(g,big(g.pax)+' en '+(y-1))).join('')||'<li><small>Ninguna</small></li>'}</ul></div>`;
+}
+
+function rankChart(){
+ const y=S.y,ms=monthsOf(y),scopes=Object.keys(A.airports).filter(k=>A.airports[k].domestic&&MON[k+'|'+ms[0]]!==undefined);
+ const rk=scopes.map(k=>({k,v:monPax(k,ms)})).filter(x=>ok(x.v)&&x.v>0).sort((a,b)=>b.v-a.v),ar=monPax('Argentina',ms),pos=rk.findIndex(x=>x.k==='SACO')+1,show=rk.slice(0,12);
+ if(pos>12)show.push(rk[pos-1]);
+ const v19=k=>monPax(k,same(y,2019));
+ $('t-rank').textContent=`Aeropuertos argentinos · ${label(y)}`;
+ const better=rk.filter(x=>x.k!=='SACO'&&ok(v19(x.k))&&v19(x.k)>200000&&chg(x.v,v19(x.k))>chg(rk[pos-1]?.v,v19('SACO'))+2);
+ $('d-rank').innerHTML=pos?`Córdoba es el <b>${pos}º aeropuerto del país</b>, con ${nf(rk[pos-1].v/ar*100,1)} % de los pasajeros. Frente a 2019 está ${pct(chg(rk[pos-1].v,v19('SACO')))}; ${better.length?`${better.slice(0,3).map(x=>esc(A.airports[x.k].city)+' ('+pct(chg(x.v,v19(x.k)),0)+')').join(', ')} se recuperaron mejor.`:'ningún aeropuerto grande se recuperó mejor.'}`:'Sin datos.';
+ const c=chart('c-rank');c.clear();
+ c.setOption({...base,grid:{left:8,right:96,top:6,bottom:6,containLabel:true},tooltip:{...T,formatter:x=>{const r=show[x.dataIndex];return `<b>${esc(A.airports[r.k].city)}</b> · ${r.k}<br>${nf(r.v,0)} pasajeros (${nf(r.v/ar*100,1)} % del país)<br>${pct(chg(r.v,v19(r.k)))} frente a 2019`;}},
+  xAxis:{type:'value',show:false},yAxis:{type:'category',inverse:true,data:show.map(x=>(rk.indexOf(x)+1)+'. '+A.airports[x.k].city),...AX,axisLine:{show:false},axisLabel:{...AX.axisLabel,color:'#14293a',fontSize:12,width:160,overflow:'truncate'}},
+  series:[{type:'bar',barWidth:'62%',data:show.map(x=>({value:x.v,itemStyle:{color:x.k==='SACO'?'#00897b':'#cfdbe2',borderRadius:[0,4,4,0]}})),label:{show:true,position:'right',fontSize:11,color:'#46606f',formatter:x=>{const r=show[x.dataIndex];const v=chg(r.v,v19(r.k));return big(r.v)+(ok(v)?'  '+pct(v,0)+' vs 2019':'');}}}]});
+}
+
+function calChart(){
+ const years=YEARS.filter(y=>y!==2020&&y!==2021),data=[];
+ years.forEach((y,yi)=>{for(let m=0;m<12;m++){const p=ym(y,m);if(p>LATEST)continue;const rs=ROWS.filter(x=>x.p===p&&(S.k==='all'||x.k===S.k)&&(S.c===null||x.c===S.c)&&(S.r===null||x.o===S.r));data.push({value:[m,yi,sum(rs,'pax')],y});}});
+ const vals=data.map(d=>d.value[2]).filter(v=>v>0),cur=data.filter(d=>d.y===S.y).map(d=>d.value[2]);
+ $('t-cal').textContent='Calendario de pasajeros'+(selText()?' · '+selText():'');
+ const hi=cur.indexOf(Math.max(...cur)),lo=cur.indexOf(Math.min(...cur.filter(v=>v>0)));
+ $('d-cal').innerHTML=cur.length?`En ${label(S.y)}, el mes más fuerte fue <b>${MONTHS[hi]}</b> y el más flojo, <b>${MONTHS[lo]}</b> (${nf(cur[hi]/cur[lo],1)} veces). 2020 y 2021 no se muestran: el aeropuerto estuvo casi cerrado por la pandemia.`:'';
+ const c=chart('c-cal');c.clear();
+ c.setOption({...base,grid:{left:8,right:12,top:6,bottom:44,containLabel:true},
+  tooltip:{...T,formatter:p=>`<b>${MONTHS[p.data.value[0]]} ${p.data.y}</b><br>${nf(p.data.value[2],0)} pasajeros`},
+  xAxis:{type:'category',data:MS,...AX,axisLine:{show:false}},yAxis:{type:'category',data:years.map(String),inverse:true,...AX,axisLine:{show:false},triggerEvent:true,axisLabel:{...AX.axisLabel,color:'#14293a',fontWeight:600,formatter:v=>+v===S.y?'{b|'+v+'}':v,rich:{b:{color:'#00695f',fontWeight:700}}}},
+  visualMap:{min:Math.min(...vals),max:Math.max(...vals),orient:'horizontal',left:'center',bottom:0,itemHeight:200,itemWidth:12,text:['más','menos'],textStyle:{fontSize:11,color:'#6f8592'},inRange:{color:['#eef4fb','#b5d4f4','#5598e7','#1c5cab','#0d366b']},formatter:v=>big(v)},
+  series:[{type:'heatmap',data:data.map(d=>({...d,itemStyle:{borderColor:d.y===S.y?'#14293a':'#fff',borderWidth:d.y===S.y?1.2:2}})),label:{show:false}}]});
+ once(c,'click',e=>{const y=e.componentType==='yAxis'?+e.value:e.data?.y;if(YEARS.includes(y))set({y});});
+}
+
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#s-"]');if(a){e.preventDefault();go($(a.getAttribute('href').slice(1)));return;}
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.y){set({y:+b.dataset.y});return;}
+ if(b.dataset.k){const k=b.dataset.k,rk=S.r?(ap(S.r).domestic===false?'Internacional':'Cabotaje'):null;set({k,r:rk&&k!=='all'&&rk!==k?null:S.r});return;}
+ if(b.dataset.clear){set({[b.dataset.clear]:null});return;}
+ if(b.dataset.route){set({r:b.dataset.route});go($('s-route'));return;}
+});
+window.addEventListener('resize',()=>Object.values(charts).forEach(c=>c.resize()));
+if(EMBED){let last=0;const tell=()=>{const h=Math.ceil(document.body.getBoundingClientRect().height)+4;if(Math.abs(h-last)>2){last=h;post({type:'height',h});}};
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(tell).observe(document.body);window.addEventListener('load',tell);setTimeout(tell,300);}
+if(!D||!window.echarts){$('find').innerHTML='<li><div><h3>Falta un archivo del tablero</h3><p>Abrí el paquete completo.</p></div></li>';}else render();
+})();
+</script>
+</body>
+</html>

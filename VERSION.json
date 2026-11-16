@@ -1,6 +1,6 @@
 {
-  "package": "turismo-acc-vercel",
-  "package_date": "2026-11-11",
+  "package": "turismo-acc",
+  "package_date": "2026-11-16",
   "source_commit": "8c80efe310d32058bbafa9c95d798bc16313b94f",
   "dashboard_matches_previous_html": false,
   "publish_directory": "site",
@@ -9,5 +9,7 @@
   "documented_events": 70,
   "verified_events": 4,
   "data_refreshed_for_this_package": false,
-  "supply_snapshot_year": 2021
+  "supply_snapshot_year": 2021,
+  "previous_package_date": "2026-11-11",
+  "changes": "Panoramas interactivos por sección (demanda.html, aereo.html, mercados.html, interno.html); análisis anterior disponible como «Análisis detallado»."
 }
